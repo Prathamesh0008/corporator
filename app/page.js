@@ -19,33 +19,33 @@ export default function HomePage() {
 
   const slides = [
     {
-      title: language === "en" ? "Service is Commitment" : "à¤¸à¥‡à¤µà¤¾ à¤¹à¥€ à¤¸à¤‚à¤•à¤²à¥à¤ª",
+      title: language === "en" ? "Service is Commitment" : "सेवा ही संकल्प",
       subtitle: language === "en" 
         ? "Corporator Sachin Lavate - Representative of Ward 24(D)" 
-        : "à¤¨à¤—à¤°à¤¸à¥‡à¤µà¤• à¤¸à¤šà¤¿à¤¨ à¤²à¤µà¤Ÿà¥‡ - à¤µà¥‰à¤°à¥à¤¡ à¥¨à¥ª(à¤¡) à¤šà¥‡ à¤ªà¥à¤°à¤¤à¤¿à¤¨à¤¿à¤§à¥€",
-      cta: language === "en" ? "Learn More About Me" : "à¤®à¤¾à¤à¥à¤¯à¤¾à¤¬à¤¦à¥à¤¦à¤² à¤…à¤§à¤¿à¤•",
+        : "नगरसेवक सचिन लवटे - वॉर्ड २४(ड) चे प्रतिनिधी",
+      cta: language === "en" ? "Learn More About Me" : "माझ्याबद्दल अधिक",
       ctaLink: "/about",
       theme: {
         bg: "linear-gradient(135deg, #0F6F9C, #0B6E4F, #FF9933)"
       }
     },
     {
-      title: language === "en" ? "A New Chapter of Development" : "à¤µà¤¿à¤•à¤¾à¤¸à¤¾à¤šà¤¾ à¤¨à¤µà¤¾ à¤…à¤§à¥à¤¯à¤¾à¤¯",
+      title: language === "en" ? "A New Chapter of Development" : "विकासाचा नवा अध्याय",
       subtitle: language === "en" 
         ? "Transforming Ward 24(D) with focused development" 
-        : "à¤¨à¥‡à¤°à¥‚à¤³ à¤¸à¥‡à¤•à¥à¤Ÿà¤° à¥§à¥® à¤šà¥‡ à¤°à¥‚à¤ªà¤¾à¤‚à¤¤à¤°",
-      cta: language === "en" ? "View Development Works" : "à¤µà¤¿à¤•à¤¾à¤¸ à¤•à¤¾à¤°à¥à¤¯à¥‡ à¤ªà¤¹à¤¾",
+        : "नेरूळ सेक्टर १८ चे रूपांतर",
+      cta: language === "en" ? "View Development Works" : "विकास कार्ये पहा",
       ctaLink: "/works",
       theme: {
         bg: "linear-gradient(135deg, #1B4332, #0B6E4F, #2B9348)"
       }
     },
     {
-      title: language === "en" ? "Development for All" : "à¤¸à¤°à¥à¤µà¤¾à¤‚à¤šà¤¾ à¤µà¤¿à¤•à¤¾à¤¸",
+      title: language === "en" ? "Development for All" : "सर्वांचा विकास",
       subtitle: language === "en" 
         ? "Sabka Saath, Sabka Vikas, Sabka Vishwas" 
-        : "à¤¸à¤¬à¤•à¤¾ à¤¸à¤¾à¤¥, à¤¸à¤¬à¤•à¤¾ à¤µà¤¿à¤•à¤¾à¤¸, à¤¸à¤¬à¤•à¤¾ à¤µà¤¿à¤¶à¥à¤µà¤¾à¤¸",
-      cta: language === "en" ? "Access Services" : "à¤¸à¥‡à¤µà¤¾ à¤®à¤¿à¤³à¤µà¤¾",
+        : "सबका साथ, सबका विकास, सबका विश्वास",
+      cta: language === "en" ? "Access Services" : "सेवा मिळवा",
       ctaLink: "/services",
       theme: {
         bg: "linear-gradient(135deg, #0066B3, #0F6F9C, #FF6600)"
@@ -63,59 +63,59 @@ export default function HomePage() {
   const services = [
     { 
       icon: <GiWaterTank className="w-8 h-8" />, 
-      title: language === "en" ? "Water Supply" : "à¤ªà¤¾à¤£à¥€à¤ªà¥à¤°à¤µà¤ à¤¾", 
+      title: language === "en" ? "Water Supply" : "पाणीपुरवठा", 
       description: language === "en" 
         ? "New connections, complaint resolution" 
-        : "à¤¨à¤µà¥€à¤¨ à¤•à¤¨à¥‡à¤•à¥à¤¶à¤¨, à¤¤à¤•à¥à¤°à¤¾à¤° à¤¨à¤¿à¤µà¤¾à¤°à¤£",
+        : "नवीन कनेक्शन, तक्रार निवारण",
       link: "/services#water"
     },
     { 
       icon: <GiRoad className="w-8 h-8" />, 
-      title: language === "en" ? "Roads & Footpaths" : "à¤°à¤¸à¥à¤¤à¥‡ à¤µ à¤«à¥à¤Ÿà¤ªà¤¾à¤¥", 
+      title: language === "en" ? "Roads & Footpaths" : "रस्ते व फुटपाथ", 
       description: language === "en" 
         ? "Repair, widening, maintenance" 
-        : "à¤¦à¥à¤°à¥à¤¸à¥à¤¤à¥€, à¤°à¥à¤‚à¤¦à¥€à¤•à¤°à¤£, à¤¦à¥‡à¤–à¤­à¤¾à¤²",
+        : "दुरुस्ती, रुंदीकरण, देखभाल",
       link: "/services#roads"
     },
     { 
       icon: <GiStreetLight className="w-8 h-8" />, 
-      title: language === "en" ? "Street Lights" : "à¤¸à¥à¤Ÿà¥à¤°à¥€à¤Ÿ à¤²à¤¾à¤‡à¤Ÿ", 
+      title: language === "en" ? "Street Lights" : "स्ट्रीट लाइट", 
       description: language === "en" 
         ? "LED installation, repairs" 
-        : "à¤à¤²à¤ˆà¤¡à¥€ à¤¸à¥à¤¥à¤¾à¤ªà¤¨à¤¾, à¤¦à¥à¤°à¥à¤¸à¥à¤¤à¥€",
+        : "एलईडी स्थापना, दुरुस्ती",
       link: "/services#lights"
     },
     { 
       icon: <GiHealthNormal className="w-8 h-8" />, 
-      title: language === "en" ? "Health Services" : "à¤†à¤°à¥‹à¤—à¥à¤¯ à¤¸à¥‡à¤µà¤¾", 
+      title: language === "en" ? "Health Services" : "आरोग्य सेवा", 
       description: language === "en" 
         ? "Medical camps, healthcare assistance" 
-        : "à¤µà¥ˆà¤¦à¥à¤¯à¤•à¥€à¤¯ à¤¶à¤¿à¤¬à¤¿à¤°à¥‡, à¤†à¤°à¥‹à¤—à¥à¤¯ à¤®à¤¦à¤¤",
+        : "वैद्यकीय शिबिरे, आरोग्य मदत",
       link: "/services#health"
     }
   ];
 
   const announcements = [
     { 
-      title: language === "en" ? "Water Cut Schedule" : "à¤ªà¤¾à¤£à¥€ à¤•à¤Ÿ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾à¤ªà¤¨", 
-      date: language === "en" ? "15 March 2024" : "à¥§à¥« à¤®à¤¾à¤°à¥à¤š à¥¨à¥¦à¥¨à¥ª",
+      title: language === "en" ? "Water Cut Schedule" : "पाणी कट व्यवस्थापन", 
+      date: language === "en" ? "15 March 2024" : "१५ मार्च २०२४",
       description: language === "en" 
         ? "New water cut schedule announced" 
-        : "à¤ªà¤¾à¤£à¥€ à¤•à¤Ÿà¤šà¥‡ à¤¨à¤µà¥€à¤¨ à¤µà¥‡à¤³à¤¾à¤ªà¤¤à¥à¤°à¤• à¤œà¤¾à¤°à¥€"
+        : "पाणी कटचे नवीन वेळापत्रक जारी"
     },
     { 
-      title: language === "en" ? "Cleanliness Drive" : "à¤¸à¥à¤µà¤šà¥à¤›à¤¤à¤¾ à¤®à¥‹à¤¹à¥€à¤®", 
-      date: language === "en" ? "20 March 2024" : "à¥¨à¥¦ à¤®à¤¾à¤°à¥à¤š à¥¨à¥¦à¥¨à¥ª",
+      title: language === "en" ? "Cleanliness Drive" : "स्वच्छता मोहीम", 
+      date: language === "en" ? "20 March 2024" : "२० मार्च २०२४",
       description: language === "en" 
         ? "Ward cleanliness campaign started" 
-        : "à¤µà¥‰à¤°à¥à¤¡à¤®à¤§à¥€à¤² à¤¸à¥à¤µà¤šà¥à¤›à¤¤à¤¾ à¤…à¤­à¤¿à¤¯à¤¾à¤¨ à¤¸à¥à¤°à¥‚"
+        : "वॉर्डमधील स्वच्छता अभियान सुरू"
     },
     { 
-      title: language === "en" ? "Drainage Repair Work" : "à¤—à¤Ÿà¤¾à¤° à¤¦à¥à¤°à¥à¤¸à¥à¤¤à¥€", 
-      date: language === "en" ? "25 March 2024" : "à¥¨à¥« à¤®à¤¾à¤°à¥à¤š à¥¨à¥¦à¥¨à¥ª",
+      title: language === "en" ? "Drainage Repair Work" : "गटार दुरुस्ती", 
+      date: language === "en" ? "25 March 2024" : "२५ मार्च २०२४",
       description: language === "en" 
         ? "Main road drainage repair work" 
-        : "à¤®à¥à¤–à¥à¤¯ à¤°à¤¸à¥à¤¤à¥à¤¯à¤¾à¤µà¤°à¥€à¤² à¤—à¤Ÿà¤¾à¤° à¤¦à¥à¤°à¥à¤¸à¥à¤¤à¥€ à¤•à¤¾à¤®"
+        : "मुख्य रस्त्यावरील गटार दुरुस्ती काम"
     }
   ];
 
@@ -287,13 +287,13 @@ export default function HomePage() {
         <div className="container-responsive px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900">
-              {language === "en" ? "Notices & Announcements" : "à¤¸à¥‚à¤šà¤¨à¤¾ à¤µ à¤˜à¥‹à¤·à¤£à¤¾"}
+            {language === "en" ? "Notices & Announcements" : "सूचना व घोषणा"}
             </h2>
             <Link 
               href="/services" 
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
-              {t("common.viewAll", language)} â†’
+              {t("common.viewAll", language)} →
             </Link>
           </div>
           
@@ -301,7 +301,7 @@ export default function HomePage() {
             {announcements.map((announcement, index) => (
               <div key={index} className="card">
                 <div className="flex items-center gap-2 text-gray-500 text-sm mb-3">
-                  <span>ðŸ“…</span>
+                  <span>📅</span>
                   {announcement.date}
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
@@ -320,7 +320,7 @@ export default function HomePage() {
       <section className="py-12 bg-gradient-to-r from-orange-50 to-red-50">
         <div className="container-responsive px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-            {t("common.emergency", language)} {language === "en" ? "Services" : "à¤¸à¥‡à¤µà¤¾"}
+            {t("common.emergency", language)} {language === "en" ? "Services" : "सेवा"}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -331,21 +331,21 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">
-                    {language === "en" ? "Ambulance Service" : "à¤à¤‚à¤¬à¥à¤¯à¥à¤²à¤¨à¥à¤¸ à¤¸à¥‡à¤µà¤¾"}
+                    {language === "en" ? "Ambulance Service" : "एंब्युलन्स सेवा"}
                   </h3>
                   <p className="text-gray-600">
-                    {language === "en" ? "24/7 emergency medical service" : "à¥¨à¥ª/à¥­ à¤†à¤ªà¤¤à¥à¤•à¤¾à¤²à¥€à¤¨ à¤µà¥ˆà¤¦à¥à¤¯à¤•à¥€à¤¯ à¤¸à¥‡à¤µà¤¾"}
+                    {language === "en" ? "24/7 emergency medical service" : "२४/७ आपत्कालीन वैद्यकीय सेवा"}
                   </p>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-green-600">ðŸ“ž</span>
-                  <span className="font-medium">108 ({language === "en" ? "Emergency" : "à¤†à¤ªà¤¤à¥à¤•à¤¾à¤²à¥€à¤¨"})</span>
+                  <span className="text-green-600">📞</span>
+                  <span className="font-medium">108 ({language === "en" ? "Emergency" : "आपत्कालीन"})</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-blue-600">ðŸ“ž</span>
-                  <span className="font-medium">022-12345678 ({language === "en" ? "Ward Office" : "à¤µà¥‰à¤°à¥à¤¡ à¤‘à¤«à¤¿à¤¸"})</span>
+                  <span className="text-blue-600">📞</span>
+                  <span className="font-medium">022-12345678 ({language === "en" ? "Ward Office" : "वॉर्ड ऑफिस"})</span>
                 </div>
               </div>
             </div>
@@ -357,21 +357,21 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">
-                    {language === "en" ? "Fire Service" : "à¤«à¤¾à¤¯à¤° à¤¸à¥‡à¤µà¤¾"}
+                    {language === "en" ? "Fire Service" : "फायर सेवा"}
                   </h3>
                   <p className="text-gray-600">
-                    {language === "en" ? "Fire, accident, disaster management" : "à¤†à¤—, à¤¦à¥à¤°à¥à¤˜à¤Ÿà¤¨à¤¾, à¤†à¤ªà¤¤à¥à¤¤à¥€ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾à¤ªà¤¨"}
+                    {language === "en" ? "Fire, accident, disaster management" : "आग, दुर्घटना, आपत्ती व्यवस्थापन"}
                   </p>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-red-600">ðŸ“ž</span>
-                  <span className="font-medium">101 ({language === "en" ? "Fire Brigade" : "à¤«à¤¾à¤¯à¤° à¤¬à¥à¤°à¤¿à¤—à¥‡à¤¡"})</span>
+                  <span className="text-red-600">📞</span>
+                  <span className="font-medium">101 ({language === "en" ? "Fire Brigade" : "फायर ब्रिगेड"})</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-orange-600">ðŸ“ž</span>
-                  <span className="font-medium">022-27456230 ({language === "en" ? "NMMC Fire" : "à¤à¤¨à¤à¤®à¤à¤®à¤¸à¥€ à¤«à¤¾à¤¯à¤°"})</span>
+                  <span className="text-orange-600">📞</span>
+                  <span className="font-medium">022-27456230 ({language === "en" ? "NMMC Fire" : "एनएमएमसी फायर"})</span>
                 </div>
               </div>
             </div>
@@ -392,7 +392,7 @@ export default function HomePage() {
                 {t("complaints.title", language)}
               </h3>
               <p className="text-gray-600">
-                {language === "en" ? "Register your issues with us" : "à¤¤à¥à¤®à¤šà¥€ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤†à¤®à¤šà¥à¤¯à¤¾à¤•à¤¡à¥‡ à¤¨à¥‹à¤‚à¤¦à¤µà¤¾"}
+                {language === "en" ? "Register your issues with us" : "तुमची समस्या आमच्याकडे नोंदवा"}
               </p>
             </Link>
             
@@ -405,7 +405,7 @@ export default function HomePage() {
                 {t("nav.works", language)}
               </h3>
               <p className="text-gray-600">
-                {language === "en" ? "View progress of development works" : "à¤µà¤¿à¤•à¤¾à¤¸ à¤•à¤¾à¤°à¥à¤¯à¤¾à¤‚à¤šà¥€ à¤ªà¥à¤°à¤—à¤¤à¥€ à¤ªà¤¹à¤¾"}
+                {language === "en" ? "View progress of development works" : "विकास कार्यांची प्रगती पहा"}
               </p>
             </Link>
             
@@ -418,7 +418,7 @@ export default function HomePage() {
                 {t("nav.gallery", language)}
               </h3>
               <p className="text-gray-600">
-                {language === "en" ? "Before-After photos of works" : "à¤•à¤¾à¤°à¥à¤¯à¤¾à¤‚à¤šà¥‡ à¤†à¤§à¥€-à¤¨à¤‚à¤¤à¤° à¤«à¥‹à¤Ÿà¥‹ à¤ªà¤¹à¤¾"}
+                {language === "en" ? "Before-After photos of works" : "कार्यांचे आधी-नंतर फोटो पहा"}
               </p>
             </Link>
             
@@ -431,7 +431,7 @@ export default function HomePage() {
                 {t("nav.contact", language)}
               </h3>
               <p className="text-gray-600">
-                {language === "en" ? "Contact Corporator office" : "à¤¨à¤—à¤°à¤¸à¥‡à¤µà¤• à¤•à¤¾à¤°à¥à¤¯à¤¾à¤²à¤¯à¤¾à¤¶à¥€ à¤¸à¤‚à¤ªà¤°à¥à¤•"}
+                {language === "en" ? "Contact Corporator office" : "नगरसेवक कार्यालयाशी संपर्क"}
               </p>
             </Link>
           </div>
@@ -440,4 +440,5 @@ export default function HomePage() {
     </div>
   );
 }
+
 

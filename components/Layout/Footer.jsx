@@ -71,7 +71,7 @@ export default function Footer() {
           
           {/* Column 2: Quick Links */}
           <div>
-            <h4 className="font-bold text-lg mb-6 border-l-4 border-orange-500 pl-3">
+            <h4 className="font-bold text-lg text-white mb-6 border-l-4 border-orange-500 pl-3">
               {language === "en" ? "Quick Links" : "द्रुत दुवे"}
             </h4>
             <ul className="space-y-3">
@@ -91,7 +91,7 @@ export default function Footer() {
           
           {/* Column 3: Government Links */}
           <div>
-            <h4 className="font-bold text-lg mb-6 border-l-4 border-green-500 pl-3">
+            <h4 className="font-bold text-lg mb-6 text-white border-l-4 border-green-500 pl-3">
               {language === "en" ? "Government Links" : "सरकारी दुवे"}
             </h4>
             <ul className="space-y-3">
@@ -112,7 +112,7 @@ export default function Footer() {
           
           {/* Column 4: Contact Info */}
           <div>
-            <h4 className="font-bold text-lg mb-6 border-l-4 border-blue-500 pl-3">
+            <h4 className="font-bold text-white text-lg mb-6 border-l-4 border-blue-500 pl-3">
               {t("contact.title", language)}
             </h4>
             <div className="space-y-4">
