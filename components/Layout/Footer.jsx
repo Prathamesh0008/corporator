@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { useEffect, useState } from "react";
 import { FiHome, FiPhone, FiMail, FiMapPin, FiClock, FiUsers } from "react-icons/fi";
 import { GiIndiaGate } from "react-icons/gi";
 import Link from "next/link";
@@ -10,6 +11,30 @@ import { t } from "../../lib/translations";
 export default function Footer() {
   const { language } = useLanguage();
   const currentYear = new Date().getFullYear();
+  const [visitCount, setVisitCount] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCount = async () => {
+      try {
+        const res = await fetch("/api/visits", { method: "POST" });
+        const data = await res.json();
+        if (isMounted) {
+          setVisitCount(typeof data.count === "number" ? data.count : 0);
+        }
+      } catch {
+        if (isMounted) {
+          setVisitCount(0);
+        }
+      }
+    };
+
+    loadCount();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   
   const quickLinks = [
     { name: "nav.home", href: "/" },
@@ -122,7 +147,6 @@ export default function Footer() {
                   <div className="font-medium">{t("contact.officeAddress", language)}</div>
                   <div className="text-gray-400 text-sm">
                     Ward Office 24(D),<br />
-                    ,<br />
                     Navi Mumbai - 400706
                   </div>
                 </div>
@@ -151,18 +175,7 @@ export default function Footer() {
             </div>
             
             {/* Office Hours */}
-            <div className="mt-6 p-4 bg-gray-800 rounded-lg">
-              <h5 className="font-bold mb-2">{t("contact.officeHours", language)}</h5>
-              <div className="text-gray-400 text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span>{language === "en" ? "Monday to Saturday" : "सोमवार ते शनिवार"}</span>
-                  <span>10:00 AM - 6:00 PM</span>
-                </div>
-                <div className="mt-2 text-orange-400 text-center">
-                  {language === "en" ? "Sunday: Closed" : "रविवार: बंद"}
-                </div>
-              </div>
-            </div>
+        
           </div>
         </div>
         
@@ -188,9 +201,18 @@ export default function Footer() {
             </a>
           </div>
           
-          <div className="text-gray-400 text-sm flex items-center gap-2">
-            <span>❤️</span>
-            {language === "en" ? "Made for Ward 24(D) Citizens" : "वॉर्ड २४(ड) च्या नागरिकांसाठी बनवले"}
+          <div className="text-gray-400 text-sm flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span>❤</span>
+              {language === "en" ? "Made for Ward 24(D) Citizens" : "वॉर्ड २४(ड) च्या नागरिकांसाठी बनवले"}
+            </div>
+            <span className="hidden md:inline text-gray-600">|</span>
+            <div className="flex items-center gap-2">
+              <span>👀</span>
+              <span>
+                {language === "en" ? "Visitors:" : "भेट देणारे:"} {visitCount === null ? "-" : visitCount}
+              </span>
+            </div>
           </div>
         </div>
         
@@ -206,7 +228,7 @@ export default function Footer() {
               <div className="text-xs text-gray-400 mt-1">Navi Mumbai Corporation</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl">महा</div>
+              <div className="text-2xl">महाराष्ट्र</div>
               <div className="text-xs text-gray-400 mt-1">Maharashtra Government</div>
             </div>
             <div className="text-center">
@@ -223,12 +245,14 @@ export default function Footer() {
             </div>
           </div>
           <p className="text-gray-400 text-sm text-center max-w-2xl">
-            {language === "en" 
-              ? "An official website of Corporator Sachin Devappa Lavate, Ward 24(D), , Navi Mumbai Municipal Corporation. This website is for public service and information purposes."
-              : "नगरसेवक सचिन देवाप्पा लवटे, वॉर्ड २४(ड), नेरूळ सेक्टर १८, नवी मुंबई महानगरपालिका यांची अधिकृत वेबसाइट. ही वेबसाइट सार्वजनिक सेवा आणि माहितीच्या हेतूने आहे."}
+              {language === "en" 
+                ? "An official website of Corporator Sachin Devappa Lavate, Ward 24(D), Navi Mumbai Municipal Corporation. This website is for public service and information purposes."
+                : "नगरसेवक सचिन देवाप्पा लवटे, वॉर्ड २४(ड), नेरूळ सेक्टर १८, नवी मुंबई महानगरपालिका यांची अधिकृत वेबसाइट. ही वेबसाइट सार्वजनिक सेवा आणि माहितीच्या हेतूने आहे."}
           </p>
         </div>
       </div>
     </footer>
   );
 }
+
+
