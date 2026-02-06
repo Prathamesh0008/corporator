@@ -18,8 +18,29 @@ export default function Footer() {
 
     const loadCount = async () => {
       try {
-        const res = await fetch("/api/visits", { method: "POST" });
+        const visitKey = "site_visit_at";
+        const now = Date.now();
+        const ttlMs = 24 * 60 * 60 * 1000; // 1 day
+        let shouldCount = true;
+
+        try {
+          const stored = localStorage.getItem(visitKey);
+          if (stored && now - Number(stored) < ttlMs) {
+            shouldCount = false;
+          }
+        } catch {
+          // ignore localStorage errors
+        }
+
+        const res = await fetch("/api/visits", { method: shouldCount ? "POST" : "GET" });
         const data = await res.json();
+        if (shouldCount) {
+          try {
+            localStorage.setItem(visitKey, String(now));
+          } catch {
+            // ignore localStorage errors
+          }
+        }
         if (isMounted) {
           setVisitCount(typeof data.count === "number" ? data.count : 0);
         }
