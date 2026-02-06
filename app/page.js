@@ -54,27 +54,27 @@ export default function HomePage() {
           label: language === "en" ? "Diwali Celebration" : "दिवाळी उत्सव",
           image: "/gallery/support/1.png",
           modalImages: [
-            "https://picsum.photos/id/1040/1200/800",
-            "https://picsum.photos/id/1050/1200/800",
-            "https://picsum.photos/id/1060/1200/800"
+            "/gallery/support/3.png",
+            "/gallery/support/8.png",
+            "/gallery/support/2.png"
           ]
         },
         {
           label: language === "en" ? "Rangoli Competition" : "रांगोळी स्पर्धा",
           image: "/gallery/support/2.png",
           modalImages: [
-            "https://picsum.photos/id/1042/1200/800",
-            "https://picsum.photos/id/1043/1200/800",
-            "https://picsum.photos/id/1044/1200/800"
+            "/gallery/support/8.png",
+            "/gallery/support/6.png",
+            "/gallery/support/2.png"
           ]
         },
         {
           label: language === "en" ? "Ganeshotsav Support" : "गणेशोत्सव सहाय्य",
           image: "/gallery/support/3.png",
           modalImages: [
-            "https://picsum.photos/id/1051/1200/800",
-            "https://picsum.photos/id/1052/1200/800",
-            "https://picsum.photos/id/1053/1200/800"
+            "/gallery/support/5.png",
+            "/gallery/support/3.png",
+            "/gallery/support/5.png"
           ]
         }
       ]
@@ -86,27 +86,27 @@ export default function HomePage() {
           label: language === "en" ? "Health Camp" : "आरोग्य शिबिर",
           image: "/gallery/support/6.png",
           modalImages: [
-            "https://picsum.photos/id/1067/1200/800",
-            "https://picsum.photos/id/1070/1200/800",
-            "https://picsum.photos/id/1074/1200/800"
+            "/gallery/support/2.png",
+            "/gallery/support/1.png",
+            "/gallery/support/7.png"
           ]
         },
         {
           label: language === "en" ? "Cleanliness Drive" : "स्वच्छता मोहीम",
           image: "/gallery/support/3.png",
           modalImages: [
-            "https://picsum.photos/id/1068/1200/800",
-            "https://picsum.photos/id/1069/1200/800",
-            "https://picsum.photos/id/1071/1200/800"
+            "/gallery/support/7.png",
+            "/gallery/support/4.png",
+            "/gallery/support/3.png"
           ]
         },
         {
           label: language === "en" ? "Ayushman Support" : "आयुष्मान सहाय्य",
           image: "/gallery/11.jpg",
           modalImages: [
-            "https://picsum.photos/id/1072/1200/800",
-            "https://picsum.photos/id/1073/1200/800",
-            "https://picsum.photos/id/1075/1200/800"
+            "/gallery/support/5.png",
+            "/gallery/support/3.png",
+            "/gallery/support/1.png"
           ]
         }
       ]
@@ -118,27 +118,27 @@ export default function HomePage() {
           label: language === "en" ? "Road Repair" : "रस्ता दुरुस्ती",
           image: "/gallery/support/4.png",
           modalImages: [
-            "https://picsum.photos/id/1084/1200/800",
-            "https://picsum.photos/id/1080/1200/800",
-            "https://picsum.photos/id/1081/1200/800"
+            "/gallery/support/3.png",
+            "/gallery/support/2.png",
+            "/gallery/support/1.png"
           ]
         },
         {
           label: language === "en" ? "Drainage Upgrade" : "गटार सुधारणा",
           image: "/gallery/support/5.png",
           modalImages: [
-            "https://picsum.photos/id/1082/1200/800",
-            "https://picsum.photos/id/1083/1200/800",
-            "https://picsum.photos/id/1085/1200/800"
+            "/gallery/support/7.png",
+            "/gallery/support/5.png",
+            "/gallery/support/2.png"
           ]
         },
         {
           label: language === "en" ? "Water Supply" : "पाणीपुरवठा",
           image: "/gallery/support/6.png",
           modalImages: [
-            "https://picsum.photos/id/1086/1200/800",
-            "https://picsum.photos/id/1087/1200/800",
-            "https://picsum.photos/id/1088/1200/800"
+            "/gallery/support/8.png",
+            "/gallery/support/8.png",
+            "/gallery/support/8.png"
           ]
         }
       ]
@@ -150,27 +150,27 @@ export default function HomePage() {
           label: language === "en" ? "Yuva Cup" : "युवा कप",
           image: "/gallery/support/6.png",
           modalImages: [
-            "https://picsum.photos/id/1027/1200/800",
-            "https://picsum.photos/id/1033/1200/800",
-            "https://picsum.photos/id/1039/1200/800"
+            "/gallery/support/7.png",
+            "/gallery/support/8.png",
+            "/gallery/support/5.png"
           ]
         },
         {
           label: language === "en" ? "Community Sports" : "समुदाय क्रीडा",
           image: "/gallery/support/7.png",
           modalImages: [
-            "https://picsum.photos/id/1030/1200/800",
-            "https://picsum.photos/id/1031/1200/800",
-            "https://picsum.photos/id/1032/1200/800"
+            "/gallery/support/1.png",
+            "/gallery/support/2.png",
+            "/gallery/support/1.png"
           ]
         },
         {
           label: language === "en" ? "Youth Guidance" : "युवक मार्गदर्शन",
           image: "/gallery/support/8.png",
           modalImages: [
-            "https://picsum.photos/id/1034/1200/800",
-            "https://picsum.photos/id/1035/1200/800",
-            "https://picsum.photos/id/1036/1200/800"
+            "/gallery/support/7.png",
+            "/gallery/support/6.png",
+            "/gallery/support/3.png"
           ]
         }
       ]
