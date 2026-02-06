@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   FiArrowRight,
@@ -35,45 +36,146 @@ import {
 import { useLanguage } from "../contexts/LanguageContext";
 import { t } from "../lib/translations";
 
+const LeafletMap = dynamic(() => import("../components/LeafletMap"), { ssr: false });
+
 export default function HomePage() {
   const { language } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [activeTab, setActiveTab] = useState("news");
-    const workGallery = [
+  const [activeGalleryItem, setActiveGalleryItem] = useState(null);
+  const [showMobileServices, setShowMobileServices] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const workGallery = [
     {
       title: language === "en" ? "Cultural Programs" : "सांस्कृतिक कार्यक्रम",
       items: [
-        { label: language === "en" ? "Diwali Celebration" : "दिवाळी उत्सव", image: "/gallery/support/1.png" },
-        { label: language === "en" ? "Rangoli Competition" : "रांगोळी स्पर्धा", image: "/gallery/support/2.png" },
-        { label: language === "en" ? "Ganeshotsav Support" : "गणेशोत्सव सहाय्य", image: "/gallery/support/3.png" }
+        {
+          label: language === "en" ? "Diwali Celebration" : "दिवाळी उत्सव",
+          image: "/gallery/support/1.png",
+          modalImages: [
+            "https://picsum.photos/id/1040/1200/800",
+            "https://picsum.photos/id/1050/1200/800",
+            "https://picsum.photos/id/1060/1200/800"
+          ]
+        },
+        {
+          label: language === "en" ? "Rangoli Competition" : "रांगोळी स्पर्धा",
+          image: "/gallery/support/2.png",
+          modalImages: [
+            "https://picsum.photos/id/1042/1200/800",
+            "https://picsum.photos/id/1043/1200/800",
+            "https://picsum.photos/id/1044/1200/800"
+          ]
+        },
+        {
+          label: language === "en" ? "Ganeshotsav Support" : "गणेशोत्सव सहाय्य",
+          image: "/gallery/support/3.png",
+          modalImages: [
+            "https://picsum.photos/id/1051/1200/800",
+            "https://picsum.photos/id/1052/1200/800",
+            "https://picsum.photos/id/1053/1200/800"
+          ]
+        }
       ]
     },
     {
       title: language === "en" ? "Health & Cleanliness" : "आरोग्य व स्वच्छता",
       items: [
-        { label: language === "en" ? "Health Camp" : "आरोग्य शिबिर", image: "/gallery/support/6.png" },
-        { label: language === "en" ? "Cleanliness Drive" : "स्वच्छता मोहीम", image: "/gallery/support/3.png" },
-        { label: language === "en" ? "Ayushman Support" : "आयुष्मान सहाय्य", image: "/gallery/11.jpg" }
+        {
+          label: language === "en" ? "Health Camp" : "आरोग्य शिबिर",
+          image: "/gallery/support/6.png",
+          modalImages: [
+            "https://picsum.photos/id/1067/1200/800",
+            "https://picsum.photos/id/1070/1200/800",
+            "https://picsum.photos/id/1074/1200/800"
+          ]
+        },
+        {
+          label: language === "en" ? "Cleanliness Drive" : "स्वच्छता मोहीम",
+          image: "/gallery/support/3.png",
+          modalImages: [
+            "https://picsum.photos/id/1068/1200/800",
+            "https://picsum.photos/id/1069/1200/800",
+            "https://picsum.photos/id/1071/1200/800"
+          ]
+        },
+        {
+          label: language === "en" ? "Ayushman Support" : "आयुष्मान सहाय्य",
+          image: "/gallery/11.jpg",
+          modalImages: [
+            "https://picsum.photos/id/1072/1200/800",
+            "https://picsum.photos/id/1073/1200/800",
+            "https://picsum.photos/id/1075/1200/800"
+          ]
+        }
       ]
     },
     {
       title: language === "en" ? "Development Works" : "विकासकामे",
       items: [
-        { label: language === "en" ? "Road Repair" : "रस्ता दुरुस्ती", image: "/gallery/support/4.png" },
-        { label: language === "en" ? "Drainage Upgrade" : "गटार सुधारणा", image: "/gallery/support/5.png" },
-        { label: language === "en" ? "Water Supply" : "पाणीपुरवठा", image: "/gallery/support/6.png" }
+        {
+          label: language === "en" ? "Road Repair" : "रस्ता दुरुस्ती",
+          image: "/gallery/support/4.png",
+          modalImages: [
+            "https://picsum.photos/id/1084/1200/800",
+            "https://picsum.photos/id/1080/1200/800",
+            "https://picsum.photos/id/1081/1200/800"
+          ]
+        },
+        {
+          label: language === "en" ? "Drainage Upgrade" : "गटार सुधारणा",
+          image: "/gallery/support/5.png",
+          modalImages: [
+            "https://picsum.photos/id/1082/1200/800",
+            "https://picsum.photos/id/1083/1200/800",
+            "https://picsum.photos/id/1085/1200/800"
+          ]
+        },
+        {
+          label: language === "en" ? "Water Supply" : "पाणीपुरवठा",
+          image: "/gallery/support/6.png",
+          modalImages: [
+            "https://picsum.photos/id/1086/1200/800",
+            "https://picsum.photos/id/1087/1200/800",
+            "https://picsum.photos/id/1088/1200/800"
+          ]
+        }
       ]
     },
     {
       title: language === "en" ? "Sports & Youth" : "क्रीडा व युवक",
       items: [
-        { label: language === "en" ? "Yuva Cup" : "युवा कप", image: "/gallery/support/6.png" },
-        { label: language === "en" ? "Community Sports" : "समुदाय क्रीडा", image: "/gallery/support/7.png" },
-        { label: language === "en" ? "Youth Guidance" : "युवक मार्गदर्शन", image: "/gallery/support/8.png" }
+        {
+          label: language === "en" ? "Yuva Cup" : "युवा कप",
+          image: "/gallery/support/6.png",
+          modalImages: [
+            "https://picsum.photos/id/1027/1200/800",
+            "https://picsum.photos/id/1033/1200/800",
+            "https://picsum.photos/id/1039/1200/800"
+          ]
+        },
+        {
+          label: language === "en" ? "Community Sports" : "समुदाय क्रीडा",
+          image: "/gallery/support/7.png",
+          modalImages: [
+            "https://picsum.photos/id/1030/1200/800",
+            "https://picsum.photos/id/1031/1200/800",
+            "https://picsum.photos/id/1032/1200/800"
+          ]
+        },
+        {
+          label: language === "en" ? "Youth Guidance" : "युवक मार्गदर्शन",
+          image: "/gallery/support/8.png",
+          modalImages: [
+            "https://picsum.photos/id/1034/1200/800",
+            "https://picsum.photos/id/1035/1200/800",
+            "https://picsum.photos/id/1036/1200/800"
+          ]
+        }
       ]
     }
   ];
-
 
   const slides = [
     {
@@ -271,6 +373,13 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [language]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowAdModal(true);
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
   };
@@ -289,10 +398,23 @@ export default function HomePage() {
             <span className="hidden md:inline text-white/70">|</span>
             <span className="text-white/90">Helpline: 1800 222 230</span>
           </div>
-          
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-full w-full md:w-72">
+              <FiSearch className="text-white/80" />
+              <input
+                className="bg-transparent placeholder-white/70 text-white text-sm outline-none w-full"
+                placeholder={language === "en" ? "Search" : "शोधा"}
+              />
+            </div>
+            <Link
+              href="/contact"
+              className="hidden md:inline-flex px-4 py-2 bg-white text-[#0b3d91] rounded-full text-sm font-semibold"
+            >
+              {language === "en" ? "Contact" : "संपर्क"}
+            </Link>
+          </div>
         </div>
       </section>
-      
 
       {/* Hero */}
      <section className="relative overflow-hidden bg-white">
@@ -329,59 +451,114 @@ export default function HomePage() {
       />
     </div>
 
-    {/* Mobile Service Cards */}
-    <div className="mt-4 space-y-2">
-      {mobileHeroCards.map((card) => (
-        <Link
-          key={card.title}
-          href={card.href}
-          className={`flex items-center justify-between rounded-xl px-4 py-4 shadow-md active:scale-[0.98] transition text-white ${card.color}`}
-        >
-          <div className="leading-tight">
-            <div className="text-base font-semibold">{card.title}</div>
-            <div className="text-sm text-white/80">{card.desc}</div>
-          </div>
-
-          <div className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20">
-            <FiArrowRight className="text-lg" />
-          </div>
-        </Link>
-      ))}
-    </div>
+    {/* Mobile Side Tab */}
+    <button
+      type="button"
+      onClick={() => setShowMobileServices(true)}
+      className="fixed right-0 top-1/2 -translate-y-1/2 z-40 md:hidden bg-orange-500  text-white text-xs font-semibold tracking-wide px-3 py-2 rounded-l-2xl shadow-lg"
+      style={{ writingMode: "vertical-rl" }}
+    >
+      {language === "en" ? "Citizen Services" : "नागरिक सेवा"}
+    </button>
   </div>
 
-  {/* ================= DESKTOP SIDE PANEL ================= */}
-  <div className="relative container-responsive px-4 sm:px-6 lg:px-8">
-    <div className="hidden md:flex justify-end py-10 md:py-14">
+  {showMobileServices && (
+    <div className="fixed inset-0 z-50 md:hidden">
       <div
-        className="citizen-scroll bg-white/15 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/30 max-h-[420px] overflow-y-auto w-80"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        <style jsx>{`
-          .citizen-scroll::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
-
-        <h3 className="text-white font-bold mb-3">
-          {language === "en" ? "Citizen Services" : "नागरिक सेवा"}
-        </h3>
-
-        <div className="space-y-2">
-          {citizenServices.map((service) => (
+        className="absolute inset-0 bg-black/40"
+        onClick={() => setShowMobileServices(false)}
+      />
+      <div className="absolute right-0 top-0 h-full w-72 bg-white shadow-2xl p-4 overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-lg font-bold text-gray-900">
+            {language === "en" ? "Citizen Services" : "नागरिक सेवा"}
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowMobileServices(false)}
+            className="text-gray-500 hover:text-gray-700"
+            aria-label="Close services"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="space-y-3">
+          {mobileHeroCards.map((card) => (
             <Link
-              key={service.label}
-              href={service.href}
-              className={`flex items-center justify-between ${service.color} text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90`}
+              key={card.title}
+              href={card.href}
+              onClick={() => setShowMobileServices(false)}
+              className={`flex items-center justify-between rounded-xl px-4 py-4 shadow-md active:scale-[0.98] transition text-white ${card.color}`}
             >
-              <span>{service.label}</span>
-              <FiArrowRight />
+              <div className="leading-tight">
+                <div className="text-base font-semibold">{card.title}</div>
+                <div className="text-sm text-white/80">{card.desc}</div>
+              </div>
+              <div className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20">
+                <FiArrowRight className="text-lg" />
+              </div>
             </Link>
           ))}
         </div>
       </div>
     </div>
+  )}
+
+  {/* ================= DESKTOP SIDE TAB ================= */}
+  <div className="relative container-responsive px-4 sm:px-6 lg:px-8 hidden md:flex min-h-[560px] lg:min-h-[620px] xl:min-h-[680px] items-center">
+    <div className="flex justify-end w-full">
+      <button
+        type="button"
+        onClick={() => setShowMobileServices(true)}
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 hidden md:block bg-[#0b3d91] text-white text-xs font-semibold tracking-wide px-3 py-4 rounded-l-2xl shadow-lg"
+        style={{ writingMode: "vertical-rl" }}
+      >
+        {language === "en" ? "Citizen Services" : "नागरिक सेवा"}
+      </button>
+    </div>
   </div>
+
+  {showMobileServices && (
+    <div className="fixed inset-0 z-50 hidden md:block">
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={() => setShowMobileServices(false)}
+      />
+      <div className="absolute right-0 top-0 h-full w-80 bg-white shadow-2xl p-5 overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-lg font-bold text-gray-900">
+            {language === "en" ? "Citizen Services" : "नागरिक सेवा"}
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowMobileServices(false)}
+            className="text-gray-500 hover:text-gray-700"
+            aria-label="Close services"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="space-y-3">
+          {mobileHeroCards.map((card) => (
+            <Link
+              key={card.title}
+              href={card.href}
+              onClick={() => setShowMobileServices(false)}
+              className={`flex items-center justify-between rounded-xl px-4 py-4 shadow-md active:scale-[0.98] transition text-white ${card.color}`}
+            >
+              <div className="leading-tight">
+                <div className="text-base font-semibold">{card.title}</div>
+                <div className="text-sm text-white/80">{card.desc}</div>
+              </div>
+              <div className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20">
+                <FiArrowRight className="text-lg" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
 </section>
 
 
@@ -466,20 +643,72 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-4">
-            <div className="h-44 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-sm text-gray-600">
-              {language === "en" ? "Commissioner" : "आयुक्त"}
-            </div>
-            <h3 className="mt-4 font-bold text-gray-900">Dr. Kailas Shinde</h3>
-            <p className="text-sm text-gray-600">
+          <div className="bg-white  shadow-md p-4">
+            <h3 className="font-bold text-gray-900 mb-4">
+              {language === "en" ? "Ward 24(D) Map" : "वॉर्ड २४(ड) नकाशा"}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setShowMapModal(true)}
+              className="rounded-xl overflow-hidden h-56 border border-gray-200 w-full text-left cursor-pointer"
+              aria-label={language === "en" ? "Open ward map" : "वॉर्ड नकाशा उघडा"}
+            >
+              {showMapModal ? (
+                <div className="h-full w-full bg-gray-100 flex items-center justify-center text-sm text-gray-600">
+                  {language === "en" ? "Map opened in modal" : "नकाशा मोठ्या मोडलमध्ये उघडला आहे"}
+                </div>
+              ) : (
+                <LeafletMap
+                  center={[19.0285, 73.012]}
+                  zoom={13}
+                  title={language === "en" ? "Ward Office 24(D), Nerul" : "वॉर्ड ऑफिस २४(ड), नेरुळ"}
+                  boundary={[
+                    [19.03687319007652, 73.01730963706083],
+                    [19.03724752853904, 73.01464766140126],
+                    [19.036977173067413, 73.01431766441888],
+                    [19.03712274914534, 73.01235968232166],
+                    [19.035521405268398, 73.01240368191935],
+                    [19.035708576128798, 73.00877371511157],
+                    [19.03820416744351, 73.0095657078692],
+                    [19.037966476044545, 73.00342980420871],
+                    [19.038706184326614, 72.99968498495792],
+                    [19.037385292019053, 72.99946143113189],
+                    [19.03606438961647, 72.9997409115723],
+                    [19.02861437821869, 73.00186477885936],
+                    [19.02171686628266, 73.00069648544019],
+                    [19.02118459785426, 73.00860544550233],
+                    [19.022223787010574, 73.00863225553647],
+                    [19.022097056973564, 73.00943655655894],
+                    [19.022198441010914, 73.01045533785538],
+                    [19.023339007170307, 73.0116885994245],
+                    [19.02346573626025, 73.01284143089131],
+                    [19.024302145831015, 73.01391383225473],
+                    [19.02306020283227, 73.01541519416466],
+                    [19.02199567287434, 73.01431598276722],
+                    [19.021285982448248, 73.01289505095951],
+                    [19.02029748001773, 73.01380659211836],
+                    [19.01905550709236, 73.01313634126626],
+                    [19.01824441772456, 73.01214437000394],
+                    [19.015050714865694, 73.01565648447263],
+                    [19.02115925169612, 73.02150107190792],
+                    [19.0236685026031, 73.01769404706423],
+                    [19.024783713067407, 73.01697017614396],
+                    [19.026177715622225, 73.01667526576779],
+                    [19.028357405266974, 73.01734551662116],
+                    [19.030486376846014, 73.01814981764372],
+                    [19.033654438802998, 73.01863239825846],
+                    [19.03462061412918, 73.0189872071181],
+                    [19.036758273946504, 73.0184941011488],
+                    [19.036886493553524, 73.01702469218523],
+                    [19.03687319007652, 73.01730963706083]
+                  ]}
+                />
+              )}
+            </button>
+            <p className="text-xs text-gray-500 mt-3">
               {language === "en"
-                ? "Commissioner and Administrator"
-                : "आयुक्त व प्रशासक"}
-            </p>
-            <p className="text-sm text-gray-600 mt-2">
-              {language === "en"
-                ? "Leading the municipal administration for better citizen services."
-                : "नागरिक सेवांसाठी प्रशासनाचे नेतृत्व."}
+                ? "Ward boundary shown for reference."
+                : "वॉर्डची सीमा संदर्भासाठी दाखवली आहे."}
             </p>
           </div>
         </div>
@@ -520,17 +749,25 @@ export default function HomePage() {
             {workGallery.map((section) => (
               <div key={section.title} className="bg-white rounded-2xl shadow-md p-5">
                 <div className="text-lg font-bold text-gray-900 mb-4">{section.title}</div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {section.items.map((item) => (
-                    <div key={item.label} className="rounded-xl overflow-hidden border border-gray-200 bg-white">
+                    <Link
+                      key={item.label}
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setActiveGalleryItem(item);
+                      }}
+                      className="rounded-xl overflow-hidden border border-gray-200 bg-white hover:shadow-md transition-shadow"
+                    >
                       <div
-                        className="h-40 bg-cover"
+                        className="h-30 bg-cover bg-center"
                         style={{ backgroundImage: `url(${item.image})` }}
                       />
                       <div className="px-3 py-2 text-sm font-semibold text-gray-800">
                         {item.label}
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -559,8 +796,148 @@ export default function HomePage() {
         </div>
       </section>
 
+  {activeGalleryItem && (
+    <div
+      className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+      onClick={() => setActiveGalleryItem(null)}
+    >
+      <div
+        className="bg-white rounded-2xl max-w-4xl w-full p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-gray-900">{activeGalleryItem.label}</h3>
+          <button
+            onClick={() => setActiveGalleryItem(null)}
+            className="text-gray-500 hover:text-gray-700"
+            aria-label="Close gallery"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {activeGalleryItem.modalImages.map((src, idx) => (
+            <div
+              key={`${activeGalleryItem.label}-${idx}`}
+              className="h-40 rounded-xl bg-cover bg-center"
+              style={{ backgroundImage: `url(${src})` }}
+            />
+          ))}
+        </div>
+            <div className="mt-4 text-sm text-gray-600">
+              {language === "en"
+                ? "Demo online photos. Replace with your own photos later."
+                : "डेमो ऑनलाइन फोटो. नंतर तुमचे फोटो लावा."}
+            </div>
+          </div>
+        </div>
+      )}
+      {showMapModal && (
+        <div
+          className="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4"
+          onClick={() => setShowMapModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+              <div className="font-semibold text-gray-900">
+                {language === "en" ? "Ward 24(D) Map" : "वॉर्ड २४(ड) नकाशा"}
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMapModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close map"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4">
+              <div className="h-[70vh] w-full rounded-xl overflow-hidden border border-gray-200">
+                <LeafletMap
+                  center={[19.0285, 73.012]}
+                  zoom={13}
+                  title={language === "en" ? "Ward Office 24(D), Nerul" : "वॉर्ड ऑफिस २४(ड), नेरुळ"}
+                  boundary={[
+                    [19.03687319007652, 73.01730963706083],
+                    [19.03724752853904, 73.01464766140126],
+                    [19.036977173067413, 73.01431766441888],
+                    [19.03712274914534, 73.01235968232166],
+                    [19.035521405268398, 73.01240368191935],
+                    [19.035708576128798, 73.00877371511157],
+                    [19.03820416744351, 73.0095657078692],
+                    [19.037966476044545, 73.00342980420871],
+                    [19.038706184326614, 72.99968498495792],
+                    [19.037385292019053, 72.99946143113189],
+                    [19.03606438961647, 72.9997409115723],
+                    [19.02861437821869, 73.00186477885936],
+                    [19.02171686628266, 73.00069648544019],
+                    [19.02118459785426, 73.00860544550233],
+                    [19.022223787010574, 73.00863225553647],
+                    [19.022097056973564, 73.00943655655894],
+                    [19.022198441010914, 73.01045533785538],
+                    [19.023339007170307, 73.0116885994245],
+                    [19.02346573626025, 73.01284143089131],
+                    [19.024302145831015, 73.01391383225473],
+                    [19.02306020283227, 73.01541519416466],
+                    [19.02199567287434, 73.01431598276722],
+                    [19.021285982448248, 73.01289505095951],
+                    [19.02029748001773, 73.01380659211836],
+                    [19.01905550709236, 73.01313634126626],
+                    [19.01824441772456, 73.01214437000394],
+                    [19.015050714865694, 73.01565648447263],
+                    [19.02115925169612, 73.02150107190792],
+                    [19.0236685026031, 73.01769404706423],
+                    [19.024783713067407, 73.01697017614396],
+                    [19.026177715622225, 73.01667526576779],
+                    [19.028357405266974, 73.01734551662116],
+                    [19.030486376846014, 73.01814981764372],
+                    [19.033654438802998, 73.01863239825846],
+                    [19.03462061412918, 73.0189872071181],
+                    [19.036758273946504, 73.0184941011488],
+                    [19.036886493553524, 73.01702469218523],
+                    [19.03687319007652, 73.01730963706083]
+                  ]}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-
+      {showAdModal && (
+        <div
+          className="fixed inset-0 z-[70] bg-black/60 flex items-center justify-center p-4"
+          onClick={() => setShowAdModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+              <div className="font-semibold text-gray-900">Advertisement</div>
+              <button
+                type="button"
+                onClick={() => setShowAdModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close advertisement"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4">
+              <img
+                src="/advertising.jpeg"
+                alt="Advertisement"
+                className="w-full h-auto rounded-xl"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

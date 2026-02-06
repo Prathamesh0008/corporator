@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiMenu, FiX, FiSearch, FiHome, FiUser, FiCheckCircle, FiImage, FiSettings, FiAlertCircle, FiPhone, FiClock, FiPhoneCall } from "react-icons/fi";
+import { FaFacebookF, FaInstagram, FaXTwitter } from "react-icons/fa6";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { t } from "../../lib/translations";
 import LanguageSwitcher from "../Common/LanguageSwitcher";
@@ -160,15 +161,35 @@ const brandTitle = isEnglish ? (
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
               <span className="font-semibold tracking-wide">{topBarTitle}</span>
             </div>
-            <div className="flex items-center gap-4 text-[11px] sm:text-xs">
-              <div className="flex items-center gap-1">
-                <FiClock className="w-4 h-4 text-gray-700" />
-                <span>{officeHours}</span>
-              </div>
-              <div className="hidden md:flex items-center gap-1">
-                <FiPhoneCall className="w-4 h-4 text-gray-700" />
-                <span>{helpline}</span>
-              </div>
+            
+            <div className="flex items-center gap-2">
+              <Link
+                href="https://www.facebook.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="w-7 h-7 rounded-full bg-white/70 hover:bg-white flex items-center justify-center text-gray-700 hover:text-[#1877F2] transition"
+                aria-label="Facebook"
+              >
+                <FaFacebookF className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                href="https://www.instagram.com/samajsevaksachinlavate?igsh=MTM4cnc4anFhMWxoMQ=="
+                target="_blank"
+                rel="noreferrer"
+                className="w-7 h-7 rounded-full bg-white/70 hover:bg-white flex items-center justify-center text-gray-700 hover:text-[#E4405F] transition"
+                aria-label="Instagram"
+              >
+                <FaInstagram className="w-4 h-4" />
+              </Link>
+              <Link
+                href="https://x.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="w-7 h-7 rounded-full bg-white/70 hover:bg-white flex items-center justify-center text-gray-700 hover:text-black transition"
+                aria-label="X (Twitter)"
+              >
+                <FaXTwitter className="w-3.5 h-3.5" />
+              </Link>
             </div>
           </div>
         </div>

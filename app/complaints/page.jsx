@@ -119,23 +119,7 @@ export default function ComplaintsPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-white">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <div key={index} className={`p-6 rounded-xl ${stat.color}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center">
-                    {stat.icon}
-                  </div>
-                </div>
-                <div className="text-3xl font-bold mb-2">{stat.value}</div>
-                <div className="font-medium">{stat.title}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Main Content */}
       <section className="py-12">

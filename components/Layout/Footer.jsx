@@ -94,13 +94,19 @@ export default function Footer() {
           {/* Column 1: Corporator Info */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF9933] via-white to-[#138808] p-1">
-                <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center">
-                  <GiIndiaGate className="w-6 h-6 text-white" />
-                </div>
+              <div className="w-40 h-40 rounded-full">
+                {/* <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center"> */}
+                  <Image
+                                      src="/logo-6.png"
+                                      alt="Bharatiya Janata Party logo"
+                                      width={40}
+                                      height={40}
+                                      className="w-full h-full object-cover"
+                                    />
+                {/* </div> */}
               </div>
               <div>
-                <h3 className="font-bold text-lg">
+                <h3 className="font-bold text-lg text-white">
                   {language === "en" ? "Corporator Sachin Lavate" : "नगरसेवक सचिन लवटे"}
                 </h3>
                 <p className="text-gray-400 text-sm">
@@ -239,33 +245,39 @@ export default function Footer() {
         
         {/* Official Seals */}
         <div className="mt-8 pt-8 border-t border-gray-800 flex flex-col items-center">
-          <div className="flex items-center gap-4 mb-4 flex-wrap justify-center">
+          <div className="grid w-full max-w-3xl grid-cols-3 gap-4 sm:grid-cols-3 sm:gap-6">
             <div className="text-center">
-              <div className="text-2xl">🇮🇳</div>
-              <div className="text-xs text-gray-400 mt-1">Government of India</div>
-            </div>
-            <div className="text-center">
-              <GiIndiaGate className="text-2xl text-gray-300" />
-              <div className="text-xs text-gray-400 mt-1">Navi Mumbai Corporation</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl">महाराष्ट्र</div>
-              <div className="text-xs text-gray-400 mt-1">Maharashtra Government</div>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto w-9 h-9 rounded-full bg-white p-1">
+              <div className="mx-auto h-12 w-12 rounded-full bg-white/10 flex items-center justify-center">
                 <Image
-                  src="/logo.png"
-                  alt="Bharatiya Janata Party logo"
+                  src="/nmmc.png"
+                  alt="Navi Mumbai Municipal Corporation"
                   width={40}
                   height={40}
-                  className="w-full h-full object-cover"
+                  className="h-20 w-20 object-cover"
                 />
               </div>
-              <div className="text-xs text-gray-400 mt-1">Bharatiya Janata Party</div>
+              <div className="text-xs text-gray-400 mt-2">Navi Mumbai Corporation</div>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto h-12 w-12 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold">
+                महाराष्ट्र
+              </div>
+              <div className="text-xs text-gray-400 mt-2">Maharashtra Government</div>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto h-13 w-13 rounded-full bg-white p-1 flex items-center justify-center">
+                <Image
+                  src="/logo.png"
+                  alt="Bharatiya Janata Party"
+                  width={40}
+                  height={40}
+                  className="h-15 w-15 object-cover"
+                />
+              </div>
+              <div className="text-xs text-gray-400 mt-2">Bharatiya Janata Party</div>
             </div>
           </div>
-          <p className="text-gray-400 text-sm text-center max-w-2xl">
+          <p className="text-gray-400 text-sm text-center max-w-2xl mt-5">
               {language === "en" 
                 ? "An official website of Corporator Sachin Devappa Lavate, Ward 24(D), Navi Mumbai Municipal Corporation. This website is for public service and information purposes."
                 : "नगरसेवक सचिन देवाप्पा लवटे, वॉर्ड २४(ड), नेरूळ सेक्टर १८, नवी मुंबई महानगरपालिका यांची अधिकृत वेबसाइट. ही वेबसाइट सार्वजनिक सेवा आणि माहितीच्या हेतूने आहे."}

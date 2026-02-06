@@ -13,6 +13,20 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function LeafletMap({ center, zoom = 13, title, boundary }) {
+  const defaultBoundaryStyle = {
+    color: "#1e3a8a",
+    weight: 3,
+    fillColor: "#1e3a8a",
+    fillOpacity: 0.12
+  };
+
+  const hoverBoundaryStyle = {
+    color: "#ff0000",
+    weight: 3,
+    fillColor: "#ff0000",
+    fillOpacity: 0.2
+  };
+
   return (
     <MapContainer
       center={center}
@@ -27,7 +41,15 @@ export default function LeafletMap({ center, zoom = 13, title, boundary }) {
       {boundary?.length ? (
         <Polygon
           positions={boundary}
-          pathOptions={{ color: "#ff3b30", weight: 3, fillColor: "#ff3b30", fillOpacity: 0.12 }}
+          pathOptions={defaultBoundaryStyle}
+          eventHandlers={{
+            mouseover: (event) => {
+              event.target.setStyle(hoverBoundaryStyle);
+            },
+            mouseout: (event) => {
+              event.target.setStyle(defaultBoundaryStyle);
+            }
+          }}
         />
       ) : null}
       <Marker position={center}>
