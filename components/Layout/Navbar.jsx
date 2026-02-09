@@ -196,7 +196,7 @@ const brandTitle = isEnglish ? (
       </div>
 
       {/* Main Navigation */}
-      <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+      <nav className={`sticky top-0 z-2000 transition-all duration-300 ${
         isScrolled ? "shadow-md bg-white/90 backdrop-blur border-b border-gray-200" : "bg-white"
       }`}>
         <div className="container-responsive px-4 sm:px-6 lg:px-8">
@@ -209,8 +209,9 @@ const brandTitle = isEnglish ? (
                   <Image
                     src="/logo-6.png"
                     alt="Bharatiya Janata Party logo"
-                    width={40}
-                    height={40}
+                    width={56}
+                    height={56}
+                    sizes="56px"
                     className="w-full h-full object-cover"
                   />
                 </div>

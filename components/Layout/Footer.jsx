@@ -1,7 +1,19 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
-import { FiHome, FiPhone, FiMail, FiMapPin, FiClock, FiUsers } from "react-icons/fi";
+import {
+  FiHome,
+  FiPhone,
+  FiMail,
+  FiMapPin,
+  FiClock,
+  FiUsers,
+  FiUser,
+  FiCheckCircle,
+  FiImage,
+  FiSettings,
+  FiAlertCircle
+} from "react-icons/fi";
 import { GiIndiaGate } from "react-icons/gi";
 import Link from "next/link";
 import Image from "next/image";
@@ -58,13 +70,13 @@ export default function Footer() {
   }, []);
   
   const quickLinks = [
-    { name: "nav.home", href: "/" },
-    { name: "nav.about", href: "/about" },
-    { name: "nav.works", href: "/works" },
-    { name: "nav.services", href: "/services" },
-    { name: "nav.complaints", href: "/complaints" },
-    { name: "nav.gallery", href: "/gallery" },
-    { name: "nav.contact", href: "/contact" }
+    { name: "nav.home", href: "/", icon: <FiHome className="w-4 h-4" /> },
+    { name: "nav.about", href: "/about", icon: <FiUser className="w-4 h-4" /> },
+    { name: "nav.works", href: "/works", icon: <FiCheckCircle className="w-4 h-4" /> },
+    { name: "nav.services", href: "/services", icon: <FiSettings className="w-4 h-4" /> },
+    { name: "nav.complaints", href: "/complaints", icon: <FiAlertCircle className="w-4 h-4" /> },
+    { name: "nav.gallery", href: "/gallery", icon: <FiImage className="w-4 h-4" /> },
+    { name: "nav.contact", href: "/contact", icon: <FiPhone className="w-4 h-4" /> }
   ];
   
   const governmentLinks = [
@@ -99,8 +111,9 @@ export default function Footer() {
                   <Image
                                       src="/logo-6.png"
                                       alt="Bharatiya Janata Party logo"
-                                      width={40}
-                                      height={40}
+                                      width={160}
+                                      height={160}
+                                      sizes="160px"
                                       className="w-full h-full object-cover"
                                     />
                 {/* </div> */}
@@ -133,7 +146,7 @@ export default function Footer() {
                     href={link.href}
                     className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
                   >
-                    <FiHome className="w-4 h-4" />
+                    {link.icon}
                     {t(link.name, language)}
                   </Link>
                 </li>
@@ -247,7 +260,7 @@ export default function Footer() {
         <div className="mt-8 pt-8 border-t border-gray-800 flex flex-col items-center">
           <div className="grid w-full max-w-3xl grid-cols-3 gap-4 sm:grid-cols-3 sm:gap-6">
             <div className="text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-white/10 flex items-center justify-center">
+              <div className="mx-auto h-12 w-12 rounded-full flex items-center justify-center">
                 <Image
                   src="/nmmc.png"
                   alt="Navi Mumbai Municipal Corporation"
@@ -259,7 +272,7 @@ export default function Footer() {
               <div className="text-xs text-gray-400 mt-2">Navi Mumbai Corporation</div>
             </div>
             <div className="text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold">
+              <div className="mx-auto h-12 w-12 rounded-full flex items-center justify-center text-sm font-semibold">
                 महाराष्ट्र
               </div>
               <div className="text-xs text-gray-400 mt-2">Maharashtra Government</div>

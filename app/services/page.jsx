@@ -97,25 +97,29 @@ export default function ServicesPage() {
       name: language === "en" ? "PM Awas Yojana" : "पीएम आवास योजना",
       icon: "🏠",
       description: language === "en" ? "Housing for all" : "सर्वांसाठी घरे",
-      beneficiaries: "250+ families"
+      beneficiaries: "250+ families",
+      link: "https://pmay-urban.gov.in/"
     },
     {
       name: language === "en" ? "Ayushman Bharat" : "आयुष्मान भारत",
       icon: "🏥",
       description: language === "en" ? "Health insurance" : "आरोग्य विमा",
-      beneficiaries: "500+ cards issued"
+      beneficiaries: "500+ cards issued",
+      link: "https://pmjay.gov.in/"
     },
     {
       name: language === "en" ? "Ujjwala Yojana" : "उज्ज्वला योजना",
       icon: "🔥",
       description: language === "en" ? "Free LPG connections" : "मोफत एलपीजी कनेक्शन",
-      beneficiaries: "300+ connections"
+      beneficiaries: "300+ connections",
+      link: "https://www.pmuy.gov.in/"
     },
     {
       name: language === "en" ? "Kisan Samman Nidhi" : "किसान सम्मान निधी",
       icon: "👨‍🌾",
       description: language === "en" ? "Farmer support" : "शेतकरी समर्थन",
-      beneficiaries: "150+ farmers"
+      beneficiaries: "150+ farmers",
+      link: "https://pmkisan.gov.in/"
     }
   ];
 
@@ -211,9 +215,14 @@ export default function ServicesPage() {
                 <div className="text-sm opacity-80">
                   {language === "en" ? "Beneficiaries" : "लाभार्थी"}: {scheme.beneficiaries}
                 </div>
-                <button className="mt-4 w-full px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm transition-colors">
+                <a
+                  href={scheme.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 w-full px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm transition-colors inline-flex items-center justify-center"
+                >
                   {language === "en" ? "Apply Now" : "आता अर्ज करा"}
-                </button>
+                </a>
               </div>
             ))}
           </div>

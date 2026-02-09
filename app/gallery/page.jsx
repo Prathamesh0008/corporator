@@ -2,237 +2,345 @@
 
 import { useState } from "react";
 import {
-  FiChevronLeft,
-  FiChevronRight,
-  FiThumbsUp,
-  FiEye,
-  FiMapPin,
+  FiArrowRight,
   FiCalendar,
+  FiGrid,
+  FiImage,
+  FiPlay,
   FiX
 } from "react-icons/fi";
+import { FaInstagram } from "react-icons/fa6";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { t } from "../../lib/translations";
 
 export default function GalleryPage() {
   const { language } = useLanguage();
   const [selectedImage, setSelectedImage] = useState(null);
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState("all");
 
-  const galleryCategories = [
-    { id: "all", name: language === "en" ? "All Photos" : "सर्व फोटो" },
-    { id: "before", name: language === "en" ? "Before" : "आधी" },
-    { id: "after", name: language === "en" ? "After" : "नंतर" },
-    { id: "roads", name: language === "en" ? "Roads" : "रस्ते" },
-    { id: "drainage", name: language === "en" ? "Drainage" : "ड्रेनेज" },
-    { id: "water", name: language === "en" ? "Water" : "पाणी" }
-  ];
-
-  const galleryItems = [
+  const galleryPhotos = [
     {
       id: 1,
-      title: language === "en" ? "Road Repair Work" : "रस्ता दुरुस्ती काम",
-      category: "roads",
-      before: "https://picsum.photos/id/1011/800/600",
-      after: "https://picsum.photos/id/1015/800/600",
-      location: language === "en" ? "Main Road, Ward 45" : "मुख्य रस्ता, वॉर्ड ४५",
-      date: language === "en" ? "January 2024" : "जानेवारी २०२४",
-      likes: 245,
-      views: 1247,
-      description:
-        language === "en"
-          ? "Complete reconstruction of 2km road with proper drainage system"
-          : "योग्य ड्रेनेजसह २ किमी रस्त्याची पूर्ण पुनर्बांधणी"
+      title: language === "en" ? "Community Gathering" : "?????? ???",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/support/1.png"
     },
     {
       id: 2,
-      title: language === "en" ? "Drainage System" : "ड्रेनेज सिस्टम",
-      category: "drainage",
-      before: "https://picsum.photos/id/103/800/600",
-      after: "https://picsum.photos/id/104/800/600",
-      location: language === "en" ? "Ganesh Nagar" : "गणेश नगर",
-      date: language === "en" ? "February 2024" : "फेब्रुवारी २०२४",
-      likes: 189,
-      views: 987,
-      description:
-        language === "en"
-          ? "Underground drainage system to prevent waterlogging"
-          : "पाणी साचू नये म्हणून भूमिगत ड्रेनेज सिस्टम"
+      title: language === "en" ? "Cleanliness Drive" : "???????? ?????",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/support/2.png"
     },
     {
       id: 3,
-      title: language === "en" ? "Water Pipeline" : "पाणी पाइपलाइन",
-      category: "water",
-      before: "https://picsum.photos/id/106/800/600",
-      after: "https://picsum.photos/id/107/800/600",
-      location: language === "en" ? "Shivaji Chowk Area" : "शिवाजी चौक परिसर",
-      date: language === "en" ? "March 2024" : "मार्च २०२४",
-      likes: 156,
-      views: 756,
-      description:
-        language === "en"
-          ? "24x7 water supply pipeline installation"
-          : "२४x७ पाणीपुरवठ्यासाठी पाइपलाइन स्थापना"
+      title: language === "en" ? "Health Camp" : "?????? ?????",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/support/3.png"
     },
     {
       id: 4,
-      title: language === "en" ? "LED Street Lights" : "एलईडी स्ट्रीट लाइट",
-      category: "roads",
-      before: "https://picsum.photos/id/108/800/600",
-      after: "https://picsum.photos/id/109/800/600",
-      location: language === "en" ? "Entire Ward 45" : "संपूर्ण वॉर्ड ४५",
-      date: language === "en" ? "December 2023" : "डिसेंबर २०२३",
-      likes: 312,
-      views: 1543,
-      description:
-        language === "en"
-          ? "Installation of 250 LED street lights"
-          : "२५० एलईडी स्ट्रीट लाइट्सची स्थापना"
+      title: language === "en" ? "Road Work" : "????? ???",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/support/4.png"
     },
     {
       id: 5,
-      title: language === "en" ? "Garbage Management" : "कचरा व्यवस्थापन",
-      category: "drainage",
-      before: "https://picsum.photos/id/110/800/600",
-      after: "https://picsum.photos/id/111/800/600",
-      location: language === "en" ? "Market Area" : "बाजार परिसर",
-      date: language === "en" ? "February 2024" : "फेब्रुवारी २०२४",
-      likes: 278,
-      views: 1321,
-      description:
-        language === "en"
-          ? "New waste segregation and management system"
-          : "नवीन कचरा वर्गीकरण व व्यवस्थापन प्रणाली"
+      title: language === "en" ? "Drainage Upgrade" : "??????? ???????",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/support/5.png"
     },
     {
       id: 6,
-      title: language === "en" ? "Park Renovation" : "पार्क नूतनीकरण",
-      category: "water",
-      before: "https://picsum.photos/id/112/800/600",
-      after: "https://picsum.photos/id/113/800/600",
-      location: language === "en" ? "Children's Park" : "बालवाडी पार्क",
-      date: language === "en" ? "March 2024" : "मार्च २०२४",
-      likes: 198,
-      views: 876,
-      description:
-        language === "en"
-          ? "Complete renovation of public park"
-          : "सार्वजनिक पार्कचे पूर्ण नूतनीकरण"
+      title: language === "en" ? "Water Supply" : "??????????",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/support/6.png"
+    },
+    {
+      id: 7,
+      title: language === "en" ? "Women Safety" : "????? ???????",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/support/7.png"
+    },
+    {
+      id: 8,
+      title: language === "en" ? "Youth Engagement" : "???? ?????",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/support/8.png"
+    },
+    {
+      id: 9,
+      title: language === "en" ? "Ward Development" : "????? ?????",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/support-2.png"
+    },
+    {
+      id: 10,
+      title: language === "en" ? "Community Work" : "?????? ?????",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/1.png"
+    },
+    {
+      id: 11,
+      title: language === "en" ? "Public Event" : "????????? ?????????",
+      date: language === "en" ? "2024" : "????",
+      src: "/gallery/11.jpg"
     }
   ];
 
-  const filteredItems =
-    activeFilter === "all"
-      ? galleryItems
-      : galleryItems.filter((item) => item.category === activeFilter);
+  const galleryVideos = [
+    {
+      id: 1,
+      title: language === "en" ? "Ward updates reel" : "????? ??????? ???",
+      date: language === "en" ? "Latest" : "????",
+      thumb: "/gallery/support/3.png",
+      href: "https://www.instagram.com/reel/DUVeWRGiL6R/"
+    },
+    {
+      id: 2,
+      title: language === "en" ? "Citizen services reel" : "?????? ???? ???",
+      date: language === "en" ? "Latest" : "????",
+      thumb: "/gallery/support/6.png",
+      href: "https://www.instagram.com/reel/DTvuyTDDP7v/"
+    },
+    {
+      id: 3,
+      title: language === "en" ? "Community work reel" : "?????? ????? ???",
+      date: language === "en" ? "Latest" : "????",
+      thumb: "/gallery/support/4.png",
+      href: "https://www.instagram.com/reel/DUV-a2AjNiH/"
+    }
+  ];
+
+  const featuredVideo = galleryVideos[0];
+  const spotlightPhotos = galleryPhotos.slice(0, 2);
 
   return (
-    <div className="min-h-screen">
-      <section className="bg-gradient-to-r from-blue-50 to-orange-50 py-12">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {t("nav.gallery", language)}
-            </h1>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              {language === "en"
-                ? "Visual journey of transformation in Ward 24(D)"
-                : "वॉर्ड २४(ड) मधील रूपांतराचा दृश्य प्रवास"}
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="min-h-screen bg-white">
+      <section className="relative overflow-hidden bg-[#0B3D91] text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(243,112,33,0.55),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(19,136,8,0.45),_transparent_55%)]" />
+        <div className="absolute -left-24 -top-20 h-72 w-72 rounded-full bg-[#F37021]/45 blur-3xl" />
+        <div className="absolute -right-16 top-16 h-64 w-64 rounded-full bg-[#138808]/35 blur-3xl" />
+        <div className="container-responsive px-4 sm:px-6 lg:px-8 py-16 lg:py-24 relative">
+          <div className="grid lg:grid-cols-[1.1fr,0.9fr] gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80">
+                {language === "en" ? "Media Gallery" : "?????? ?????"}
+              </div>
+              <h1 className="text-4xl sm:text-5xl text-white/80 lg:text-6xl font-semibold leading-tight text-balance">
+                {language === "en" ? "Ward 24(D) in Motion" : "????? ??(?) ?? ????? ???"}
+              </h1>
+              <p className="text-lg text-white/80 max-w-2xl">
+                {language === "en"
+                  ? "Moments from citizen services, development work, and public outreach captured in photos and reels."
+                  : "?????? ????, ????? ???? ??? ???????? ????? ???? ???? ? ??????????."}
+              </p>
+              
+             
+            </div>
 
-      <section className="py-6 bg-gray-50">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap gap-2">
-            {galleryCategories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setActiveFilter(category.id)}
-                className={`px-4 py-2 rounded-full transition-all duration-300 ${
-                  activeFilter === category.id
-                    ? "bg-gradient-to-r from-[#FF9933] to-[#FF6600] text-white shadow-md"
-                    : "bg-white text-gray-700 hover:bg-gray-100 border"
-                }`}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                className="card hover:shadow-xl cursor-pointer"
-                onClick={() => setSelectedImage(item)}
-              >
-                <div className="relative h-64 mb-4 rounded-lg overflow-hidden">
-                  <div className="flex w-[200%] h-full transition-transform duration-500 hover:-translate-x-1/2">
-                    <div className="w-1/2 h-full relative">
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                        <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm">
-                          {language === "en" ? "BEFORE" : "आधी"}
-                        </span>
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl" />
+              <div className="relative grid gap-4">
+                <a
+                  href={featuredVideo.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group relative overflow-hidden rounded-[28px] border border-white/15 bg-black/20 shadow-2xl shadow-black/30"
+                >
+                  <div className="relative aspect-[16/9]">
+                    <img
+                      src={featuredVideo.thumb}
+                      alt={featuredVideo.title}
+                      className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    <div className="absolute top-4 left-4 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-[#0B3D91]">
+                      {language === "en" ? "Featured Reel" : "?????? ???"}
+                    </div>
+                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-4">
+                      <div>
+                        <div className="text-sm font-semibold text-white">{featuredVideo.title}</div>
                       </div>
-                      <div
-                        className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${item.before})` }}
-                      />
-                    </div>
-
-                    <div className="w-1/2 h-full relative">
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                        <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
-                          {language === "en" ? "AFTER" : "नंतर"}
-                        </span>
+                      <div className="h-12 w-12 rounded-full bg-white/90 text-[#F97316] flex items-center justify-center shadow-lg">
+                        <FiPlay className="w-5 h-5" />
                       </div>
-                      <div
-                        className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${item.after})` }}
-                      />
                     </div>
                   </div>
-                </div>
-
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-gray-600 mb-4 line-clamp-2">{item.description}</p>
-
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-                  <div className="flex items-center gap-1">
-                    <FiMapPin className="w-4 h-4" />
-                    {item.location}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <FiCalendar className="w-4 h-4" />
-                    {item.date}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-3 border-t">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <FiThumbsUp className="w-4 h-4" />
-                      <span>{item.likes}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <FiEye className="w-4 h-4" />
-                      <span>{item.views}</span>
-                    </div>
-                  </div>
-                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    {t("common.viewDetails", language)} →
-                  </button>
+                </a>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {spotlightPhotos.map((photo) => (
+                    <button
+                      key={photo.id}
+                      type="button"
+                      onClick={() => setSelectedImage(photo)}
+                      className="group relative overflow-hidden rounded-[24px] border border-white/15 bg-black/20"
+                    >
+                      <div className="relative aspect-[4/3]">
+                        <img
+                          src={photo.src}
+                          alt={photo.title}
+                          className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        <div className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white">
+                          {photo.title}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
+
+      <section id="gallery-content" className="py-10 bg-white">
+        <div className="container-responsive px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="text-xs uppercase tracking-[0.3em] text-[#F97316] font-semibold">
+                {language === "en" ? "Browse" : "??????"}
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                {language === "en" ? "Gallery Highlights" : "????? ?????????"}
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: "all", label: language === "en" ? "All" : "????", icon: <FiGrid /> },
+                { id: "photos", label: language === "en" ? "Photos" : "????", icon: <FiImage /> },
+                { id: "videos", label: language === "en" ? "Videos" : "???????", icon: <FiPlay /> }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                    activeTab === tab.id
+                      ? "bg-[#F97316] text-white shadow-md"
+                      : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                  }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {(activeTab === "all" || activeTab === "photos") && (
+        <section className="py-10">
+          <div className="container-responsive px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-10 w-10 rounded-2xl bg-[#F97316]/10 text-[#F97316] flex items-center justify-center">
+                <FiImage className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-[0.3em] text-[#F97316] font-semibold">
+                  {language === "en" ? "Photos" : "????"}
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {language === "en" ? "Community Moments" : "????????? ????"}
+                </h3>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {galleryPhotos.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="group text-left rounded-3xl overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-lg transition"
+                  onClick={() => setSelectedImage(item)}
+                >
+                  <div className="relative aspect-[4/3] bg-gray-100">
+                    <img
+                      src={item.src}
+                      alt={item.title}
+                      className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition" />
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                      <FiCalendar className="w-4 h-4" />
+                      <span>{item.date}</span>
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900">{item.title}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {(activeTab === "all" || activeTab === "videos") && (
+        <section className="py-12 bg-[#fff7ed]">
+          <div className="container-responsive px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl bg-[#F97316] text-white flex items-center justify-center">
+                  <FiPlay className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-[0.3em] text-[#F97316] font-semibold">
+                    {language === "en" ? "Videos" : "???????"}
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+                    {language === "en" ? "Instagram Reels" : "???????????? ?????"}
+                  </h3>
+                </div>
+              </div>
+              <a
+                href="https://www.instagram.com/samajsevaksachinlavate/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#F97316] px-5 py-2 text-sm font-semibold text-[#F97316] hover:bg-[#F97316] hover:text-white transition"
+              >
+                <FaInstagram className="w-4 h-4" />
+                {language === "en" ? "View Instagram" : "???????????? ???"}
+              </a>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {galleryVideos.map((video) => (
+                <a
+                  key={video.id}
+                  href={video.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group rounded-3xl overflow-hidden border border-[#FBD8B0] bg-white shadow-sm hover:shadow-lg transition"
+                >
+                  <div className="relative aspect-[4/3] bg-gray-100">
+                    <img
+                      src={video.thumb}
+                      alt={video.title}
+                      className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="h-12 w-12 rounded-full bg-white/90 text-[#F97316] flex items-center justify-center shadow-lg">
+                        <FiPlay className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                      <FiCalendar className="w-4 h-4" />
+                      <span>{video.date}</span>
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900">{video.title}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {selectedImage && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
@@ -247,93 +355,54 @@ export default function GalleryPage() {
                   <FiX className="w-6 h-6" />
                 </button>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="text-center">
-                  <div className="relative h-64 rounded-lg overflow-hidden mb-2">
-                    <div
-                      className="w-full h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${selectedImage.before})` }}
-                    />
-                    <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm">
-                      {language === "en" ? "BEFORE" : "आधी"}
-                    </div>
-                  </div>
-                  <p className="text-gray-600">
-                    {language === "en" ? "Before work started" : "काम सुरू होण्यापूर्वी"}
-                  </p>
-                </div>
-                <div className="text-center">
-                  <div className="relative h-64 rounded-lg overflow-hidden mb-2">
-                    <div
-                      className="w-full h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${selectedImage.after})` }}
-                    />
-                    <div className="absolute top-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
-                      {language === "en" ? "AFTER" : "नंतर"}
-                    </div>
-                  </div>
-                  <p className="text-gray-600">
-                    {language === "en" ? "After completion" : "पूर्ण झाल्यानंतर"}
-                  </p>
-                </div>
+              <div className="rounded-xl overflow-hidden border border-gray-200">
+                <img
+                  src={selectedImage.src}
+                  alt={selectedImage.title}
+                  className="w-full h-auto object-contain"
+                  loading="lazy"
+                />
               </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm text-gray-500">
-                      {language === "en" ? "Location" : "स्थान"}
-                    </div>
-                    <div className="font-medium">{selectedImage.location}</div>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm text-gray-500">{language === "en" ? "Date" : "तारीख"}</div>
-                    <div className="font-medium">{selectedImage.date}</div>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm text-gray-500">{language === "en" ? "Likes" : "लाईक्स"}</div>
-                    <div className="font-medium">{selectedImage.likes}</div>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm text-gray-500">{language === "en" ? "Views" : "व्ह्यूज"}</div>
-                    <div className="font-medium">{selectedImage.views}</div>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-bold text-lg text-gray-900 mb-2">
-                    {language === "en" ? "Work Description" : "कामाचे वर्णन"}
-                  </h4>
-                  <p className="text-gray-700">{selectedImage.description}</p>
-                </div>
+              <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+                <FiCalendar className="w-4 h-4" />
+                <span>{selectedImage.date}</span>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <section className="py-12 bg-gradient-to-r from-orange-50 to-red-50">
+      <section className="py-14 bg-gradient-to-r from-[#fff7ed] via-white to-[#ecfdf5]">
         <div className="container-responsive px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {language === "en" ? "Share Our Progress" : "आमची प्रगती शेअर करा"}
+            <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs uppercase tracking-[0.3em] text-[#F97316] font-semibold shadow">
+              {language === "en" ? "Stay Connected" : "???????? ???"}
+            </div>
+            <h2 className="mt-4 text-3xl font-bold text-gray-900">
+              {language === "en" ? "Follow the Journey" : "????????? ????????? ????"}
             </h2>
-            <p className="text-gray-700 mb-8">
+            <p className="mt-3 text-gray-700">
               {language === "en"
-                ? "Help spread the word about development works in Ward 24(D). Share these photos with your friends and neighbors."
-                : "वॉर्ड २४(ड) मधील विकास कामांबद्दल माहिती पसरवण्यात मदत करा. हे फोटो तुमच्या मित्रांना आणि शेजार्‍यांना शेअर करा."}
+                ? "See the latest updates, community events, and service milestones on Instagram."
+                : "?????????????? ???? ???????, ?????? ????????? ??? ???? ????? ???."}
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <button className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2">
-                <span>📱</span> WhatsApp
-              </button>
-              <button className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 flex items-center gap-2">
-                <span>💬</span> Telegram
-              </button>
-              <button className="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 flex items-center gap-2">
-                <span>📸</span> Instagram
-              </button>
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
+              <a
+                href="https://www.instagram.com/samajsevaksachinlavate/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#F97316] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-[#e25f0d] transition"
+              >
+                <FaInstagram className="w-4 h-4" />
+                {language === "en" ? "Follow on Instagram" : "???????????? ???? ???"}
+              </a>
+              <a
+                href="/contact"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition"
+              >
+                {language === "en" ? "Contact Office" : "???????? ??????"}
+                <FiArrowRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </div>
