@@ -107,7 +107,7 @@ const brandTitle = isEnglish ? (
   return (
     <>
       {showIntro && (
-        <div className="fixed inset-0 z-[60] bg-white flex items-center justify-center pointer-events-none">
+        <div className="fixed inset-0 z-3000 bg-white flex items-center justify-center pointer-events-none">
           <div
             className={`intro-logo ${introMove ? "intro-logo--move" : ""}`}
             style={{
