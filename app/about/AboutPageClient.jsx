@@ -148,7 +148,7 @@ export default function AboutPage() {
               <div className="rounded-3xl bg-white/10 border border-white/20 p-4 shadow-2xl">
                 <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-white">
                   <Image
-                    src="/BJP.jpeg"
+                    src="/bjp.jpeg"
                     alt={language === "en" ? "Sachin Devappa Lavate" : "सचिन देवाप्पा लवटे"}
                     fill
                     className="object-cover"
@@ -171,7 +171,7 @@ export default function AboutPage() {
                 <div className="flex items-center gap-4">
                   <div className="relative w-20 h-20 rounded-full overflow-hidden border border-gray-200 bg-white">
                     <Image
-                      src="/BJP.jpeg"
+                      src="/bjp.jpeg"
                       alt={language === "en" ? "Sachin Devappa Lavate" : "सचिन देवाप्पा लवटे"}
                       fill
                       className="object-cover"

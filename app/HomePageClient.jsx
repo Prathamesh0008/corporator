@@ -646,7 +646,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.6fr] gap-8 items-start">
               <div className="relative rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-white max-w-sm mx-auto lg:mx-0 aspect-[4/5] lg:self-start">
                 <img
-                  src="/BJP.jpeg"
+                  src="/bjp.jpeg"
                   alt={language === "en" ? "Corporator Sachin Lavate" : "नगरसेवक सचिन लवटे"}
                   className="w-full  "
                   loading="lazy"
