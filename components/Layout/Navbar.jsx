@@ -156,7 +156,7 @@ const brandTitle = isEnglish ? (
       {/* Top Announcement Bar */}
       <div className="bg-gradient-to-r from-[#FF9933] via-white to-[#138808] text-gray-800 py-1.5 px-4 border-b border-black/5">
         <div className="container-responsive">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs">
+          <div className="flex flex-row md:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
               <span className="font-semibold tracking-wide">{topBarTitle}</span>

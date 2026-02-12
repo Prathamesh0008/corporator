@@ -4,7 +4,10 @@ export const metadata = {
   title: "Nerul BJP Corporator | Development Works & Ward Projects",
   description:
     "Explore development works and ward projects by Nerul BJP corporator Sachin Lavate, focused on roads, drainage, water supply, and public facilities.",
-  keywords: ["Nerul BJP corporator development work"]
+  keywords: ["Nerul BJP corporator development work"],
+  alternates: {
+    canonical: "/works",
+  },
 };
 
 export default function WorksPage() {

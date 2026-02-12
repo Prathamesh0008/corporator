@@ -7,7 +7,10 @@ export const metadata = {
   keywords: [
     "Nerul BJP corporator complaint",
     "Water, road, drainage complaint Nerul"
-  ]
+  ],
+  alternates: {
+    canonical: "/complaints",
+  },
 };
 
 export default function ComplaintsPage() {

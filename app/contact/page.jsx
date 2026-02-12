@@ -7,7 +7,10 @@ export const metadata = {
   keywords: [
     "Nerul BJP corporator contact number",
     "Nerul municipal complaint support"
-  ]
+  ],
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 export default function ContactPage() {

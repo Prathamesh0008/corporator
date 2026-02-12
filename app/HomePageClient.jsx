@@ -445,21 +445,7 @@ export default function HomePage() {
             <span className="hidden md:inline text-white/70">|</span>
             <span className="text-white/90">Helpline: 1800 222 230</span>
           </div>
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-full w-full md:w-72">
-              <FiSearch className="text-white/80" />
-              <input
-                className="bg-transparent placeholder-white/70 text-white text-sm outline-none w-full"
-                placeholder={language === "en" ? "Search" : "शोधा"}
-              />
-            </div>
-            <Link
-              href="/contact"
-              className="hidden md:inline-flex px-4 py-2 bg-white text-[#0b3d91] rounded-full text-sm font-semibold"
-            >
-              {language === "en" ? "Contact" : "संपर्क"}
-            </Link>
-          </div>
+         
         </div>
       </section>
 
