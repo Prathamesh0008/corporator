@@ -69,6 +69,9 @@ export const metadata = {
       'max-video-preview': -1,
     },
   },
+  verification: {
+    google: 'lemVnliLnKxpZitfTF7O2UVBwo8l3ObtqxDrqoBREjk',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
