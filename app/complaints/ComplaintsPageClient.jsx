@@ -13,6 +13,13 @@ export default function ComplaintsPage() {
   const { language } = useLanguage();
   const [showForm, setShowForm] = useState(false);
   const [complaintSubmitted, setComplaintSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submittedComplaintId, setSubmittedComplaintId] = useState("");
+  const [trackComplaintId, setTrackComplaintId] = useState("");
+  const [trackResult, setTrackResult] = useState(null);
+  const [trackError, setTrackError] = useState("");
+  const [isTracking, setIsTracking] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -25,6 +32,20 @@ export default function ComplaintsPage() {
     description: "",
     urgency: "medium"
   });
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      address: "",
+      ward: "",
+      complaintType: "general",
+      location: "",
+      description: "",
+      urgency: "medium"
+    });
+    setSelectedPhoto(null);
+  };
 
   const complaintTypes = [
     { id: "roads", label: language === "en" ? "Road & Footpath" : "रस्ता आणि फुटपाथ" },
@@ -64,39 +85,103 @@ export default function ComplaintsPage() {
     }
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate API call
-    setTimeout(() => {
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    try {
+      const response = await fetch("/api/complaints", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          photoDataUrl: selectedPhoto || "",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to submit complaint.");
+      }
+
+      setSubmittedComplaintId(data.complaintId || "");
+      setTrackComplaintId(data.complaintId || "");
       setComplaintSubmitted(true);
       setShowForm(false);
-      // Reset form after 3 seconds
-      setTimeout(() => {
-        setComplaintSubmitted(false);
-        setFormData({
-          name: "",
-          phone: "",
-          email: "",
-          address: "",
-          ward: "",
-          complaintType: "general",
-          location: "",
-          description: "",
-          urgency: "medium"
-        });
-        setSelectedPhoto(null);
-      }, 3000);
-    }, 1500);
+      resetForm();
+    } catch (error) {
+      setSubmitError(
+        error.message ||
+          (language === "en"
+            ? "Failed to submit complaint. Please try again."
+            : "तक्रार नोंदवण्यात अडचण आली. कृपया पुन्हा प्रयत्न करा.")
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setSubmitError(
+          language === "en"
+            ? "Photo must be under 5MB."
+            : "फोटो 5MB पेक्षा कमी असावा."
+        );
+        return;
+      }
+
+      setSubmitError("");
       const reader = new FileReader();
       reader.onloadend = () => {
         setSelectedPhoto(reader.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleTrackComplaint = async () => {
+    const complaintId = trackComplaintId.trim().toUpperCase();
+    if (!complaintId) {
+      setTrackError(
+        language === "en"
+          ? "Please enter a complaint ID."
+          : "कृपया तक्रार आयडी प्रविष्ट करा."
+      );
+      setTrackResult(null);
+      return;
+    }
+
+    setIsTracking(true);
+    setTrackError("");
+    setTrackResult(null);
+
+    try {
+      const response = await fetch(
+        `/api/complaints?complaintId=${encodeURIComponent(complaintId)}`
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to fetch complaint.");
+      }
+
+      setTrackResult(data.complaint);
+    } catch (error) {
+      setTrackError(
+        error.message ||
+          (language === "en"
+            ? "Could not track complaint."
+            : "तक्रार ट्रॅक करता आली नाही.")
+      );
+    } finally {
+      setIsTracking(false);
     }
   };
 
@@ -430,20 +515,33 @@ export default function ComplaintsPage() {
                       <div className="flex gap-3">
                         <button
                           type="button"
-                          onClick={() => setShowForm(false)}
+                          onClick={() => {
+                            setShowForm(false);
+                            setSubmitError("");
+                          }}
                           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                         >
                           {language === "en" ? "Cancel" : "रद्द करा"}
                         </button>
                         <button
                           type="submit"
-                          className="btn-primary flex items-center gap-2"
+                          disabled={isSubmitting}
+                          className="btn-primary flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                           <FiSend className="w-5 h-5" />
-                          {t("complaints.submitComplaint", language)}
+                          {isSubmitting
+                            ? language === "en"
+                              ? "Submitting..."
+                              : "सबमिट करत आहे..."
+                            : t("complaints.submitComplaint", language)}
                         </button>
                       </div>
                     </div>
+                    {submitError && (
+                      <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        {submitError}
+                      </div>
+                    )}
                   </form>
                 </div>
               ) : (
@@ -456,8 +554,8 @@ export default function ComplaintsPage() {
                   </h3>
                   <p className="text-gray-600 mb-6">
                     {language === "en" 
-                      ? "Your complaint ID is: COMP-2024-1247"
-                      : "तुमचा तक्रार आयडी आहे: COMP-2024-1247"}
+                      ? `Your complaint ID is: ${submittedComplaintId || "-"}`
+                      : `तुमचा तक्रार आयडी आहे: ${submittedComplaintId || "-"}`}
                   </p>
                   <div className="bg-blue-50 p-4 rounded-lg mb-6">
                     <p className="text-sm text-gray-700">
@@ -470,6 +568,7 @@ export default function ComplaintsPage() {
                     onClick={() => {
                       setComplaintSubmitted(false);
                       setShowForm(false);
+                      setSubmitError("");
                     }}
                     className="btn-primary"
                   >
@@ -499,11 +598,38 @@ export default function ComplaintsPage() {
                 type="text"
                 placeholder={language === "en" ? "Enter Complaint ID" : "तक्रार आयडी प्रविष्ट करा"}
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                value={trackComplaintId}
+                onChange={(e) => setTrackComplaintId(e.target.value)}
               />
-              <button className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
-                {language === "en" ? "Track" : "ट्रॅक करा"}
+              <button
+                onClick={handleTrackComplaint}
+                disabled={isTracking}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isTracking ? "Tracking..." : "Track"}
               </button>
             </div>
+            {trackError && (
+              <div className="mx-auto mt-4 max-w-md rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {trackError}
+              </div>
+            )}
+            {trackResult && (
+              <div className="mx-auto mt-4 max-w-md rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-left text-sm text-green-800">
+                <p>
+                  <span className="font-semibold">Complaint ID:</span> {trackResult.complaintId}
+                </p>
+                <p>
+                  <span className="font-semibold">Status:</span> {trackResult.status}
+                </p>
+                <p>
+                  <span className="font-semibold">Type:</span> {trackResult.complaintType}
+                </p>
+                <p>
+                  <span className="font-semibold">Location:</span> {trackResult.location}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>

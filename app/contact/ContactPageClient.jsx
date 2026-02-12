@@ -17,6 +17,8 @@ const LeafletMap = dynamic(() => import("../../components/LeafletMap"), { ssr: f
 
 export default function ContactPage() {
   const { language } = useLanguage();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({ type: "", message: "" });
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -24,10 +26,46 @@ export default function ContactPage() {
     message: ""
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // demo only
-    setFormData({ name: "", phone: "", email: "", message: "" });
+    setIsSubmitting(true);
+    setSubmitStatus({ type: "", message: "" });
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to submit form.");
+      }
+
+      setFormData({ name: "", phone: "", email: "", message: "" });
+      setSubmitStatus({
+        type: "success",
+        message:
+          language === "en"
+            ? "Message sent successfully. Our team will contact you soon."
+            : "संदेश यशस्वीरित्या पाठवला. आमची टीम लवकरच तुमच्याशी संपर्क करेल.",
+      });
+    } catch (error) {
+      setSubmitStatus({
+        type: "error",
+        message:
+          error.message ||
+          (language === "en"
+            ? "Failed to send message. Please try again."
+            : "संदेश पाठवण्यात अडचण आली. कृपया पुन्हा प्रयत्न करा."),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -96,34 +134,61 @@ export default function ContactPage() {
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <input
+                  type="text"
+                  required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder={language === "en" ? "Full Name" : "पूर्ण नाव"}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
                 <input
+                  type="tel"
+                  required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder={language === "en" ? "Phone Number" : "फोन नंबर"}
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 />
                 <input
+                  type="email"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder={language === "en" ? "Email" : "ईमेल"}
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
                 <textarea
+                  required
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder={language === "en" ? "Your Message" : "तुमचा संदेश"}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 />
-                <button type="submit" className="btn-primary w-full flex items-center justify-center gap-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
                   <FiSend className="w-5 h-5" />
-                  {language === "en" ? "Send Message" : "संदेश पाठवा"}
+                  {isSubmitting
+                    ? language === "en"
+                      ? "Sending..."
+                      : "पाठवत आहे..."
+                    : language === "en"
+                      ? "Send Message"
+                      : "संदेश पाठवा"}
                 </button>
+                {submitStatus.message && (
+                  <div
+                    className={`rounded-lg px-4 py-3 text-sm ${
+                      submitStatus.type === "success"
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : "bg-red-50 text-red-700 border border-red-200"
+                    }`}
+                  >
+                    {submitStatus.message}
+                  </div>
+                )}
               </form>
             </div>
           </div>
