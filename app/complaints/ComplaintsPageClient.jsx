@@ -456,6 +456,7 @@ export default function ComplaintsPage() {
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition-colors">
                         {selectedPhoto ? (
                           <div className="relative">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img 
                               src={selectedPhoto} 
                               alt="Preview" 

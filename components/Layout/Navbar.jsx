@@ -12,7 +12,7 @@ import Image from "next/image";
 
 export default function Navbar() {
   const logoRef = useRef(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuState, setMenuState] = useState({ open: false, path: "" });
   const [isScrolled, setIsScrolled] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [introMove, setIntroMove] = useState(false);
@@ -20,6 +20,19 @@ export default function Navbar() {
   const pathname = usePathname();
   const { language } = useLanguage();
   const isEnglish = language === "en";
+  const isMenuOpen = menuState.open && menuState.path === (pathname ?? "");
+
+  const closeMenu = () => {
+    setMenuState({ open: false, path: pathname ?? "" });
+  };
+
+  const toggleMenu = () => {
+    const currentPath = pathname ?? "";
+    setMenuState((prev) => {
+      const currentlyOpen = prev.open && prev.path === currentPath;
+      return { open: !currentlyOpen, path: currentPath };
+    });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,10 +66,6 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
@@ -67,7 +76,7 @@ export default function Navbar() {
     if (!isMenuOpen) return;
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
-        setIsMenuOpen(false);
+        setMenuState((prev) => ({ ...prev, open: false }));
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -260,7 +269,7 @@ const brandTitle = isEnglish ? (
               {/* Mobile Menu Button */}
               <button
                 type="button"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                onClick={toggleMenu}
                 className="lg:hidden p-2 hover:bg-gray-100 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
                 aria-expanded={isMenuOpen}
                 aria-controls="primary-navigation"
@@ -286,7 +295,7 @@ const brandTitle = isEnglish ? (
                       ? "bg-orange-50 text-orange-600"
                       : "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
                   }`}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={closeMenu}
                 >
                   {item.icon}
                   <span className="font-medium">{t(item.name, language)}</span>

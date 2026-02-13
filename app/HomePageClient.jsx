@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import {
@@ -303,7 +304,7 @@ export default function HomePage() {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [language]);
+  }, [language, slides.length]);
 
   useEffect(() => {
     const updateJourneyItemsPerView = () => {
@@ -320,10 +321,6 @@ export default function HomePage() {
     window.addEventListener("resize", updateJourneyItemsPerView);
     return () => window.removeEventListener("resize", updateJourneyItemsPerView);
   }, []);
-
-  useEffect(() => {
-    setJourneyIndex((prev) => Math.min(prev, journeyMaxIndex));
-  }, [journeyMaxIndex]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.instgrm?.Embeds?.process) {
@@ -419,6 +416,8 @@ export default function HomePage() {
   const handleJourneyMouseUp = () => {
     endJourneyDrag();
   };
+
+  const clampedJourneyIndex = Math.min(journeyIndex, journeyMaxIndex);
 
   const handleJourneyTouchStart = (event) => {
     if (!event.touches?.length) return;
@@ -631,11 +630,12 @@ export default function HomePage() {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.6fr] gap-8 items-start">
               <div className="relative rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-white max-w-sm mx-auto lg:mx-0 aspect-[4/5] lg:self-start">
-                <img
+                <Image
                   src="/bjp.jpeg"
                   alt={language === "en" ? "Corporator Sachin Lavate" : "नगरसेवक सचिन लवटे"}
-                  className="w-full  "
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 30vw"
+                  className="h-full w-full object-cover"
                 />
                 <div className="absolute bottom-0 inset-x-0  p-4">
                   <div className="text-black font-semibold">
@@ -871,7 +871,7 @@ export default function HomePage() {
           >
             <div
               className="flex transition-transform duration-700 ease-in-out -mx-2"
-              style={{ transform: `translateX(-${journeyIndex * (100 / journeyItemsPerView)}%)` }}
+              style={{ transform: `translateX(-${clampedJourneyIndex * (100 / journeyItemsPerView)}%)` }}
             >
               {journeyItems.map((item) => (
                 <div
@@ -902,7 +902,7 @@ export default function HomePage() {
                 aria-label={`${language === "en" ? "Go to slide" : "स्लाइड"} ${index + 1}`}
                 onClick={() => setJourneyIndex(index)}
                 className={`h-2.5 w-2.5 rounded-full transition-colors ${
-                  index === journeyIndex ? "bg-orange-500" : "bg-white/30 hover:bg-white/60"
+                  index === clampedJourneyIndex ? "bg-orange-500" : "bg-white/30 hover:bg-white/60"
                 }`}
               />
             ))}

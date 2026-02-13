@@ -51,6 +51,41 @@ const structuredData = {
   ],
 }
 
+const organizationStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': 'https://www.sachinlavatenagarsevak.com/#organization',
+  name: 'Sachin Lavate Nagarsevak',
+  alternateName: 'Sachin Lavate',
+  url: 'https://www.sachinlavatenagarsevak.com/',
+  logo: 'https://www.sachinlavatenagarsevak.com/logo-6.png',
+  image: 'https://www.sachinlavatenagarsevak.com/logo-6.png',
+  description: 'Official website of Sachin Lavate, Nagarsevak from Nerul, Navi Mumbai. Dedicated to ward development, public welfare initiatives, infrastructure improvement, and citizen grievance support.',
+  founder: {
+    '@type': 'Person',
+    name: 'Sachin Lavate',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Nerul',
+    addressRegion: 'Navi Mumbai',
+    addressCountry: 'India',
+  },
+  areaServed: {
+    '@type': 'Place',
+    name: 'Nerul, Navi Mumbai',
+  },
+  sameAs: [
+    'https://www.instagram.com/samajsevaksachinlavate',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer support',
+    areaServed: 'IN',
+    availableLanguage: ['English', 'Marathi'],
+  },
+}
+
 export const metadata = {
   metadataBase: new URL(siteUrl),
   title: 'Corporator Sachin Lavate | Ward 24(D) Navi Mumbai',
@@ -95,6 +130,10 @@ export default function RootLayout({ children }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationStructuredData) }}
         />
       </head>
       <body className={inter.className}>
