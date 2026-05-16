@@ -2,13 +2,13 @@
 
 import { 
   FiSettings, FiFileText, FiShield, FiDroplet, 
-  FiZap, FiHome, FiHeart, FiPhone, FiDownload
+  FiZap, FiHeart, FiPhone
 } from "react-icons/fi";
 import { 
   GiWaterTank, GiRoad, GiStreetLight, GiHealthNormal,
   GiTreehouse, GiAmbulance
 } from "react-icons/gi";
-import { GoPeople, GoBriefcase } from "react-icons/go";
+import { GoPeople } from "react-icons/go";
 import { MdLocalHospital, MdSchool, MdCleaningServices } from "react-icons/md";
 import Link from "next/link";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -255,57 +255,6 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Quick Downloads */}
-      <section className="py-12 bg-gray-50">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">
-            {language === "en" ? "Forms & Downloads" : "फॉर्म आणि डाउनलोड"}
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <a href="#" className="card hover:shadow-xl text-center">
-              <FiDownload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                {language === "en" ? "Application Forms" : "अर्ज फॉर्म"}
-              </h3>
-              <p className="text-gray-600">
-                {language === "en" ? "Download various application forms" : "विविध अर्ज फॉर्म डाउनलोड करा"}
-              </p>
-            </a>
-            
-            <a href="#" className="card hover:shadow-xl text-center">
-              <FiFileText className="w-12 h-12 text-green-600 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                {language === "en" ? "Certificates" : "प्रमाणपत्रे"}
-              </h3>
-              <p className="text-gray-600">
-                {language === "en" ? "Birth, Death, Income certificates" : "जन्म, मृत्यू, उत्पन्न प्रमाणपत्रे"}
-              </p>
-            </a>
-            
-            <a href="#" className="card hover:shadow-xl text-center">
-              <FiHome className="w-12 h-12 text-orange-600 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                {language === "en" ? "Property Documents" : "मालमत्ता दस्तऐवज"}
-              </h3>
-              <p className="text-gray-600">
-                {language === "en" ? "Property related forms and guidelines" : "मालमत्तेशी संबंधित फॉर्म आणि मार्गदर्शक"}
-              </p>
-            </a>
-            
-            <a href="#" className="card hover:shadow-xl text-center">
-              <GoBriefcase className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                {language === "en" ? "Business Licenses" : "व्यवसाय परवाने"}
-              </h3>
-              <p className="text-gray-600">
-                {language === "en" ? "Trade license applications" : "व्यापार परवाना अर्ज"}
-              </p>
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* Contact Support */}
       <section className="py-12 bg-gradient-to-r from-orange-50 to-red-50">
         <div className="container-responsive px-4 sm:px-6 lg:px-8">
@@ -340,3 +289,4 @@ export default function ServicesPage() {
     </div>
   );
 }
+

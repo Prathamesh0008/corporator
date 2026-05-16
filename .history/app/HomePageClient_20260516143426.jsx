@@ -437,7 +437,14 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#f6f3ef]">
       {/* Top quick bar */}
-    
+      <section className="bg-[#0b3d91] text-white">
+        <div className="container-responsive px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3 text-xs md:text-sm">
+            <span className="font-semibold">Navi Mumbai Municipal Corporation</span>
+          </div>
+         
+        </div>
+      </section>
 
       {/* Hero */}
      <section className="relative overflow-hidden bg-white">

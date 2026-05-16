@@ -272,11 +272,11 @@ export default function Footer() {
               <div className="text-xs text-gray-400 mt-2">Navi Mumbai Corporation</div>
             </div>
             <div className="text-center">
-              <div className="mx-auto h-12 w-15 rounded-full flex items-center justify-center">
+              <div className="mx-auto h-12 w-12 rounded-full flex items-center justify-center">
                 <Image
                   src="/MH.svg"
                   alt="Maharashtra map"
-                  width={108}
+                  width={120}
                   height={84}
                   className="h-20 w-auto brightness-0 invert"
                 />

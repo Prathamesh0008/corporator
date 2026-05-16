@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 import L from "leaflet";
