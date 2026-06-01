@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiMenu, FiX, FiSearch, FiHome, FiUser, FiCheckCircle, FiImage, FiSettings, FiAlertCircle, FiPhone, FiClock, FiPhoneCall } from "react-icons/fi";
@@ -11,12 +11,8 @@ import LanguageSwitcher from "../Common/LanguageSwitcher";
 import Image from "next/image";
 
 export default function Navbar() {
-  const logoRef = useRef(null);
   const [menuState, setMenuState] = useState({ open: false, path: "" });
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showIntro, setShowIntro] = useState(true);
-  const [introMove, setIntroMove] = useState(false);
-  const [introDelta, setIntroDelta] = useState({ x: 0, y: 0 });
   const pathname = usePathname();
   const { language } = useLanguage();
   const isEnglish = language === "en";
@@ -40,29 +36,6 @@ export default function Navbar() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const computeDelta = () => {
-      if (!logoRef.current) return;
-      const rect = logoRef.current.getBoundingClientRect();
-      const targetX = rect.left + rect.width / 2;
-      const targetY = rect.top + rect.height / 2;
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      setIntroDelta({ x: targetX - centerX, y: targetY - centerY });
-    };
-
-    computeDelta();
-    const raf = requestAnimationFrame(() => setIntroMove(true));
-    const timer = setTimeout(() => setShowIntro(false), 1600);
-
-    window.addEventListener("resize", computeDelta);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(timer);
-      window.removeEventListener("resize", computeDelta);
-    };
   }, []);
 
   useEffect(() => {
@@ -115,53 +88,6 @@ const brandTitle = isEnglish ? (
 
   return (
     <>
-      {showIntro && (
-        <div className="fixed inset-0 z-3000 bg-white flex items-center justify-center pointer-events-none">
-          <div
-            className={`intro-logo ${introMove ? "intro-logo--move" : ""}`}
-            style={{
-              "--intro-x": `${introDelta.x}px`,
-              "--intro-y": `${introDelta.y}px`,
-            }}
-          >
-            <div className="flex items-center gap-4 px-6 py-4  rounded-2xl shadow-2xl  ">
-              <div className="w-35 h-35 rounded-full bg-white shadow-md border  p-3">
-                <Image
-                  src="/logo-6.png"
-                  alt="Bharatiya Janata Party logo"
-                  width={150}
-                  height={150}
-                  priority
-                  fetchPriority="high"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="hidden sm:block">
-                <div className="text-xl font-bold text-black">
-                  {isEnglish ? "Corporator Sachin Lavate" : "नगरसेवक सचिन लवटे"}
-                </div>
-                <div className="text-sm text-black/90">
-                  {isEnglish ? "Ward 24(D), Nerul Sector 18" : "वॉर्ड २४(ड), नेरूळ सेक्टर १८"}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style jsx global>{`
-        .intro-logo {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%) scale(1.1);
-          transition: transform 1.2s ease-in-out;
-        }
-        .intro-logo--move {
-          transform: translate(calc(-50% + var(--intro-x)), calc(-50% + var(--intro-y))) scale(0.55);
-        }
-      `}</style>
-
       {/* Top Announcement Bar */}
       <div className="bg-gradient-to-r from-[#FF9933] via-white to-[#138808] text-gray-800 py-1.5 px-4 border-b border-black/5">
         <div className="container-responsive">
@@ -212,7 +138,7 @@ const brandTitle = isEnglish ? (
           <div className="flex justify-between items-center h-14">
 
             {/* Logo */}
-            <div className="flex items-center gap-2" ref={logoRef}>
+            <div className="flex items-center gap-2">
               <Link href="/" className="flex items-center gap-2">
                 <div className="w-14 h-14 rounded-full ">
                   <Image

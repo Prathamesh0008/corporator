@@ -5,6 +5,7 @@ import { LanguageProvider } from '../contexts/LanguageContext'
 import Navbar from '../components/Layout/Navbar'
 import Footer from '../components/Layout/Footer'
 import WhatsAppFloat from '../components/Common/WhatsAppFloat'
+import SachinPreloader from '../components/Common/SachinPreloader'
 
 const inter = Inter({ subsets: ['latin'] })
 const siteUrl = 'https://www.sachinlavatenagarsevak.com'
@@ -128,6 +129,41 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="preload" as="image" href="/logo.png" />
         <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                var KEY = "sachin-preloader-last-shown";
+                var today = new Date().toLocaleDateString("en-CA");
+                var shouldShow = true;
+                try {
+                  shouldShow = localStorage.getItem(KEY) !== today;
+                } catch (e) {
+                  shouldShow = true;
+                }
+                window.__SHOW_SACHIN_PRELOADER__ = shouldShow;
+                if (shouldShow) {
+                  document.documentElement.classList.add("sachin-preload-active");
+                } else {
+                  document.documentElement.classList.add("sachin-preload-done");
+                }
+              })();
+            `,
+          }}
+        />
+        <style>{`
+          html.sachin-preload-active,
+          html.sachin-preload-active body {
+            overflow: hidden;
+            background: #f7941d;
+          }
+          html.sachin-preload-active #sachin-site {
+            visibility: hidden;
+          }
+          html.sachin-preload-done #sachin-site {
+            visibility: visible;
+          }
+        `}</style>
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
@@ -138,7 +174,8 @@ export default function RootLayout({ children }) {
       </head>
       <body className={inter.className}>
         <LanguageProvider>
-          <div className="min-h-screen bg-gray-50">
+          <SachinPreloader />
+          <div id="sachin-site" className="min-h-screen bg-gray-50">
             <Navbar />
             <main>
               {children}
