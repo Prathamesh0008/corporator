@@ -23,6 +23,14 @@ function statusClass(status) {
   return "bg-gray-100 text-gray-700";
 }
 
+function toCloudinaryDownloadUrl(url) {
+  if (!url) return "";
+  if (url.includes("/upload/")) {
+    return url.replace("/upload/", "/upload/fl_attachment/");
+  }
+  return url;
+}
+
 export default function AdminPageClient() {
   const [adminKey, setAdminKey] = useState(
     () => (typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) || "" : "")
@@ -207,12 +215,13 @@ export default function AdminPageClient() {
                 <th className="px-3 py-2">Status</th>
                 <th className="px-3 py-2">Change Status</th>
                 <th className="px-3 py-2">Location</th>
+                <th className="px-3 py-2">Photo</th>
               </tr>
             </thead>
             <tbody>
               {complaints.length === 0 && (
                 <tr>
-                  <td className="px-3 py-3 text-gray-500" colSpan={10}>
+                  <td className="px-3 py-3 text-gray-500" colSpan={11}>
                     No complaints loaded yet.
                   </td>
                 </tr>
@@ -260,6 +269,31 @@ export default function AdminPageClient() {
                     </div>
                   </td>
                   <td className="px-3 py-2">{item.location || "-"}</td>
+                  <td className="px-3 py-2">
+                    {item.photoUrl ? (
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={item.photoUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-md bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"
+                        >
+                          View
+                        </a>
+                        <a
+                          href={toCloudinaryDownloadUrl(item.photoUrl)}
+                          download
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-md bg-green-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-green-700"
+                        >
+                          Download
+                        </a>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">-</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

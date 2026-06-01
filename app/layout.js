@@ -124,32 +124,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className="sachin-preload-active">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="preload" as="image" href="/logo.png" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function () {
-                var KEY = "sachin-preloader-last-shown";
-                var today = new Date().toLocaleDateString("en-CA");
-                var shouldShow = true;
-                try {
-                  shouldShow = localStorage.getItem(KEY) !== today;
-                } catch (e) {
-                  shouldShow = true;
-                }
-                window.__SHOW_SACHIN_PRELOADER__ = shouldShow;
-                if (shouldShow) {
-                  document.documentElement.classList.add("sachin-preload-active");
-                } else {
-                  document.documentElement.classList.add("sachin-preload-done");
-                }
-              })();
-            `,
-          }}
-        />
         <style>{`
           html.sachin-preload-active,
           html.sachin-preload-active body {

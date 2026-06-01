@@ -47,6 +47,7 @@ function mapComplaint(doc) {
     urgency: doc.urgency || "",
     status: doc.status || "",
     location: doc.location || "",
+    photoUrl: doc.photoUrl || "",
     createdAt: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
     updatedAt: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
   };
@@ -91,6 +92,7 @@ export async function GET(request) {
               urgency: 1,
               status: 1,
               location: 1,
+              photoUrl: 1,
               createdAt: 1,
               updatedAt: 1,
             },

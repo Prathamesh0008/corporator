@@ -9,17 +9,8 @@ gsap.registerPlugin(useGSAP);
 export default function SachinLogoPreloader() {
   const preloaderRef = useRef(null);
   const [svgText, setSvgText] = useState("");
-  const [show, setShow] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return Boolean(window.__SHOW_SACHIN_PRELOADER__);
-  });
+  const [show, setShow] = useState(true);
   const finishPreloader = () => {
-    const today = new Date().toLocaleDateString("en-CA");
-    try {
-      localStorage.setItem("sachin-preloader-last-shown", today);
-    } catch (error) {
-      // Ignore storage errors and continue.
-    }
     document.documentElement.classList.remove("sachin-preload-active");
     document.documentElement.classList.add("sachin-preload-done");
     document.body.style.overflow = "";
@@ -27,11 +18,10 @@ export default function SachinLogoPreloader() {
   };
 
   useEffect(() => {
-    if (!show) {
-      document.documentElement.classList.remove("sachin-preload-active");
-      document.documentElement.classList.add("sachin-preload-done");
-      return;
-    }
+    const safetyUnlock = window.setTimeout(() => {
+      finishPreloader();
+    }, 6000);
+
     document.body.style.overflow = "hidden";
     fetch("/sachin-logo.svg")
       .then((res) => {
@@ -55,6 +45,9 @@ export default function SachinLogoPreloader() {
         finishPreloader();
       });
     return () => {
+      window.clearTimeout(safetyUnlock);
+      document.documentElement.classList.remove("sachin-preload-active");
+      document.documentElement.classList.add("sachin-preload-done");
       document.body.style.overflow = "";
     };
   }, [show]);
@@ -382,6 +375,7 @@ export default function SachinLogoPreloader() {
           justify-content: center;
           background: #f7941d;
           overflow: hidden;
+          cursor: pointer;
         }
 
         .sachin-preloader::before {
