@@ -18,11 +18,6 @@ const structuredData = {
       name: 'Corporator Sachin Lavate',
       url: siteUrl,
       inLanguage: ['en', 'mr'],
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: `${siteUrl}/?q={search_term_string}`,
-        'query-input': 'required name=search_term_string',
-      },
     },
     {
       '@type': 'Person',
@@ -40,13 +35,7 @@ const structuredData = {
         addressRegion: 'Maharashtra',
         addressCountry: 'IN',
       },
-      contactPoint: {
-        '@type': 'ContactPoint',
-        contactType: 'customer support',
-        telephone: '+91-22-12345678',
-        email: 'contact@ward24.in',
-        areaServed: 'Navi Mumbai',
-      },
+      areaServed: 'Ward 24(D), Nerul, Navi Mumbai',
       sameAs: ['https://www.instagram.com/samajsevaksachinlavate?igsh=MTM4cnc4anFhMWxoMQ=='],
     },
   ],

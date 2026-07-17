@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import clientPromise from "../../../../lib/mongodb";
+import { timingSafeEqual } from "node:crypto";
+import { getDatabase } from "../../../../lib/mongodb";
+import { rateLimit } from "../../../../lib/rateLimit";
 
-const DB_NAME = process.env.MONGODB_DB || "mla";
 const COMPLAINTS_COLLECTION = "complaints";
 const CONTACT_COLLECTION = "contact_messages";
 const ALLOWED_COMPLAINT_STATUSES = ["Under Review", "In Progress", "Resolved", "Rejected"];
@@ -29,7 +30,9 @@ function validateAdminKey(request) {
   }
 
   const requestKey = request.headers.get("x-admin-key");
-  if (!requestKey || requestKey !== configuredKey) {
+  const requestBuffer = Buffer.from(requestKey || "");
+  const configuredBuffer = Buffer.from(configuredKey);
+  if (requestBuffer.length !== configuredBuffer.length || !timingSafeEqual(requestBuffer, configuredBuffer)) {
     return unauthorizedResponse();
   }
 
@@ -66,6 +69,7 @@ function mapContact(doc) {
 
 export async function GET(request) {
   try {
+    if (rateLimit(request, "admin-get", 20, 10 * 60_000)) return NextResponse.json({ error: "Too many attempts." }, { status: 429 });
     const authError = validateAdminKey(request);
     if (authError) {
       return authError;
@@ -74,8 +78,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const limit = normalizeLimit(searchParams.get("limit"));
 
-    const client = await clientPromise;
-    const db = client.db(DB_NAME);
+    const db = await getDatabase();
 
     const [complaintsRaw, contactsRaw] = await Promise.all([
       db
@@ -136,6 +139,7 @@ export async function GET(request) {
 
 export async function PATCH(request) {
   try {
+    if (rateLimit(request, "admin-patch", 30, 10 * 60_000)) return NextResponse.json({ error: "Too many attempts." }, { status: 429 });
     const authError = validateAdminKey(request);
     if (authError) {
       return authError;
@@ -162,8 +166,7 @@ export async function PATCH(request) {
       );
     }
 
-    const client = await clientPromise;
-    const db = client.db(DB_NAME);
+    const db = await getDatabase();
     const now = new Date();
 
     const result = await db.collection(COMPLAINTS_COLLECTION).findOneAndUpdate(

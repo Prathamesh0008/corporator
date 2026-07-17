@@ -216,9 +216,7 @@ export default function AboutPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <FiUsers className="w-4 h-4 text-blue-500" />
-                    <span>
-                      {language === "en" ? "Office: 022-12345678" : "ऑफिस: ०२२-१२३४५६७८"}
-                    </span>
+                    <span>{language === "en" ? "Citizen complaint assistance" : "नागरिक तक्रार सहाय्य"}</span>
                   </div>
                 </div>
               </div>

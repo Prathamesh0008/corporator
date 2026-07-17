@@ -1,9 +1,9 @@
 ﻿import ComplaintsPageClient from "./ComplaintsPageClient";
 
 export const metadata = {
-  title: "Sachin Lavate | Nerul BJP Corporator Complaint and Solution Center",
+  title: "Register Ward Complaint | Corporator Sachin Lavate | Ward 24(D)",
   description:
-    "Register water, road, and drainage complaints in Nerul at Sachin Lavate's BJP corporator complaint and solution center for quick public issue resolution.",
+    "Register and track Ward 24(D), Nerul civic complaints about roads, water, garbage, drainage, street lights, and public spaces.",
   keywords: [
     "Nerul BJP corporator complaint",
     "Water, road, drainage complaint Nerul"

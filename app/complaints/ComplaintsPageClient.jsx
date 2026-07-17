@@ -1,639 +1,140 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  FiAlertCircle, FiUpload, FiSend, FiCheckCircle, 
-  FiMapPin, FiCamera, FiUser, FiPhone, FiMail, 
-  FiHome, FiCalendar, FiClock
-} from "react-icons/fi";
+import { FiAlertCircle, FiCamera, FiCheckCircle, FiCopy, FiMapPin, FiSearch, FiSend, FiUser } from "react-icons/fi";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { t } from "../../lib/translations";
 
-export default function ComplaintsPage() {
+const initialForm = { name: "", phone: "", address: "", ward: "24(D)", complaintType: "", location: "", description: "", urgency: "normal", website: "" };
+
+export default function ComplaintsPageClient() {
   const { language } = useLanguage();
-  const [showForm, setShowForm] = useState(false);
-  const [complaintSubmitted, setComplaintSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [submittedComplaintId, setSubmittedComplaintId] = useState("");
-  const [trackComplaintId, setTrackComplaintId] = useState("");
-  const [trackResult, setTrackResult] = useState(null);
+  const mr = language === "mr";
+  const [form, setForm] = useState(initialForm);
+  const [photoDataUrl, setPhotoDataUrl] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [complaintId, setComplaintId] = useState("");
+  const [trackId, setTrackId] = useState("");
+  const [tracking, setTracking] = useState(false);
   const [trackError, setTrackError] = useState("");
-  const [isTracking, setIsTracking] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-    ward: "",
-    complaintType: "general",
-    location: "",
-    description: "",
-    urgency: "medium"
-  });
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      address: "",
-      ward: "",
-      complaintType: "general",
-      location: "",
-      description: "",
-      urgency: "medium"
-    });
-    setSelectedPhoto(null);
-  };
+  const [result, setResult] = useState(null);
 
-  const complaintTypes = [
-    { id: "roads", label: language === "en" ? "Road & Footpath" : "रस्ता आणि फुटपाथ" },
-    { id: "water", label: language === "en" ? "Water Supply" : "पाणीपुरवठा" },
-    { id: "drainage", label: language === "en" ? "Drainage/Sewage" : "ड्रेनेज/सीवरेज" },
-    { id: "electricity", label: language === "en" ? "Electricity" : "वीज" },
-    { id: "garbage", label: language === "en" ? "Garbage Collection" : "कचरा संकलन" },
-    { id: "streetlights", label: language === "en" ? "Street Lights" : "स्ट्रीट लाइट" },
-    { id: "noise", label: language === "en" ? "Noise Pollution" : "ध्वनी प्रदूषण" },
-    { id: "other", label: language === "en" ? "Other Issues" : "इतर समस्या" }
+  const types = [
+    ["Road / pothole / footpath", "रस्ता / खड्डा / पदपथ"],
+    ["Water supply / leakage", "पाणीपुरवठा / गळती"],
+    ["Garbage / cleanliness", "कचरा / स्वच्छता"],
+    ["Drainage / sewer", "गटार / मलनिस्सारण"],
+    ["Street light", "पथदिवा"],
+    ["Public toilet", "सार्वजनिक स्वच्छतागृह"],
+    ["Garden / public space", "उद्यान / सार्वजनिक जागा"],
+    ["Other civic issue", "इतर नागरी समस्या"],
   ];
 
-  const stats = [
-    {
-      title: language === "en" ? "Resolved" : "सोडवल्या",
-      value: "1,247",
-      color: "bg-green-50 text-green-700",
-      icon: <FiCheckCircle className="w-6 h-6" />
-    },
-    {
-      title: language === "en" ? "In Progress" : "चालू आहेत",
-      value: "23",
-      color: "bg-blue-50 text-blue-700",
-      icon: <FiClock className="w-6 h-6" />
-    },
-    {
-      title: language === "en" ? "Under Review" : "तपासणीत",
-      value: "48",
-      color: "bg-yellow-50 text-yellow-700",
-      icon: <FiAlertCircle className="w-6 h-6" />
-    },
-    {
-      title: language === "en" ? "Avg. Resolution Time" : "सरासरी निराकरण वेळ",
-      value: "3-7 Days",
-      color: "bg-orange-50 text-orange-700",
-      icon: <FiCalendar className="w-6 h-6" />
-    }
-  ];
+  const update = (key) => (event) => setForm((old) => ({ ...old, [key]: event.target.value }));
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitError("");
+  const choosePhoto = (event) => {
+    const file = event.target.files?.[0];
+    setError("");
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return setError(mr ? "फक्त फोटो निवडा." : "Please choose an image file.");
+    if (file.size > 1_500_000) return setError(mr ? "फोटो १.५ MB पेक्षा लहान असावा." : "Photo must be smaller than 1.5 MB.");
+    const reader = new FileReader();
+    reader.onload = () => setPhotoDataUrl(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  };
 
+  const submit = async (event) => {
+    event.preventDefault();
+    setSubmitting(true); setError("");
     try {
-      const response = await fetch("/api/complaints", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          photoDataUrl: selectedPhoto || "",
-        }),
-      });
-
+      const response = await fetch("/api/complaints", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, photoDataUrl }) });
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.error || "Unable to submit complaint.");
-      }
-
-      setSubmittedComplaintId(data.complaintId || "");
-      setTrackComplaintId(data.complaintId || "");
-      setComplaintSubmitted(true);
-      setShowForm(false);
-      resetForm();
-    } catch (error) {
-      setSubmitError(
-        error.message ||
-          (language === "en"
-            ? "Failed to submit complaint. Please try again."
-            : "तक्रार नोंदवण्यात अडचण आली. कृपया पुन्हा प्रयत्न करा.")
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+      if (!response.ok) throw new Error(data.error || "Could not submit complaint.");
+      setComplaintId(data.complaintId); setForm(initialForm); setPhotoDataUrl("");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) { setError(err.message); } finally { setSubmitting(false); }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setSubmitError(
-          language === "en"
-            ? "Photo must be under 5MB."
-            : "फोटो 5MB पेक्षा कमी असावा."
-        );
-        return;
-      }
-
-      setSubmitError("");
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedPhoto(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleTrackComplaint = async () => {
-    const complaintId = trackComplaintId.trim().toUpperCase();
-    if (!complaintId) {
-      setTrackError(
-        language === "en"
-          ? "Please enter a complaint ID."
-          : "कृपया तक्रार आयडी प्रविष्ट करा."
-      );
-      setTrackResult(null);
-      return;
-    }
-
-    setIsTracking(true);
-    setTrackError("");
-    setTrackResult(null);
-
+  const track = async (event) => {
+    event.preventDefault(); setTracking(true); setTrackError(""); setResult(null);
     try {
-      const response = await fetch(
-        `/api/complaints?complaintId=${encodeURIComponent(complaintId)}`
-      );
+      const response = await fetch(`/api/complaints?complaintId=${encodeURIComponent(trackId.trim())}`);
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.error || "Unable to fetch complaint.");
-      }
-
-      setTrackResult(data.complaint);
-    } catch (error) {
-      setTrackError(
-        error.message ||
-          (language === "en"
-            ? "Could not track complaint."
-            : "तक्रार ट्रॅक करता आली नाही.")
-      );
-    } finally {
-      setIsTracking(false);
-    }
+      if (!response.ok) throw new Error(data.error || "Complaint not found.");
+      setResult(data.complaint);
+    } catch (err) { setTrackError(err.message); } finally { setTracking(false); }
   };
+
+  if (complaintId) return (
+    <section className="section-padding min-h-[70vh] bg-green-50">
+      <div className="mx-auto max-w-xl rounded-3xl border border-green-200 bg-white p-7 text-center shadow-xl sm:p-10">
+        <FiCheckCircle className="mx-auto h-20 w-20 text-green-600" />
+        <h1 className="mt-5 text-3xl font-black">{mr ? "तक्रार नोंदवली आहे" : "Complaint registered"}</h1>
+        <p className="mt-3 text-lg text-slate-600">{mr ? "हा क्रमांक लिहून ठेवा किंवा त्याचा फोटो घ्या." : "Write down this number or take a screenshot."}</p>
+        <div className="mt-6 rounded-2xl bg-slate-900 p-5 text-2xl font-black tracking-wide text-white">{complaintId}</div>
+        <button onClick={() => navigator.clipboard?.writeText(complaintId)} className="mt-3 inline-flex items-center gap-2 font-bold text-blue-700"><FiCopy /> {mr ? "क्रमांक कॉपी करा" : "Copy number"}</button>
+        <p className="mt-6 rounded-xl bg-blue-50 p-4 text-left text-blue-950">{mr ? "कार्यालय तक्रार तपासून संबंधित महानगरपालिका विभागाशी पाठपुरावा करेल. हा आपत्कालीन प्रतिसादाचा हमी कालावधी नाही." : "The office will review the complaint and follow up with the relevant municipal department. This is not an emergency response guarantee."}</p>
+        <button onClick={() => setComplaintId("")} className="complaint-cta mt-6">{mr ? "दुसरी तक्रार नोंदवा" : "Register another complaint"}</button>
+      </div>
+    </section>
+  );
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-50 to-orange-50 py-12">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {t("complaints.title", language)}
-            </h1>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              {language === "en" 
-                ? "Your voice matters. Report issues and we'll resolve them promptly."
-                : "तुमचा आवाज महत्त्वाचा आहे. समस्या नोंदवा आणि आम्ही त्या लगेच सोडवू."}
-            </p>
-          </div>
-        </div>
+    <div className="bg-slate-50">
+      <section className="bg-[#082f49] px-4 py-12 text-center text-white">
+        <p className="font-bold text-orange-300">{mr ? "वॉर्ड २४(ड), नेरूळ" : "WARD 24(D), NERUL"}</p>
+        <h1 className="mx-auto mt-2 max-w-3xl text-4xl font-black text-white sm:text-5xl">{t("complaints.title", language)}</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-100">{mr ? "रस्ता, पाणी, कचरा, गटार किंवा पथदिव्याची समस्या असल्यास खाली माहिती भरा." : "For roads, water, garbage, drains, street lights, and other ward civic issues, fill in the simple form below."}</p>
       </section>
 
-      {/* Stats Section */}
-
-
-      {/* Main Content */}
-      <section className="py-12">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Statistics */}
-            <div className="lg:col-span-1">
-              <div className="card sticky top-24">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <FiAlertCircle className="text-orange-500" />
-                  {language === "en" ? "Complaint Statistics" : "तक्रार आकडेवारी"}
-                </h3>
-                
-                <div className="space-y-6">
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-700">1,247+</div>
-                    <div className="text-sm text-green-600">
-                      {language === "en" ? "Complaints Resolved" : "तक्रारी सोडवल्या"}
-                    </div>
-                  </div>
-                  
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-700">23</div>
-                    <div className="text-sm text-blue-600">
-                      {language === "en" ? "Currently in Progress" : "सध्या चालू आहेत"}
-                    </div>
-                  </div>
-                  
-                  <div className="p-4 bg-purple-50 rounded-lg">
-                    <div className="text-2xl font-bold text-purple-700">48</div>
-                    <div className="text-sm text-purple-600">
-                      {language === "en" ? "Under Review" : "तपासणीत"}
-                    </div>
-                  </div>
-                  
-                  <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                    <h4 className="font-bold text-gray-900 mb-2">
-                      {language === "en" ? "Average Resolution Time" : "सरासरी निराकरण वेळ"}
-                    </h4>
-                    <div className="text-2xl font-bold text-orange-600">3-7 Days</div>
-                    <p className="text-sm text-gray-600 mt-2">
-                      {language === "en" 
-                        ? "Most complaints are resolved within a week"
-                        : "बहुतांश तक्रारी एका आठवड्यात सोडवल्या जातात"}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Emergency Contact */}
-                <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <h4 className="font-bold text-red-700 mb-2 flex items-center gap-2">
-                    <span>🚨</span>
-                    {language === "en" ? "Emergency Contact" : "आपत्कालीन संपर्क"}
-                  </h4>
-                  <p className="text-sm text-gray-700 mb-2">
-                    {language === "en" 
-                      ? "For immediate assistance call:"
-                      : "तत्काळ मदतीसाठी कॉल करा:"}
-                  </p>
-                  <a href="tel:1077" className="text-xl font-bold text-red-600 hover:text-red-700">
-                    1077 ({language === "en" ? "Emergency" : "आपत्कालीन"})
-                  </a>
-                  <p className="text-sm text-gray-600 mt-2">
-                    {language === "en" 
-                      ? "24/7 Helpline available"
-                      : "24/7 हेल्पलाइन उपलब्ध"}
-                  </p>
-                </div>
-              </div>
+      <section id="register" className="section-padding scroll-mt-24">
+        <form onSubmit={submit} className="container-responsive grid gap-7 lg:grid-cols-[1fr_340px]">
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
+            <div className="mb-7 flex items-center gap-3"><span className="step-badge">1</span><div><h2 className="text-2xl font-black">{mr ? "आपली माहिती" : "Your details"}</h2><p className="text-slate-600">{mr ? "* असलेली माहिती आवश्यक आहे." : "Fields marked * are required."}</p></div></div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label={`${t("complaints.name", language)} *`} icon={<FiUser />}><input required autoComplete="name" value={form.name} onChange={update("name")} /></Field>
+              <Field label={`${t("complaints.phone", language)} *`}><input required inputMode="numeric" autoComplete="tel" minLength={10} maxLength={15} value={form.phone} onChange={update("phone")} placeholder="10 digit mobile number" /></Field>
+              <Field label={t("complaints.address", language)} wide><input autoComplete="street-address" value={form.address} onChange={update("address")} /></Field>
             </div>
 
-            {/* Right Column - Complaint Form */}
-            <div className="lg:col-span-2">
-              {!showForm && !complaintSubmitted ? (
-                <div className="card">
-                  <div className="text-center mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <FiAlertCircle className="w-10 h-10 text-orange-500" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                      {language === "en" ? "How to Register Complaint?" : "तक्रार कशी नोंदवायची?"}
-                    </h3>
-                    <p className="text-gray-600">
-                      {language === "en" 
-                        ? "Three simple steps to get your issue resolved"
-                        : "तुमची समस्या सोडवण्याचे तीन सोपे चरण"}
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="text-center p-6 bg-blue-50 rounded-xl">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-blue-600 font-bold text-xl">1</span>
-                      </div>
-                      <h4 className="font-bold text-gray-900 mb-2">
-                        {language === "en" ? "Fill Details" : "तपशील भरा"}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {language === "en" 
-                          ? "Enter your complaint details"
-                          : "तुमचे तक्रारीचे तपशील प्रविष्ट करा"}
-                      </p>
-                    </div>
-                    
-                    <div className="text-center p-6 bg-green-50 rounded-xl">
-                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-green-600 font-bold text-xl">2</span>
-                      </div>
-                      <h4 className="font-bold text-gray-900 mb-2">
-                        {language === "en" ? "Upload Photo" : "फोटो अपलोड करा"}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {language === "en" 
-                          ? "Add photo evidence (optional)"
-                          : "फोटो पुरावा जोडा (पर्यायी)"}
-                      </p>
-                    </div>
-                    
-                    <div className="text-center p-6 bg-orange-50 rounded-xl">
-                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-orange-600 font-bold text-xl">3</span>
-                      </div>
-                      <h4 className="font-bold text-gray-900 mb-2">
-                        {language === "en" ? "Track Status" : "स्थिती ट्रॅक करा"}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {language === "en" 
-                          ? "Get updates on your complaint"
-                          : "तुमच्या तक्रारीवर अपडेट्स मिळवा"}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={() => setShowForm(true)}
-                    className="btn-primary w-full flex items-center justify-center gap-2 py-4 text-lg"
-                  >
-                    <FiAlertCircle className="w-6 h-6" />
-                    {t("complaints.submitComplaint", language)}
-                  </button>
-                </div>
-              ) : showForm ? (
-                <div className="card">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                    {t("complaints.formTitle", language)}
-                  </h3>
-                  
-                  <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {t("complaints.name", language)} *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                          value={formData.name}
-                          onChange={(e) => setFormData({...formData, name: e.target.value})}
-                          placeholder={language === "en" ? "Enter your full name" : "तुमचे पूर्ण नाव प्रविष्ट करा"}
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {t("complaints.phone", language)} *
-                        </label>
-                        <input
-                          type="tel"
-                          required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                          placeholder={language === "en" ? "Enter phone number" : "फोन नंबर प्रविष्ट करा"}
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {language === "en" ? "Ward Number *" : "वॉर्ड नंबर *"}
-                        </label>
-                        <select
-                          required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                          value={formData.ward}
-                          onChange={(e) => setFormData({...formData, ward: e.target.value})}
-                        >
-                          <option value="">{language === "en" ? "Select Ward" : "वॉर्ड निवडा"}</option>
-                          {[24, 25, 26, 27, 28].map(ward => (
-                            <option key={ward} value={ward}>
-                              {language === "en" ? `Ward ${ward}` : `वॉर्ड ${ward}`}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {t("complaints.complaintType", language)} *
-                        </label>
-                        <select
-                          required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                          value={formData.complaintType}
-                          onChange={(e) => setFormData({...formData, complaintType: e.target.value})}
-                        >
-                          <option value="">{language === "en" ? "Select Type" : "प्रकार निवडा"}</option>
-                          {complaintTypes.map(type => (
-                            <option key={type.id} value={type.id}>{type.label}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-                        <FiMapPin className="w-4 h-4" />
-                        {language === "en" ? "Exact Location *" : "नक्की स्थान *"}
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder={language === "en" ? "Street, Landmark, Area" : "रस्ता, लँडमार्क, क्षेत्र"}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                        value={formData.location}
-                        onChange={(e) => setFormData({...formData, location: e.target.value})}
-                      />
-                    </div>
-                    
-                    <div className="mb-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t("complaints.description", language)} *
-                      </label>
-                      <textarea
-                        required
-                        rows="4"
-                        placeholder={language === "en" ? "Describe your issue in detail..." : "तुमची समस्या तपशीलवार वर्णन करा..."}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                        value={formData.description}
-                        onChange={(e) => setFormData({...formData, description: e.target.value})}
-                      />
-                    </div>
-                    
-                    <div className="mb-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-                        <FiCamera className="w-4 h-4" />
-                        {t("complaints.uploadPhoto", language)}
-                      </label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition-colors">
-                        {selectedPhoto ? (
-                          <div className="relative">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img 
-                              src={selectedPhoto} 
-                              alt="Preview" 
-                              className="max-h-48 mx-auto rounded-lg"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setSelectedPhoto(null)}
-                              className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ) : (
-                          <div>
-                            <FiUpload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                            <p className="text-gray-500 mb-2">
-                              {language === "en" 
-                                ? "Drag & drop or click to upload"
-                                : "ड्रॅग आणि ड्रॉप करा किंवा अपलोड करण्यासाठी क्लिक करा"}
-                            </p>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleFileChange}
-                              className="hidden"
-                              id="photo-upload"
-                            />
-                            <label
-                              htmlFor="photo-upload"
-                              className="inline-block px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 cursor-pointer"
-                            >
-                              {language === "en" ? "Choose File" : "फाइल निवडा"}
-                            </label>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-4 items-center justify-between">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {language === "en" ? "Urgency Level" : "गतिमानता पातळी"}
-                        </label>
-                        <select
-                          className="px-4 py-2 border border-gray-300 rounded-lg"
-                          value={formData.urgency}
-                          onChange={(e) => setFormData({...formData, urgency: e.target.value})}
-                        >
-                          <option value="low">{language === "en" ? "Low" : "कमी"}</option>
-                          <option value="medium">{language === "en" ? "Medium" : "मध्यम"}</option>
-                          <option value="high">{language === "en" ? "High" : "उच्च"}</option>
-                          <option value="emergency">{language === "en" ? "Emergency" : "आपत्कालीन"}</option>
-                        </select>
-                      </div>
-                      
-                      <div className="flex gap-3">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowForm(false);
-                            setSubmitError("");
-                          }}
-                          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                        >
-                          {language === "en" ? "Cancel" : "रद्द करा"}
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="btn-primary flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                        >
-                          <FiSend className="w-5 h-5" />
-                          {isSubmitting
-                            ? language === "en"
-                              ? "Submitting..."
-                              : "सबमिट करत आहे..."
-                            : t("complaints.submitComplaint", language)}
-                        </button>
-                      </div>
-                    </div>
-                    {submitError && (
-                      <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                        {submitError}
-                      </div>
-                    )}
-                  </form>
-                </div>
-              ) : (
-                <div className="card text-center border-green-200">
-                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <FiCheckCircle className="w-10 h-10 text-green-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                    {language === "en" ? "Complaint Registered Successfully!" : "तक्रार यशस्वीरित्या नोंदवली!"}
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    {language === "en" 
-                      ? `Your complaint ID is: ${submittedComplaintId || "-"}`
-                      : `तुमचा तक्रार आयडी आहे: ${submittedComplaintId || "-"}`}
-                  </p>
-                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                    <p className="text-sm text-gray-700">
-                      {language === "en" 
-                        ? "We'll contact you within 24 hours. You can track your complaint status using the complaint ID."
-                        : "आम्ही 24 तासांच्या आत तुमच्याशी संपर्क साधू. तुम्ही तक्रार आयडी वापरून तुमच्या तक्रारीची स्थिती ट्रॅक करू शकता."}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setComplaintSubmitted(false);
-                      setShowForm(false);
-                      setSubmitError("");
-                    }}
-                    className="btn-primary"
-                  >
-                    {language === "en" ? "Register Another Complaint" : "आणखी एक तक्रार नोंदवा"}
-                  </button>
-                </div>
-              )}
+            <div className="my-8 border-t border-slate-200" />
+            <div className="mb-7 flex items-center gap-3"><span className="step-badge">2</span><div><h2 className="text-2xl font-black">{mr ? "समस्येची माहिती" : "Problem details"}</h2><p className="text-slate-600">{mr ? "अचूक ठिकाण दिल्यास पाठपुरावा करणे सोपे होते." : "An exact location helps the office follow up."}</p></div></div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label={`${t("complaints.complaintType", language)} *`}><select required value={form.complaintType} onChange={update("complaintType")}><option value="">{mr ? "प्रकार निवडा" : "Choose problem type"}</option>{types.map(([en, marathi]) => <option key={en} value={en}>{mr ? marathi : en}</option>)}</select></Field>
+              <Field label={`${mr ? "समस्येचे ठिकाण" : "Problem location"} *`} icon={<FiMapPin />}><input required value={form.location} onChange={update("location")} placeholder={mr ? "उदा. इमारत, रस्ता, जवळची खूण" : "Building, road, or nearby landmark"} /></Field>
+              <Field label={`${t("complaints.description", language)} *`} wide><textarea required rows={5} minLength={10} value={form.description} onChange={update("description")} placeholder={mr ? "काय समस्या आहे आणि ती कुठे दिसते ते साध्या शब्दांत लिहा." : "In simple words, tell us what is wrong and where you see it."} /></Field>
+              <div className="hidden" aria-hidden="true"><label>Website<input tabIndex={-1} autoComplete="off" value={form.website} onChange={update("website")} /></label></div>
             </div>
+
+            <div className="mt-6 rounded-2xl border-2 border-dashed border-slate-300 p-5 text-center">
+              <FiCamera className="mx-auto h-8 w-8 text-orange-600" /><label htmlFor="photo" className="mt-2 block cursor-pointer font-bold text-slate-900">{t("complaints.uploadPhoto", language)}</label><p className="text-sm text-slate-500">JPG, PNG or WEBP · max 1.5 MB</p>
+              <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={choosePhoto} className="mx-auto mt-3 block max-w-full text-sm" />
+              {photoDataUrl && <p className="mt-2 font-bold text-green-700">✓ {mr ? "फोटो जोडला" : "Photo added"}</p>}
+            </div>
+
+            {error && <div role="alert" className="mt-5 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-4 font-medium text-red-800"><FiAlertCircle className="mt-1 shrink-0" />{error}</div>}
+            <button disabled={submitting} className="complaint-cta mt-7 w-full justify-center text-lg disabled:opacity-60"><FiSend />{submitting ? (mr ? "पाठवत आहे..." : "Sending...") : t("complaints.submitComplaint", language)}</button>
           </div>
-        </div>
+
+          <aside className="space-y-5">
+            <div className="rounded-2xl bg-blue-50 p-6"><h2 className="text-xl font-black text-blue-950">{mr ? "ही सेवा कशासाठी?" : "Use this for"}</h2><ul className="mt-4 space-y-3 text-blue-950">{types.slice(0, 6).map(([en, marathi]) => <li key={en} className="flex gap-2"><FiCheckCircle className="mt-1 shrink-0 text-green-600" />{mr ? marathi : en}</li>)}</ul></div>
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-6"><h2 className="text-xl font-black text-red-900">{mr ? "तातडीची मदत?" : "Emergency?"}</h2><p className="mt-2 text-red-900">{mr ? "जीवितास धोका, गुन्हा, आग किंवा वैद्यकीय आपत्कालीन परिस्थितीसाठी ११२ वर कॉल करा." : "For danger to life, crime, fire, or a medical emergency, call 112."}</p><a href="tel:112" className="mt-4 inline-flex rounded-xl bg-red-700 px-5 py-3 text-xl font-black text-white">Call 112</a></div>
+          </aside>
+        </form>
       </section>
 
-      {/* Track Complaint */}
-      <section className="py-12 bg-gray-50">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {language === "en" ? "Track Your Complaint" : "तुमची तक्रार ट्रॅक करा"}
-            </h2>
-            <p className="text-gray-700 mb-8">
-              {language === "en" 
-                ? "Enter your complaint ID to check the status of your complaint"
-                : "तुमच्या तक्रारीची स्थिती तपासण्यासाठी तुमचा तक्रार आयडी प्रविष्ट करा"}
-            </p>
-            <div className="flex gap-2 max-w-md mx-auto">
-              <input
-                type="text"
-                placeholder={language === "en" ? "Enter Complaint ID" : "तक्रार आयडी प्रविष्ट करा"}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                value={trackComplaintId}
-                onChange={(e) => setTrackComplaintId(e.target.value)}
-              />
-              <button
-                onClick={handleTrackComplaint}
-                disabled={isTracking}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isTracking ? "Tracking..." : "Track"}
-              </button>
-            </div>
-            {trackError && (
-              <div className="mx-auto mt-4 max-w-md rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {trackError}
-              </div>
-            )}
-            {trackResult && (
-              <div className="mx-auto mt-4 max-w-md rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-left text-sm text-green-800">
-                <p>
-                  <span className="font-semibold">Complaint ID:</span> {trackResult.complaintId}
-                </p>
-                <p>
-                  <span className="font-semibold">Status:</span> {trackResult.status}
-                </p>
-                <p>
-                  <span className="font-semibold">Type:</span> {trackResult.complaintType}
-                </p>
-                <p>
-                  <span className="font-semibold">Location:</span> {trackResult.location}
-                </p>
-              </div>
-            )}
-          </div>
+      <section id="track" className="section-padding scroll-mt-24 bg-white">
+        <div className="mx-auto max-w-2xl text-center"><p className="eyebrow">{mr ? "स्थिती तपासा" : "CHECK PROGRESS"}</p><h2 className="mt-2 text-3xl font-black">{mr ? "आपली तक्रार कुठपर्यंत आली?" : "Track your complaint"}</h2><p className="mt-2 text-slate-600">{mr ? "तक्रार नोंदवल्यानंतर मिळालेला क्रमांक टाका." : "Enter the number you received after submission."}</p>
+          <form onSubmit={track} className="mt-6 flex flex-col gap-3 sm:flex-row"><input required value={trackId} onChange={(e) => setTrackId(e.target.value.toUpperCase())} className="form-control flex-1 uppercase" placeholder="COMP-YYYYMMDD-XXXXXX" /><button disabled={tracking} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-blue-700 px-7 font-black text-white"><FiSearch />{tracking ? "..." : (mr ? "तपासा" : "Track")}</button></form>
+          {trackError && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-4 text-red-800">{trackError}</p>}
+          {result && <div className="mt-5 rounded-2xl border border-green-200 bg-green-50 p-5 text-left"><p className="text-sm text-green-800">{mr ? "तक्रार क्रमांक" : "Complaint number"}</p><p className="text-xl font-black">{result.complaintId}</p><p className="mt-4 text-sm text-green-800">{mr ? "सध्याची स्थिती" : "Current status"}</p><p className="text-xl font-black">{result.status}</p><p className="mt-2 text-slate-700">{result.complaintType} · {result.location}</p></div>}
         </div>
       </section>
     </div>
   );
+}
+
+function Field({ label, icon, wide = false, children }) {
+  return <label className={`block ${wide ? "sm:col-span-2" : ""}`}><span className="mb-2 flex items-center gap-2 font-bold text-slate-800">{icon}{label}</span><span className="field-wrap">{children}</span></label>;
 }

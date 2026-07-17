@@ -9,6 +9,9 @@ export default function sitemap() {
     "/services",
     "/complaints",
     "/contact",
+    "/privacy",
+    "/terms",
+    "/disclaimer",
   ];
 
   return routes.map((route) => ({

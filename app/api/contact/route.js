@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import clientPromise from "../../../lib/mongodb";
+import { getDatabase } from "../../../lib/mongodb";
+import { rateLimit } from "../../../lib/rateLimit";
 import twilio from "twilio";
 
-const DB_NAME = process.env.MONGODB_DB || "mla";
 const COLLECTION = "contact_messages";
 
 const clean = (value, max = 1000) => String(value || "").trim().slice(0, max);
@@ -69,7 +69,11 @@ async function sendWhatsAppAlert({ name, phone, email, message, createdAt }) {
 
 export async function POST(request) {
   try {
+    if (rateLimit(request, "contact-post", 5, 10 * 60_000)) {
+      return NextResponse.json({ error: "Too many messages. Please wait and try again." }, { status: 429 });
+    }
     const body = await request.json();
+    if (body?.website) return NextResponse.json({ success: true }, { status: 201 });
 
     const name = clean(body?.name, 120);
     const phone = clean(body?.phone, 30);
@@ -84,8 +88,7 @@ export async function POST(request) {
       );
     }
 
-    const client = await clientPromise;
-    const db = client.db(DB_NAME);
+    const db = await getDatabase();
 
     const result = await db.collection(COLLECTION).insertOne({
       name,

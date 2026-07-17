@@ -1,174 +1,54 @@
+import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
-import clientPromise from "../../../lib/mongodb";
 import { v2 as cloudinary } from "cloudinary";
+import { getDatabase } from "../../../lib/mongodb";
+import { rateLimit } from "../../../lib/rateLimit";
 
-const DB_NAME = process.env.MONGODB_DB || "mla";
-const COLLECTION = "complaints";
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "";
-const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "";
-const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || "";
+const clean = (value, max = 1000) => String(value || "").trim().slice(0, max);
+const allowedTypes = new Set(["Road / pothole / footpath", "Water supply / leakage", "Garbage / cleanliness", "Drainage / sewer", "Street light", "Public toilet", "Garden / public space", "Other civic issue"]);
+const phonePattern = /^[0-9+() -]{10,15}$/;
 
-const clean = (value, max = 2000) => String(value || "").trim().slice(0, max);
+function newId() { return `COMP-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomBytes(3).toString("hex").toUpperCase()}`; }
 
-function generateComplaintId() {
-  const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  const randomPart = Math.floor(1000 + Math.random() * 9000);
-  return `COMP-${datePart}-${randomPart}`;
-}
-
-function configureCloudinary() {
-  if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
-    return false;
-  }
-
-  cloudinary.config({
-    cloud_name: CLOUDINARY_CLOUD_NAME,
-    api_key: CLOUDINARY_API_KEY,
-    api_secret: CLOUDINARY_API_SECRET,
-  });
-  return true;
-}
-
-async function uploadPhotoToCloudinary(photoDataUrl, complaintId) {
-  const configured = configureCloudinary();
-  if (!configured) {
-    throw new Error("Cloudinary is not configured.");
-  }
-
-  const uploadResult = await cloudinary.uploader.upload(photoDataUrl, {
-    folder: "complaints",
-    public_id: complaintId.toLowerCase(),
-    overwrite: true,
-    resource_type: "image",
-  });
-
-  return {
-    photoUrl: uploadResult.secure_url || "",
-    photoPublicId: uploadResult.public_id || "",
-  };
+async function uploadPhoto(data, id) {
+  if (!data.startsWith("data:image/")) throw new Error("Invalid photo format.");
+  const { CLOUDINARY_CLOUD_NAME: cloud_name, CLOUDINARY_API_KEY: api_key, CLOUDINARY_API_SECRET: api_secret } = process.env;
+  if (!cloud_name || !api_key || !api_secret) throw new Error("Photo upload is temporarily unavailable.");
+  cloudinary.config({ cloud_name, api_key, api_secret });
+  const uploaded = await cloudinary.uploader.upload(data, { folder: "complaints", public_id: id.toLowerCase(), resource_type: "image", overwrite: false });
+  return { photoUrl: uploaded.secure_url, photoPublicId: uploaded.public_id };
 }
 
 export async function POST(request) {
   try {
+    if (rateLimit(request, "complaint-post", 5, 10 * 60_000)) return NextResponse.json({ error: "Too many complaints submitted. Please wait and try again." }, { status: 429 });
     const body = await request.json();
-
-    const name = clean(body?.name, 120);
-    const phone = clean(body?.phone, 30);
-    const email = clean(body?.email, 160);
-    const address = clean(body?.address, 300);
-    const ward = clean(body?.ward, 20);
-    const complaintType = clean(body?.complaintType, 80);
-    const location = clean(body?.location, 300);
-    const description = clean(body?.description, 4000);
-    const urgency = clean(body?.urgency, 20) || "medium";
-    const photoDataUrl = clean(body?.photoDataUrl, 2_500_000);
-
-    if (!name || !phone || !ward || !complaintType || !location || !description) {
-      return NextResponse.json(
-        { error: "Please fill all required complaint fields." },
-        { status: 400 }
-      );
+    if (body?.website) return NextResponse.json({ success: true }, { status: 201 });
+    const data = { name: clean(body.name, 120), phone: clean(body.phone, 15), address: clean(body.address, 300), ward: "24(D)", complaintType: clean(body.complaintType, 80), location: clean(body.location, 300), description: clean(body.description, 4000) };
+    if (!data.name || !phonePattern.test(data.phone) || !allowedTypes.has(data.complaintType) || !data.location || data.description.length < 10) return NextResponse.json({ error: "Please check the required details and mobile number." }, { status: 400 });
+    const photoDataUrl = clean(body.photoDataUrl, 2_100_000);
+    if (photoDataUrl && photoDataUrl.length > 2_100_000) return NextResponse.json({ error: "Photo is too large." }, { status: 413 });
+    const db = await getDatabase();
+    await db.collection("complaints").createIndex({ complaintId: 1 }, { unique: true });
+    let complaintId; let inserted = false;
+    for (let attempt = 0; attempt < 3 && !inserted; attempt += 1) {
+      complaintId = newId();
+      const photo = photoDataUrl ? await uploadPhoto(photoDataUrl, complaintId) : { photoUrl: null, photoPublicId: null };
+      try { const now = new Date(); await db.collection("complaints").insertOne({ complaintId, ...data, ...photo, urgency: "normal", status: "Under Review", source: "website-complaint-form", createdAt: now, updatedAt: now }); inserted = true; } catch (error) { if (error?.code !== 11000) throw error; }
     }
-
-    if (photoDataUrl && photoDataUrl.length > 2_500_000) {
-      return NextResponse.json(
-        { error: "Photo is too large. Please upload a smaller image." },
-        { status: 400 }
-      );
-    }
-
-    const complaintId = generateComplaintId();
-    const now = new Date();
-    let photoUrl = null;
-    let photoPublicId = null;
-
-    if (photoDataUrl) {
-      const uploaded = await uploadPhotoToCloudinary(photoDataUrl, complaintId);
-      photoUrl = uploaded.photoUrl || null;
-      photoPublicId = uploaded.photoPublicId || null;
-    }
-
-    const client = await clientPromise;
-    const db = client.db(DB_NAME);
-
-    await db.collection(COLLECTION).insertOne({
-      complaintId,
-      name,
-      phone,
-      email,
-      address,
-      ward,
-      complaintType,
-      location,
-      description,
-      urgency,
-      photoUrl,
-      photoPublicId,
-      status: "Under Review",
-      source: "website-complaint-form",
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    return NextResponse.json(
-      {
-        success: true,
-        complaintId,
-        status: "Under Review",
-      },
-      { status: 201 }
-    );
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to submit complaint." },
-      { status: 500 }
-    );
-  }
+    if (!inserted) throw new Error("Could not create unique complaint number.");
+    return NextResponse.json({ success: true, complaintId, status: "Under Review" }, { status: 201 });
+  } catch (error) { console.error("Complaint submission failed", error?.message); return NextResponse.json({ error: "Complaint could not be submitted right now. Please try again." }, { status: 500 }); }
 }
 
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const complaintId = clean(searchParams.get("complaintId"), 40).toUpperCase();
-
-    if (!complaintId) {
-      return NextResponse.json(
-        { error: "complaintId is required." },
-        { status: 400 }
-      );
-    }
-
-    const client = await clientPromise;
-    const db = client.db(DB_NAME);
-    const complaint = await db.collection(COLLECTION).findOne(
-      { complaintId },
-      {
-        projection: {
-          _id: 0,
-          complaintId: 1,
-          name: 1,
-          phone: 1,
-          status: 1,
-          createdAt: 1,
-          updatedAt: 1,
-          complaintType: 1,
-          location: 1,
-        },
-      }
-    );
-
-    if (!complaint) {
-      return NextResponse.json(
-        { error: "Complaint not found." },
-        { status: 404 }
-      );
-    }
-
+    if (rateLimit(request, "complaint-track", 20, 10 * 60_000)) return NextResponse.json({ error: "Too many tracking attempts. Please wait." }, { status: 429 });
+    const id = clean(new URL(request.url).searchParams.get("complaintId"), 40).toUpperCase();
+    if (!/^COMP-\d{8}-[A-F0-9]{6}$/.test(id)) return NextResponse.json({ error: "Enter a valid complaint number." }, { status: 400 });
+    const db = await getDatabase();
+    const complaint = await db.collection("complaints").findOne({ complaintId: id }, { projection: { _id: 0, complaintId: 1, status: 1, createdAt: 1, updatedAt: 1, complaintType: 1, location: 1 } });
+    if (!complaint) return NextResponse.json({ error: "Complaint not found. Check the number and try again." }, { status: 404 });
     return NextResponse.json({ success: true, complaint });
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to fetch complaint." },
-      { status: 500 }
-    );
-  }
+  } catch (error) { console.error("Complaint tracking failed", error?.message); return NextResponse.json({ error: "Status is temporarily unavailable." }, { status: 500 }); }
 }
