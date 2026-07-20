@@ -9,7 +9,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 export default function Footer() {
   const { language } = useLanguage();
   const mr = language === "mr";
-  const links = [["Home", "मुख्यपृष्ठ", "/"], ["About", "माहिती", "/about"], ["Ward works", "वॉर्ड कामे", "/works"], ["Ward services", "वॉर्ड सेवा", "/services"], ["Gallery", "छायाचित्रे", "/gallery"], ["Office", "कार्यालय", "/contact"]];
+  const links = [["Home", "मुख्यपृष्ठ", "/"], ["About", "माहिती", "/about"], ["Ward works", "वॉर्ड कामे", "/works"], ["Ward services", "वॉर्ड सेवा", "/services"], ["News", "बातम्या", "/news"], ["Gallery", "छायाचित्रे", "/gallery"], ["Office", "कार्यालय", "/contact"]];
   return <footer className="relative overflow-hidden bg-[#071d2b] text-white">
     <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-orange-500/10 blur-3xl" />
     <div className="container-responsive relative px-5 py-12 sm:px-6 lg:px-8">

@@ -1,74 +1,161 @@
 export const workItems = [
   {
-    id: "road",
-    slug: "road-resurfacing-drainage-repair",
-    titleEn: "Road resurfacing and drainage repair",
-    titleMr: "रस्त्याची डांबरीकरण व गटार दुरुस्ती",
-    shortEn: "Improved road safety and water flow in the main lane.",
-    shortMr: "मुख्य रस्त्यावर सुरक्षितता आणि पाण्याच्या वाहतुकीत सुधारणा.",
-    locationEn: "Main lane, Ward 24(D)",
-    locationMr: "मुख्य रस्ता, वॉर्ड २४(ड)",
-    statusEn: "Completed and handed over",
-    statusMr: "पूर्ण आणि सोपवले",
-    detailEn: "The project focused on repairing potholes, improving drainage, and creating a smoother road surface for residents and commuters.",
-    detailMr: "या प्रकल्पात खड्डे दुरुस्ती, गटार सुधारणा आणि रहिवाशांसाठी सुसंगत रस्ता तयार करण्यावर भर देण्यात आला.",
-    highlightsEn: ["Drainage improvement", "Pothole repair", "Safer walking surface"],
-    highlightsMr: ["गटार सुधारणा", "खड्डे दुरुस्ती", "सुरक्षित चालण्याची जागा"],
-    beforeImage: "/images/banner-1.jpg",
-    afterImage: "/images/banner-2.jpg",
+    id: 1,
+    slug: "road-repair-sector-18",
+
+    titleEn: "Road Repair Work",
+    titleMr: "रस्ता दुरुस्तीचे काम",
+
+    categoryEn: "Road Repair",
+    categoryMr: "रस्ता दुरुस्ती",
+
+    locationEn: "Sector 18, Nerul",
+    locationMr: "सेक्टर १८, नेरूळ",
+
+    statusEn: "Completed",
+    statusMr: "पूर्ण झाले",
+
+    descriptionEn:
+      "The damaged road surface in Sector 18 was repaired to provide safer and smoother travel for residents and daily commuters.",
+
+    descriptionMr:
+      "सेक्टर १८ मधील खराब झालेल्या रस्त्याची दुरुस्ती करून नागरिक आणि दैनंदिन प्रवाशांसाठी सुरक्षित व सुरळीत वाहतूक व्यवस्था करण्यात आली.",
+
+    beforeImage: "/works/r1.png",
+    afterImage: "/works/r2.png",
+
+    highlightsEn: [
+      "Damaged road surface repaired",
+      "Potholes filled",
+      "Improved vehicle movement",
+      "Safer travel for residents",
+    ],
+
+    highlightsMr: [
+      "खराब रस्त्याची दुरुस्ती",
+      "खड्डे बुजविण्यात आले",
+      "वाहतूक अधिक सुरळीत",
+      "नागरिकांसाठी सुरक्षित प्रवास",
+    ],
   },
+
   {
-    id: "lighting",
-    slug: "streetlight-footpath-upgrade",
-    titleEn: "Streetlight and footpath upgrade",
-    titleMr: "पथदिवे व पदपथ सुधारणा",
-    shortEn: "Added better lighting and a safer walking path.",
-    shortMr: "चांगल्या प्रकाश आणि सुरक्षित चालण्याच्या मार्गासाठी सुधारणा.",
-    locationEn: "Near school road, Ward 24(D)",
-    locationMr: "शाळेच्या रस्त्याजवळ, वॉर्ड २४(ड)",
-    statusEn: "Completed with public feedback",
-    statusMr: "लोकांच्या प्रतिसादासह पूर्ण",
-    detailEn: "New streetlights were installed and the footpath was widened to make evening travel safer for children and pedestrians.",
-    detailMr: "नवीन पथदिवे बसवले गेले आणि मुलांसाठी तसेच पादचाऱ्यांसाठी संध्याकाळी प्रवास सुरक्षित व्हावा यासाठी पदपथ रुंद केला.",
-    highlightsEn: ["New streetlights", "Wider footpath", "Better evening visibility"],
-    highlightsMr: ["नवीन पथदिवे", "रुंद पदपथ", "संध्याकाळी चांगले दृष्टीक्षेत्र"],
-    beforeImage: "/images/banner-2.jpg",
-    afterImage: "/images/banner-3.jpeg",
+    id: 2,
+    slug: "drainage-repair-sector-21",
+
+    titleEn: "Drainage Repair Work",
+    titleMr: "गटार दुरुस्तीचे काम",
+
+    categoryEn: "Drainage Repair",
+    categoryMr: "गटार दुरुस्ती",
+
+    locationEn: "Sector 21, Nerul",
+    locationMr: "सेक्टर २१, नेरूळ",
+
+    statusEn: "Completed",
+    statusMr: "पूर्ण झाले",
+
+    descriptionEn:
+      "The damaged drainage line was repaired and cleaned to prevent water blockage, overflow and inconvenience during the rainy season.",
+
+    descriptionMr:
+      "पावसाळ्यात पाणी साचणे आणि गटार ओव्हरफ्लो होण्याची समस्या टाळण्यासाठी खराब गटाराची दुरुस्ती आणि स्वच्छता करण्यात आली.",
+
+    beforeImage: "/works/d1.png",
+    afterImage: "/works/d2.png",
+
+    highlightsEn: [
+      "Drainage blockage removed",
+      "Damaged section repaired",
+      "Improved water flow",
+      "Reduced risk of waterlogging",
+    ],
+
+    highlightsMr: [
+      "गटारातील अडथळा दूर करण्यात आला",
+      "खराब भागाची दुरुस्ती",
+      "पाण्याचा प्रवाह सुधारला",
+      "पाणी साचण्याचा धोका कमी",
+    ],
   },
+
   {
-    id: "cleaning",
-    slug: "garbage-public-space-beautification",
-    titleEn: "Garbage and public space beautification",
-    titleMr: "कचरा व सार्वजनिक क्षेत्र सौंदर्यीकरण",
-    shortEn: "Cleaner surroundings and a more organized civic space.",
-    shortMr: "स्वच्छ वातावरण आणि अधिक सुव्यवस्थित सार्वजनिक क्षेत्र.",
-    locationEn: "Community square, Ward 24(D)",
-    locationMr: "समुदाय चौक, वॉर्ड २४(ड)",
-    statusEn: "Improved and maintained",
-    statusMr: "सुधारले आणि देखभाल केले",
-    detailEn: "The area was cleaned, waste bins were placed, and the public space was improved to make it more pleasant for local residents.",
-    detailMr: "हे क्षेत्र साफ केले गेले, कचरा डबे उभारले गेले आणि स्थानिक रहिवाशांसाठी अधिक सुखद बनवण्यासाठी सार्वजनिक क्षेत्र सुधारण्यात आले.",
-    highlightsEn: ["Dust-free area", "Waste bins", "Better public seating"],
-    highlightsMr: ["धूळमुक्त भाग", "कचरा डबे", "सुधारित सार्वजनिक बसण्याची जागा"],
-    beforeImage: "/images/banner-3.jpeg",
-    afterImage: "/images/banner-1.jpg",
+    id: 3,
+    slug: "streetlight-repair-sector-19",
+
+    titleEn: "Streetlight Repair Work",
+    titleMr: "पथदिवे दुरुस्तीचे काम",
+
+    categoryEn: "Streetlight Repair",
+    categoryMr: "पथदिवे दुरुस्ती",
+
+    locationEn: "Sector 19, Nerul",
+    locationMr: "सेक्टर १९, नेरूळ",
+
+    statusEn: "Completed",
+    statusMr: "पूर्ण झाले",
+
+    descriptionEn:
+      "Non-working streetlights were repaired and restored to improve visibility and public safety during the evening and night.",
+
+    descriptionMr:
+      "संध्याकाळी आणि रात्री परिसरातील प्रकाशव्यवस्था व नागरिकांची सुरक्षितता सुधारण्यासाठी बंद असलेले पथदिवे दुरुस्त करण्यात आले.",
+
+    beforeImage: "/works/l1.png",
+    afterImage: "/works/l2.png",
+
+    highlightsEn: [
+      "Non-working lights repaired",
+      "Improved night visibility",
+      "Safer roads and public areas",
+      "Electrical connections checked",
+    ],
+
+    highlightsMr: [
+      "बंद पथदिवे दुरुस्त",
+      "रात्रीची दृश्यता सुधारली",
+      "रस्ते आणि सार्वजनिक परिसर अधिक सुरक्षित",
+      "विद्युत जोडणी तपासण्यात आली",
+    ],
   },
+
   {
-    id: "water",
-    slug: "water-supply-and-connection-repair",
-    titleEn: "Water supply and connection repair",
-    titleMr: "पाणीपुरवठा व जोडणी दुरुस्ती",
-    shortEn: "Restored regular water flow and repaired damaged connections.",
-    shortMr: "नियमित पाणीपुरवठा पुनर्स्थापित केला आणि खराब जोडण्या दुरूस्त केल्या.",
-    locationEn: "Residential cluster, Ward 24(D)",
-    locationMr: "निवासीय वसाहत, वॉर्ड २४(ड)",
-    statusEn: "Resolved and monitored",
-    statusMr: "सोडवले आणि तपासले",
-    detailEn: "The water lines were inspected and repaired, helping households receive a stable and more reliable water supply.",
-    detailMr: "पाण्याच्या मुख्य लाइन तपासून दुरुस्त केल्या, ज्यामुळे घरगुती पाणीपुरवठा अधिक स्थिर आणि विश्वासार्ह झाला.",
-    highlightsEn: ["Water line repair", "Stable supply", "Household support"],
-    highlightsMr: ["पाणी लाईन दुरुस्ती", "स्थिर पुरवठा", "घरगुती मदत"],
-    beforeImage: "/images/banner-1.jpg",
-    afterImage: "/images/banner-3.jpeg",
+    id: 4,
+    slug: "footpath-repair-sector-20",
+
+    titleEn: "Footpath Repair Work",
+    titleMr: "पदपथ दुरुस्तीचे काम",
+
+    categoryEn: "Footpath Repair",
+    categoryMr: "पदपथ दुरुस्ती",
+
+    locationEn: "Sector 20, Nerul",
+    locationMr: "सेक्टर २०, नेरूळ",
+
+    statusEn: "Completed",
+    statusMr: "पूर्ण झाले",
+
+    descriptionEn:
+      "The damaged footpath was repaired to create a safer and more convenient walking space for pedestrians, senior citizens and children.",
+
+    descriptionMr:
+      "पादचारी, ज्येष्ठ नागरिक आणि मुलांसाठी सुरक्षित व सोयीस्कर चालण्याची जागा तयार करण्यासाठी खराब पदपथाची दुरुस्ती करण्यात आली.",
+
+    beforeImage: "/works/f1.png",
+    afterImage: "/works/f2.png",
+
+    highlightsEn: [
+      "Broken tiles replaced",
+      "Uneven surface repaired",
+      "Safer pedestrian movement",
+      "Improved public accessibility",
+    ],
+
+    highlightsMr: [
+      "तुटलेल्या टाइल्स बदलण्यात आल्या",
+      "असमान भागाची दुरुस्ती",
+      "पादचाऱ्यांसाठी सुरक्षित मार्ग",
+      "सार्वजनिक प्रवेश सुधारला",
+    ],
   },
 ];

@@ -8,9 +8,13 @@ gsap.registerPlugin(useGSAP);
 
 export default function SachinLogoPreloader() {
   const preloaderRef = useRef(null);
+  const finishedRef = useRef(false);
   const [svgText, setSvgText] = useState("");
   const [show, setShow] = useState(true);
   const finishPreloader = () => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+    try { window.sessionStorage.setItem("sachin-preloader-seen", "1"); } catch {}
     document.documentElement.classList.remove("sachin-preload-active");
     document.documentElement.classList.add("sachin-preload-done");
     document.body.style.overflow = "";
@@ -20,10 +24,10 @@ export default function SachinLogoPreloader() {
   useEffect(() => {
     const safetyUnlock = window.setTimeout(() => {
       finishPreloader();
-    }, 6000);
+    }, 3200);
 
     document.body.style.overflow = "hidden";
-    fetch("/sachin-logo.svg")
+    fetch("/sachin-logo.svg", { cache: "force-cache" })
       .then((res) => {
         if (!res.ok) {
           throw new Error(`SVG file not found. Status: ${res.status}`);
@@ -50,7 +54,7 @@ export default function SachinLogoPreloader() {
       document.documentElement.classList.add("sachin-preload-done");
       document.body.style.overflow = "";
     };
-  }, [show]);
+  }, []);
 
   useGSAP(
     () => {
@@ -345,6 +349,10 @@ export default function SachinLogoPreloader() {
         ease: "power2.inOut",
       });
 
+      let seen = false;
+      try { seen = window.sessionStorage.getItem("sachin-preloader-seen") === "1"; } catch {}
+      tl.timeScale(seen ? 3 : 2.2);
+
       return () => {
         tl.kill();
       };
@@ -359,7 +367,7 @@ export default function SachinLogoPreloader() {
 
   return (
     <>
-      <div ref={preloaderRef} className="sachin-preloader">
+      <div ref={preloaderRef} className="sachin-preloader" onClick={finishPreloader} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") finishPreloader(); }} aria-label="Skip intro animation">
         <div
           className="sachin-logo-wrap"
           dangerouslySetInnerHTML={{ __html: svgText }}
@@ -392,6 +400,20 @@ export default function SachinLogoPreloader() {
           position: relative;
           z-index: 2;
           width: min(1100px, 94vw);
+        }
+
+        .sachin-preloader::after {
+          content: "Tap to continue";
+          position: absolute;
+          bottom: 24px;
+          left: 50%;
+          z-index: 3;
+          transform: translateX(-50%);
+          color: rgba(255, 255, 255, 0.82);
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
         }
 
         .sachin-logo-wrap svg {

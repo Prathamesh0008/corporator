@@ -1,29 +1,21 @@
-﻿"use client";
+"use client";
 
 import { useLanguage } from "../../contexts/LanguageContext";
 
 export default function LanguageSwitcher({ mobile = false }) {
   const { language, toggleLanguage } = useLanguage();
-  const isEnglish = language === "en";
-  const labelClass = mobile ? "text-base font-bold" : "text-sm font-semibold";
+  const marathi = language === "mr";
 
   return (
     <button
       type="button"
       onClick={toggleLanguage}
-      aria-label={isEnglish ? "Switch to Marathi" : "Switch to English"}
-      className={`flex items-center gap-2 ${
-        mobile
-          ? "w-full justify-center px-4 py-3 border border-orange-500 text-orange-600 rounded-lg font-medium hover:bg-orange-50"
-          : "px-3 py-1.5 border border-orange-500 text-orange-600 rounded-full text-xs font-semibold hover:bg-orange-50 transition-colors"
-      }`}
+      aria-label={marathi ? "Switch to English" : "मराठी भाषेत बदला"}
+      title={marathi ? "Switch to English" : "मराठी भाषेत बदला"}
+      className={`group inline-grid grid-cols-2 items-center rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-bold shadow-sm transition hover:border-orange-300 hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-100 ${mobile ? "w-full" : "w-[104px]"}`}
     >
-      <span className={labelClass}>
-        {isEnglish ? "मराठी" : "English"}
-      </span>
-      <span className={`text-lg ${mobile ? "" : "hidden sm:inline"}`}>
-        {isEnglish ? "🇮🇳" : "🇬🇧"}
-      </span>
+      <span className={`flex h-8 items-center justify-center rounded-full px-2 transition-all duration-200 ${marathi ? "bg-orange-600 text-white shadow-sm" : "text-slate-500 group-hover:text-slate-700"}`}>मराठी</span>
+      <span className={`flex h-8 items-center justify-center rounded-full px-2 transition-all duration-200 ${!marathi ? "bg-orange-600 text-white shadow-sm" : "text-slate-500 group-hover:text-slate-700"}`}>EN</span>
     </button>
   );
 }

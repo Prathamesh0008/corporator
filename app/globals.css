@@ -75,5 +75,61 @@
 
 html { scroll-behavior: smooth; }
 @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-.animate-rise { animation: rise .7s ease-out both; }
+.animate-rise { animation: rise 10.0s ease-out both; }
+@keyframes lotus-reveal {
+  0% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(-18px); }
+  35% { opacity: 1; }
+  100% { opacity: 1; clip-path: inset(0 0 0 0); transform: translateY(0); }
+}
+.lotus-reveal {
+  animation: lotus-reveal 1.5s cubic-bezier(.22, 1, .36, 1) .15s both;
+  will-change: clip-path, transform, opacity;
+}
+.lotus-wait {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(-18px);
+}
+.milestone-item {
+  position: relative;
+}
+.milestone-content {
+  opacity: 0;
+  transform: translateY(34px);
+  transition: opacity .75s ease, transform .85s cubic-bezier(.22, 1, .36, 1);
+  will-change: opacity, transform;
+}
+.milestone-item.milestone-visible .milestone-content { opacity: 1; transform: translate3d(0, 0, 0); }
+.milestone-dot { opacity: .25; transform: scale(.35); transition: opacity .35s ease, transform .55s cubic-bezier(.34, 1.56, .64, 1); }
+.milestone-dot-visible { opacity: 1; transform: scale(1); box-shadow: 0 0 0 8px rgba(234, 88, 12, .14); }
+@media (min-width: 768px) {
+  .milestone-left .milestone-content { transform: translateX(-55px); }
+  .milestone-right .milestone-content { transform: translateX(55px); }
+  .milestone-item.milestone-visible .milestone-content { transform: translateX(0); }
+  .milestone-dot { left: calc(50% - 10px); transform: scale(.35); }
+  .milestone-dot.milestone-dot-visible { transform: scale(1); }
+}
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+.about-full-hero > .absolute,
+.about-full-hero > img.absolute,
+.about-full-hero > div.relative > div {
+  display: none !important;
+}
+
+.about-full-hero > div.relative {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+.about-full-hero > div.relative > img {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  object-fit: contain !important;
+  filter: none !important;
+}

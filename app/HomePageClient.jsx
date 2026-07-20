@@ -8,6 +8,10 @@ import { FiAlertCircle, FiArrowRight, FiCamera, FiCheckCircle, FiChevronLeft, Fi
 import { GiRoad, GiStreetLight, GiWaterTank } from "react-icons/gi";
 import { MdCleaningServices } from "react-icons/md";
 import { useLanguage } from "../contexts/LanguageContext";
+import HeroSection from "../components/home/HeroSection";
+import HomepageSections from "../components/home/HomepageSections";
+import PoliticalIdentitySections from "../components/home/PoliticalIdentitySections";
+import HomeFaqSection from "../components/home/HomeFaqSection";
 
 const LeafletMap = dynamic(() => import("../components/LeafletMap"), { ssr: false });
 const wardBoundary = [
@@ -109,9 +113,7 @@ export default function HomePageClient() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#082f49]/90 via-[#082f49]/70 to-[#082f49]/25" />
         <div className="container-responsive relative z-10 flex min-h-[610px] items-center px-4 py-16 sm:px-6 lg:px-8">
           <div className="max-w-3xl animate-rise">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-bold backdrop-blur">
-              <FiMapPin /> {mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"}
-            </div>
+            
             <h1 key={`title-${slide}-${language}`} className="animate-rise text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
               {mr ? slides[slide].titleMr : slides[slide].titleEn}
             </h1>
@@ -177,14 +179,19 @@ export default function HomePageClient() {
             </ol>
           </div>
         </div>
+         
       </section>
+       
 
-      <section className="section-padding bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-        <div className="container-responsive flex flex-col items-center justify-between gap-6 text-center lg:flex-row lg:text-left">
-          <div><h2 className="text-3xl font-black text-white">{mr ? "वॉर्ड २४(ड) अधिक स्वच्छ, सुरक्षित आणि सुविधायुक्त बनवूया" : "Let’s make Ward 24(D) cleaner, safer, and better maintained"}</h2><p className="mt-2 text-orange-50">{mr ? "समस्या दिसली? आम्हाला ठिकाणासह कळवा." : "See a civic problem? Report it with the exact location."}</p></div>
-          <Link href="/complaints#register" className="inline-flex min-h-14 shrink-0 items-center gap-2 rounded-xl bg-white px-7 text-lg font-black text-orange-700 shadow-lg transition hover:-translate-y-1 hover:shadow-xl">{mr ? "तक्रार नोंदवा" : "Register Complaint"} <FiArrowRight /></Link>
+      <section className="section-padding ">
+        <div className="container-responsive space-y-8">
+         
+          <HomepageSections />
         </div>
       </section>
+
+      <PoliticalIdentitySections />
+
 
       <section className="section-padding bg-white" aria-labelledby="ward-map-title">
         <div className="container-responsive">
@@ -193,9 +200,18 @@ export default function HomePageClient() {
             <button type="button" onClick={() => setShowMap(true)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-blue-700 px-5 font-black text-blue-700 transition hover:bg-blue-700 hover:text-white"><FiMapPin />{mr ? "मोठा नकाशा उघडा" : "Open Large Map"}</button>
           </div>
           <div className="h-80 overflow-hidden rounded-3xl border border-slate-200 shadow-lg md:h-[430px]"><LeafletMap center={[19.0285, 73.012]} zoom={13} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div>
-          <div className="mt-5 flex flex-col items-center justify-between gap-4 rounded-2xl bg-blue-50 p-5 sm:flex-row"><p className="font-bold text-blue-950">{mr ? "या सीमेमध्ये नागरी समस्या दिसली? अचूक ठिकाणासह कळवा." : "See a civic problem within this ward? Report it with the exact location."}</p><Link href="/complaints#register" className="complaint-cta shrink-0"><FiAlertCircle />{mr ? "तक्रार नोंदवा" : "Register Complaint"}</Link></div>
         </div>
       </section>
+      <HomeFaqSection />
+      
+      <section className="section-padding bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+        <div className="container-responsive flex flex-col items-center justify-between gap-6 text-center lg:flex-row lg:text-left">
+          <div><h2 className="text-3xl font-black text-white">{mr ? "वॉर्ड २४(ड) अधिक स्वच्छ, सुरक्षित आणि सुविधायुक्त बनवूया" : "Let’s make Ward 24(D) cleaner, safer, and better maintained"}</h2><p className="mt-2 text-orange-50">{mr ? "समस्या दिसली? आम्हाला ठिकाणासह कळवा." : "See a civic problem? Report it with the exact location."}</p></div>
+          <Link href="/complaints#register" className="inline-flex min-h-14 shrink-0 items-center gap-2 rounded-xl bg-white px-7 text-lg font-black text-orange-700 shadow-lg transition hover:-translate-y-1 hover:shadow-xl">{mr ? "तक्रार नोंदवा" : "Register Complaint"} <FiArrowRight /></Link>
+        </div>
+      </section>
+
+      
 
       {showMap && <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 p-3 sm:p-6" onMouseDown={(event) => event.target === event.currentTarget && setShowMap(false)} role="dialog" aria-modal="true" aria-labelledby="large-map-title"><div className="w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-2xl"><div className="flex items-center justify-between border-b px-5 py-4"><h2 id="large-map-title" className="text-xl font-black">{mr ? "वॉर्ड २४(ड), नेरूळ नकाशा" : "Ward 24(D), Nerul Map"}</h2><button type="button" onClick={() => setShowMap(false)} className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-2xl font-bold hover:bg-slate-200" aria-label={mr ? "नकाशा बंद करा" : "Close map"}>×</button></div><div className="h-[72vh] p-3"><div className="h-full overflow-hidden rounded-xl"><LeafletMap center={[19.0285, 73.012]} zoom={14} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div></div></div></div>}
     </div>

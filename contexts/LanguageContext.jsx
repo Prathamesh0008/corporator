@@ -7,10 +7,10 @@ const LanguageContext = createContext(undefined);
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState(() => {
     if (typeof window === 'undefined') {
-      return 'en';
+      return 'mr';
     }
     const savedLang = localStorage.getItem('site-language');
-    return savedLang === 'mr' || savedLang === 'en' ? savedLang : 'en';
+    return savedLang === 'mr' || savedLang === 'en' ? savedLang : 'mr';
   });
 
   const toggleLanguage = () => {

@@ -1,361 +1,69 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
-import {
-  FiUser,
-  FiBook,
-  FiBriefcase,
-  FiHome,
-  FiAward,
-  FiUsers,
-  FiHeart,
-  FiMapPin,
-  FiCalendar,
-  FiCheckCircle
-} from "react-icons/fi";
-import { GiFamilyHouse, GiIndiaGate } from "react-icons/gi";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { FiArrowRight, FiMapPin, FiUsers } from "react-icons/fi";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { t } from "../../lib/translations";
 
-export default function AboutPage() {
+const story = [
+  { year: "मुळं", yearEn: "Roots", titleMr: "नेरूळमध्ये जडलेली नाळ", titleEn: "Roots in Nerul", textMr: "स्व. देवाप्पा सीताराम लवटे यांचे सुपुत्र सचिन देवाप्पा लवटे यांचे कुटुंब सुमारे ३० वर्षांपासून नेरूळ सेक्टर १८ येथे वास्तव्यास आहे. त्यांचे बालपण आणि जडणघडण याच परिसरात झाली.", textEn: "Sachin Devappa Lavate, son of the late Shri Devappa Sitaram Lavate, belongs to a family that has lived in Nerul Sector 18 for around 30 years. His childhood and formative years were spent here." },
+  { year: "संस्कार", yearEn: "Values", titleMr: "कष्टातून घडलेले व्यक्तिमत्त्व", titleEn: "A life shaped by hard work", textMr: "वडिलांची खाजगी नोकरी, आईचा छोटा घरगुती व्यवसाय आणि कुटुंबाने चालवलेली टपरी—या साध्या पार्श्वभूमीने कष्ट, स्वाभिमान आणि सामान्य माणसाशी जोडलेपणाची शिकवण दिली.", textEn: "His father’s private-sector job, his mother’s small home business and the family’s modest stall taught him hard work, dignity and a lasting connection with ordinary people." },
+  { year: "शिक्षण", yearEn: "Education", titleMr: "MBA फायनान्स आणि बँकिंग अनुभव", titleEn: "MBA Finance and banking experience", textMr: "शिक्षण पूर्ण करताना कुटुंबाच्या व्यवसायात हातभार लावल्यानंतर त्यांनी MBA (Finance) पूर्ण केले आणि बँकिंग क्षेत्रात कामाचा अनुभव घेतला.", textEn: "After supporting the family business while studying, he completed an MBA in Finance and gained professional experience in banking." },
+  { year: "१२+ वर्षे", yearEn: "12+ years", titleMr: "समाजसेवेचा सातत्यपूर्ण प्रवास", titleEn: "A sustained journey of social service", textMr: "क्रीडा, सामाजिक, धार्मिक, शैक्षणिक आणि वैद्यकीय क्षेत्रांतील विविध उपक्रमांतून गेली १२ हून अधिक वर्षे नागरिकांसोबत काम सुरू आहे.", textEn: "For more than 12 years, he has worked with citizens through sports, social, cultural, educational and medical initiatives." },
+  { year: "२०२६", yearEn: "2026", titleMr: "वॉर्ड २४(ड) चे लोकप्रतिनिधित्व", titleEn: "Representing Ward 24(D)", textMr: "नेरूळच्या वॉर्ड २४(ड) मधील नागरिकांनी दिलेल्या विश्वासातून स्थानिक प्रश्न, नागरी सुविधा आणि विकासकामांचा जबाबदार पाठपुरावा सुरू आहे.", textEn: "With the trust of Ward 24(D), Nerul, he continues responsible follow-up on local concerns, civic services and development work." },
+  { year: "संकल्प", yearEn: "Resolve", titleMr: "सेवा हीच बांधिलकी", titleEn: "Service as a commitment", textMr: "प्रत्येक नागरिकाचा विकास, प्रत्येक कुटुंबाचे कल्याण आणि संपूर्ण वॉर्डची प्रगती साधत वॉर्ड २४(ड) आदर्श बनवणे हा संकल्प आहे.", textEn: "His resolve is to make Ward 24(D) a model ward through citizen development, family welfare and inclusive progress." },
+];
+
+function StoryMilestone({ item, index, mr }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { const node = ref.current; if (!node) return undefined; const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: .22, rootMargin: "0px 0px -8% 0px" }); observer.observe(node); return () => observer.disconnect(); }, []);
+  return <article ref={ref} className={`milestone-item ${visible ? "milestone-visible" : ""} ${index % 2 ? "milestone-right" : "milestone-left"} relative grid pl-16 md:grid-cols-2 md:pl-0 ${index % 2 ? "md:text-left" : "md:text-right"}`}>
+    <span className={`milestone-dot ${visible ? "milestone-dot-visible" : ""} absolute left-[12px] top-1.5 z-10 h-5 w-5 rounded-full border-4 border-[#fff8e8] bg-orange-600 shadow`} />
+    <div className={`milestone-content ${index % 2 ? "md:col-start-2 md:pl-12" : "md:pr-12"}`}><p className="text-3xl font-black text-orange-600 sm:text-4xl">{mr ? item.year : item.yearEn}</p><h2 className="mt-2 text-2xl font-black text-[#4a210d]">{mr ? item.titleMr : item.titleEn}</h2><p className="mt-3 text-base leading-8 text-[#765f4d]">{mr ? item.textMr : item.textEn}</p></div>
+  </article>;
+}
+
+export default function AboutPageClient() {
   const { language } = useLanguage();
+  const mr = language === "mr";
+  return <main className="min-h-screen bg-[#fff8e8]">
+    <section className="about-full-hero relative isolate w-full overflow-hidden bg-[#fff8e8]">
+      <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full border-[42px] border-white/10" /><div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full border-[56px] border-green-700/20" /><Image src="/lotus.webp" alt="" width={220} height={220} className="absolute right-4 top-8 hidden w-44 rotate-12 opacity-15 lg:block" />
+      <div className="relative mx-auto grid max-w-6xl items-end gap-8 lg:grid-cols-[1fr_.8fr]">
+        
+        <Image src="/About/self.png" alt={mr ? "सचिन देवाप्पा लवटे" : "Sachin Devappa Lavate"} width={620} height={760} priority className="mx-auto max-h-[520px] w-auto object-contain object-bottom drop-shadow-2xl" />
+      </div>
+    </section>
+    <section className="px-4 py-14 sm:px-6 sm:py-20"><div className="mx-auto max-w-6xl">
+      <blockquote className="mx-auto max-w-4xl text-center text-2xl font-black leading-relaxed text-[#4a210d] sm:text-4xl">“{mr ? "पदापेक्षा सेवा मोठी, आणि स्वतःपेक्षा जनता प्रथम." : "Service is greater than position, and people come before self."}”</blockquote>
+      <p className="mx-auto mt-6 max-w-3xl text-center text-lg leading-8 text-[#765f4d]">{mr ? "सामान्य कुटुंबातील मुलगा ते लोकप्रतिनिधी—हा प्रवास नेरूळकरांच्या विश्वासाने, कुटुंबाच्या संस्कारांनी आणि जनसेवेच्या संकल्पाने घडला." : "From a son of an ordinary family to a public representative, this journey has been shaped by family values, the trust of Nerul and a commitment to public service."}</p>
+      <div className="relative mt-16 md:mt-24"><div className="absolute bottom-0 left-5 top-0 w-1 bg-gradient-to-b from-orange-400 via-orange-500 to-green-600 md:left-1/2 md:-translate-x-1/2" /><div className="space-y-10 md:space-y-16">{story.map((item, index) => <StoryMilestone key={item.titleEn} item={item} index={index} mr={mr} />)}</div></div>
+      <div className="mt-20 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/contact" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-orange-600 px-7 font-black text-white hover:bg-orange-700"><FiUsers />{mr ? "संपर्क साधा" : "Contact Office"}<FiArrowRight /></Link><Link href="/complaints#register" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 border-[#4a210d] px-7 font-black text-[#4a210d] hover:bg-[#4a210d] hover:text-white">{mr ? "नागरी समस्या नोंदवा" : "Report a Civic Issue"}<FiArrowRight /></Link></div>
+    </div></section>
 
-  const personalInfo = [
-    {
-      icon: <FiHome />,
-      label: t("about.residence", language),
-      value: language === "en" ? "Nerul Sector 18, Navi Mumbai" : "नेरुळ सेक्टर १८, नवी मुंबई"
-    },
-    {
-      icon: <FiBook />,
-      label: t("about.education", language),
-      value: "MBA Finance"
-    },
-    {
-      icon: <FiBriefcase />,
-      label: t("about.profession", language),
-      value:
-        language === "en"
-          ? "Businessman (Fire Fighting Services)"
-          : "व्यावसायिक (फायर फायटिंग सेवा)"
-    },
-    {
-      icon: <GiFamilyHouse />,
-      label: t("about.background", language),
-      value:
-        language === "en"
-          ? "Son of small shopkeeper ('Tapriwala')"
-          : "छोट्या दुकानदाराचा मुलगा ('टपरीवाला')"
-    },
-    {
-      icon: <FiCalendar />,
-      label: language === "en" ? "Social Service" : "सामाजिक सेवा",
-      value: language === "en" ? "12+ years experience" : "१२+ वर्षांचा अनुभव"
-    },
-    {
-      icon: <FiAward />,
-      label: language === "en" ? "Position" : "पद",
-      value: language === "en" ? "Corporator, Ward 24(D)" : "नगरसेवक, वॉर्ड २४(ड)"
-    }
-  ];
-
-  const socialWork = [
-    {
-      category: language === "en" ? "Educational Work" : "शैक्षणिक कार्य",
-      works: [
-        language === "en"
-          ? "Educational material assistance through Vidya Bhavan School"
-          : "विद्याभवन शाळेत शैक्षणिक साहित्य मदत",
-        language === "en" ? "Honoring meritorious students" : "गुणवंत विद्यार्थ्यांचा सन्मान",
-        language === "en"
-          ? "Financial help for economically weak students"
-          : "आर्थिकदृष्ट्या दुर्बल विद्यार्थ्यांना मदत"
-      ]
-    },
-    {
-      category: language === "en" ? "Cultural Programs" : "सांस्कृतिक कार्यक्रम",
-      works: [
-        language === "en" ? "Kite competition, Rangoli competition" : "पतंग स्पर्धा, रांगोळी स्पर्धा",
-        language === "en" ? "Diwali Deepotsav and sweet distribution" : "दिवाळी दीपोत्सव व मिठाई वाटप",
-        language === "en"
-          ? "Ganesh Visarjan flower shower program"
-          : "गणपती विसर्जन पुष्पवृष्टी सोहळा"
-      ]
-    },
-    {
-      category: language === "en" ? "Religious Work" : "धार्मिक कार्य",
-      works: [
-        language === "en" ? "Public Ganeshotsav assistance" : "सार्वजनिक गणेशोत्सव मदत",
-        language === "en" ? "Mahashivratri programs" : "महाशिवरात्री कार्यक्रम",
-        language === "en"
-          ? "Sai Bhandara and Mahaprasad support"
-          : "साई भंडारा व महाप्रसाद सहाय्य"
-      ]
-    }
-  ];
-
-  return (
-    <div className="min-h-screen">
-      <section className="relative overflow-hidden bg-[#0b3d91] text-white">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#ff9933] via-[#59a6ca] to-[#ff9933]" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-[#138808]/30" />
-          <div className="absolute -top-24 -right-10 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-24 -left-10 h-64 w-64 rounded-full bg-black/20 blur-3xl" />
-        </div>
-        <div className="relative container-responsive px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-10 items-center">
-            <div>
-              <div className="text-xs uppercase tracking-[0.3em] text-white/80 font-semibold">
-                {t("about.title", language)}
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold mt-3">
-                {language === "en" ? "Sachin Devappa Lavate" : "सचिन देवाप्पा लवटे"}
-              </h1>
-              <p className="text-white/90 text-lg mt-3">
-                {language === "en"
-                  ? "Elected Representative of Ward 24(D) | Navi Mumbai Municipal Corporation"
-                  : "वॉर्ड २४(ड) चे निवडून आलेले प्रतिनिधी | नवी मुंबई महानगरपालिका"}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <span className="px-4 py-2 rounded-full bg-white/10 border border-white/30 text-sm font-semibold">
-                  {language === "en" ? "12+ Years Social Service" : "१२+ वर्षे समाजसेवा"}
-                </span>
-                <span className="px-4 py-2 rounded-full bg-white/10 border border-white/30 text-sm font-semibold">
-                  {language === "en" ? "Ward 24(D), Nerul" : "वॉर्ड २४(ड), नेरूळ"}
-                </span>
-                <span className="px-4 py-2 rounded-full bg-white/10 border border-white/30 text-sm font-semibold">
-                  {language === "en" ? "Citizen First" : "नागरिक प्रथम"}
-                </span>
-              </div>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-[#ff9933] text-[#0b3d91] font-semibold hover:bg-[#ffb866] transition"
-                >
-                  {language === "en" ? "Contact" : "संपर्क"}
-                </Link>
-                <Link
-                  href="/services"
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-white/40 text-white font-semibold hover:bg-white/10 transition"
-                >
-                  {language === "en" ? "Services" : "सेवा"}
-                </Link>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="rounded-3xl bg-white/10 border border-white/20 p-4 shadow-2xl">
-                <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-white">
-                  <Image
-                    src="/bjp.jpeg"
-                    alt={language === "en" ? "Sachin Devappa Lavate" : "सचिन देवाप्पा लवटे"}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1024px) 360px, 80vw"
-                    priority
-                  />
-                </div>
-             
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 bg-white">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-8">
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-4">
-                  <div className="relative w-20 h-20 rounded-full overflow-hidden border border-gray-200 bg-white">
-                    <Image
-                      src="/bjp.jpeg"
-                      alt={language === "en" ? "Sachin Devappa Lavate" : "सचिन देवाप्पा लवटे"}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  </div>
-                  <div>
-                    <div className="text-lg font-semibold text-gray-900">
-                      {language === "en" ? "Sachin Devappa Lavate" : "सचिन देवाप्पा लवटे"}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {language === "en" ? "Corporator, Ward 24(D)" : "नगरसेवक, वॉर्ड २४(ड)"}
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-gray-700">
-                  {language === "en"
-                    ? "Committed to Ward 24(D) with citizen-first governance, reliable services, and transparent public support."
-                    : "नागरिक-केंद्री प्रशासन, विश्वसनीय सेवा आणि पारदर्शक सार्वजनिक सहाय्यासाठी वॉर्ड २४(ड) बद्दल कटिबद्ध."}
-                </p>
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {personalInfo.map((info, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                      <div className="text-orange-500 mt-1">{info.icon}</div>
-                      <div>
-                        <div className="font-medium text-gray-900">{info.label}</div>
-                        <div className="text-gray-600 text-sm">{info.value}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
-                <h3 className="font-bold text-gray-900 mb-3">{t("contact.title", language)}</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <FiMapPin className="w-4 h-4 text-orange-500" />
-                    <span>
-                      {language === "en" ? "Ward Office 24(D), Nerul Sector 18" : "वॉर्ड ऑफिस २४(ड), नेरुळ सेक्टर १८"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiUsers className="w-4 h-4 text-blue-500" />
-                    <span>{language === "en" ? "Citizen complaint assistance" : "नागरिक तक्रार सहाय्य"}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <FiUser className="text-blue-600" />
-                  {t("about.background", language)}
-                </h2>
-                <div className="space-y-4">
-                  <p className="text-gray-700">
-                    {language === "en"
-                      ? "I am Sachin Devappa Lavate, son of Shri Devappa Sitaram Lavate. My parents have been living in Nerul Sector 18, Navi Mumbai for 30 years, and my childhood was spent here. My father worked in a private company."
-                      : "मी सचिन देवाप्पा लवटे, स्व. देवाप्पा सीताराम लवटे यांचा मुलगा. माझे आई-वडील गेली ३० वर्षे नेरुळ सेक्टर १८, नवी मुंबई येथे राहतात आणि माझे बालपण येथेच गेले. माझे वडील खाजगी कंपनीत कार्यरत होते."}
-                  </p>
-                  <p className="text-gray-700">
-                    {language === "en"
-                      ? "To complete our education, my father managed a private job while my mother managed the household. For 20 years, they ran a small shop (tapri) and small home businesses. We both brothers worked at that shop while studying. Later, I completed my MBA in Finance and got a job in a bank."
-                      : "आमचे शिक्षण पूर्ण व्हावे म्हणून वडिलांनी खाजगी नोकरी केली आणि आईने घर सांभाळून छोटा व्यवसाय केला. साधारण २० वर्षे आम्ही छोटी टपरी व घरगुती व्यवसाय चालवला. मी आणि भाऊ शिकत असताना त्या व्यवसायात हातभार लावला. पुढे मी MBA (Finance) पूर्ण करून बँकेत नोकरी केली."}
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <FiHeart className="text-green-600" />
-                  {t("about.socialWork", language)}
-                </h2>
-                <p className="text-gray-700 mb-6">
-                  {language === "en"
-                    ? "My father was also doing small social work since that time. Following in his footsteps, I have been doing social work in the fields of sports, social, religious, educational, and medical for the last 12 years under the leadership of Navi Mumbai's architect Ganeshji Naik Saheb."
-                    : "माझे वडीलही त्या काळापासून छोटे-मोठे समाजकार्य करत होते. त्यांच्याच पावलावर पाऊल ठेवत गेली १२ वर्षे मी क्रीडा, सामाजिक, धार्मिक, शैक्षणिक आणि वैद्यकीय क्षेत्रात समाजकार्य करत आहे. नवी मुंबईचे शिल्पकार गणेशजी नाईक साहेब यांच्या नेतृत्वात हा प्रवास सुरू आहे."}
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {socialWork.map((work, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="font-bold text-gray-900 mb-3">{work.category}</h3>
-                      <ul className="space-y-2">
-                        {work.works.map((item, itemIndex) => (
-                          <li key={itemIndex} className="flex items-start gap-2">
-                            <FiCheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                            <span className="text-sm text-gray-700">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <FiUsers className="text-orange-600" />
-                  {language === "en" ? "Connection with People" : "जनतेशी संबंध"}
-                </h2>
-                <div className="space-y-4">
-                  <p className="text-gray-700">
-                    {language === "en"
-                      ? "My father taught me that hard work always bears fruit. Because of this mantra, we are achieving success in public and business fields today without any pride. Therefore, our connection is with the common people."
-                      : "माझ्या वडिलांनी शिकवले की कष्टाचे फळ नक्की मिळते. म्हणूनच आम्ही सार्वजनिक आणि व्यावसायिक क्षेत्रात यश मिळवले तरी अहंकार नाही. त्यामुळेच आमचे नाते सर्वसामान्य लोकांशी घट्ट आहे."}
-                  </p>
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <h3 className="font-bold text-gray-900 mb-2">
-                      {language === "en" ? "'Tapriwala's Son'" : "‘टपरीवाल्याचा मुलगा’"}
-                    </h3>
-                    <p className="text-gray-700">
-                      {language === "en"
-                        ? "That's why the beloved people of the division address me as 'Tapriwala's son'. May God always keep me connected with the common people."
-                        : "म्हणूनच माझ्या विभागातील आपले लोक मला ‘टपरीवाल्याचा मुलगा’ म्हणतात. देव आणि जनता मला नेहमीच सामान्य लोकांशी जोडून ठेवो."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-[#FF9933] to-[#138808] rounded-2xl p-8 text-white">
-                <h2 className="text-2xl font-bold mb-4">
-                  {language === "en" ? "Vision for Ward 24(D)" : "वॉर्ड २४(ड) साठी दृष्टी"}
-                </h2>
-                <p className="mb-6">
-                  {language === "en"
-                    ? "With the principle of 'Service is Commitment', I am committed to making Ward 24(D) a model ward of Navi Mumbai. The development of every citizen, the welfare of every family, and the progress of the entire ward is my goal."
-                    : "‘सेवा ही संकल्प’ या तत्त्वानुसार वॉर्ड २४(ड) हा नवी मुंबईतील आदर्श वॉर्ड बनवणे हे माझे ध्येय आहे. प्रत्येक नागरिकाचा विकास, प्रत्येक कुटुंबाचे कल्याण आणि संपूर्ण वॉर्डची प्रगती हा माझा संकल्प आहे."}
-                </p>
-                <div className="flex items-center gap-2">
-                  <GiIndiaGate className="w-6 h-6" />
-                  <span className="font-medium">
-                    {language === "en" ? "Development for All, Trust for All" : "सर्वांचा विकास, सर्वांचा विश्वास"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 bg-gray-50">
-        <div className="container-responsive px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link
-              href="/works"
-              className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow text-center"
-            >
-              <FiCheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{t("nav.works", language)}</h3>
-              <p className="text-gray-600">
-                {language === "en"
-                  ? "Detailed information of development works"
-                  : "विकास कार्यांची तपशीलवार माहिती"}
-              </p>
-            </Link>
-
-            <Link
-              href="/gallery"
-              className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow text-center"
-            >
-              <FiAward className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{t("nav.gallery", language)}</h3>
-              <p className="text-gray-600">
-                {language === "en"
-                  ? "Before-After photos of completed works"
-                  : "पूर्ण झालेल्या कार्यांचे आधी-नंतर फोटो"}
-              </p>
-            </Link>
-
-            <Link
-              href="/contact"
-              className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow text-center"
-            >
-              <FiUsers className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{t("nav.contact", language)}</h3>
-              <p className="text-gray-600">
-                {language === "en" ? "Contact me directly" : "माझ्याशी थेट संपर्क साधा"}
-              </p>
-            </Link>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+    <section className="w-full border-y border-[#ead8b7] bg-[#fff1d9] px-5 py-10 text-center sm:py-14">
+      <div className="mx-auto max-w-6xl">
+        <p className="text-sm font-black uppercase tracking-[.28em] text-orange-600">
+          {mr ? "आपलं नेरूळ, आपली बांधिलकी" : "Our Nerul, Our Commitment"}
+        </p>
+        <h2 className="mt-3 text-3xl font-black leading-tight text-[#4a210d] sm:text-5xl">
+          {mr ? "नेरूळच्या प्रगतीसाठी सदैव तत्पर" : "Always Committed to Nerul's Progress"}
+        </h2>
+        <p className="mx-auto mt-5 max-w-5xl text-base leading-7 text-[#756657] sm:text-lg">
+          {mr
+            ? "२०२६ च्या नवी मुंबई महानगरपालिका निवडणुकीत सचिन लवटे प्रभाग २४ मधून निवडून आले. नेरूळ पश्चिम–सीवूड्स परिसरातील नागरिकांनी दिलेला विश्वास जपत, स्थानिक नागरी सुविधा, शिक्षण आणि वॉर्डच्या सर्वांगीण विकासासाठी सातत्याने पाठपुरावा करण्याची त्यांची बांधिलकी आहे."
+            : "Sachin Lavate was elected from Ward 24 in the 2026 Navi Mumbai Municipal Corporation election. Honouring the trust placed in him by residents of the Nerul West–Seawoods area, he remains committed to sustained work for civic services, education and the ward's inclusive development."}
+        </p>
+        <Link
+          href="/contact"
+          className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-orange-500 px-7 font-black text-white shadow-[0_12px_30px_rgba(249,115,22,.25)] transition hover:-translate-y-0.5 hover:bg-orange-600"
+        >
+          {mr ? "माझ्याशी संपर्क साधा" : "Connect With Me"}
+          <FiArrowRight />
+        </Link>
+      </div>
+    </section>
+  </main>;
 }

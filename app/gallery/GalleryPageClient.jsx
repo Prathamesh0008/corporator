@@ -163,9 +163,7 @@ export default function GalleryPage() {
         <div className="container-responsive px-4 py-16 sm:px-6 lg:px-8 lg:py-24 relative">
           <div className="grid items-center gap-12 lg:grid-cols-[1.1fr,0.9fr]">
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80">
-                {language === "en" ? "Media Gallery" : "मीडिया गॅलरी"}
-              </div>
+              
               <h1 className="text-4xl font-semibold leading-tight text-balance text-white/80 sm:text-5xl lg:text-6xl">
                 {language === "en" ? "Ward 24(D) in Motion" : "वॉर्ड २४(ड) गतिमान"}
               </h1>
