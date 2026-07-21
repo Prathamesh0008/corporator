@@ -33,7 +33,7 @@ export default function AboutPageClient() {
       <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full border-[42px] border-white/10" /><div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full border-[56px] border-green-700/20" /><Image src="/lotus.webp" alt="" width={220} height={220} className="absolute right-4 top-8 hidden w-44 rotate-12 opacity-15 lg:block" />
       <div className="relative mx-auto grid max-w-6xl items-end gap-8 lg:grid-cols-[1fr_.8fr]">
         
-        <Image src="/About/self.png" alt={mr ? "सचिन देवाप्पा लवटे" : "Sachin Devappa Lavate"} width={620} height={760} priority className="mx-auto max-h-[520px] w-auto object-contain object-bottom drop-shadow-2xl" />
+        <Image src="/About/banner1.svg" alt={mr ? "सचिन देवाप्पा लवटे" : "Sachin Devappa Lavate"} width={620} height={760} priority className="mx-auto max-h-[520px] w-auto object-contain object-bottom drop-shadow-2xl" />
       </div>
     </section>
     <section className="px-4 py-14 sm:px-6 sm:py-20"><div className="mx-auto max-w-6xl">

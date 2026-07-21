@@ -8,8 +8,10 @@ const clean = (value, max = 1000) => String(value || "").trim().slice(0, max);
 const allowedTypes = new Set(["Road / pothole / footpath", "Water supply / leakage", "Garbage / cleanliness", "Drainage / sewer", "Street light", "Public toilet", "Garden / public space", "Other civic issue"]);
 const phonePattern = /^[0-9+() -]{10,15}$/;
 
-function newId() { return `COMP-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomBytes(3).toString("hex").toUpperCase()}`; }
-
+function newId() {
+  const number = Math.floor(100000 + Math.random() * 900000);
+  return `CMP-${number}`;
+}
 async function uploadPhoto(data, id) {
   if (!data.startsWith("data:image/")) throw new Error("Invalid photo format.");
   const { CLOUDINARY_CLOUD_NAME: cloud_name, CLOUDINARY_API_KEY: api_key, CLOUDINARY_API_SECRET: api_secret } = process.env;
@@ -34,7 +36,7 @@ export async function POST(request) {
     for (let attempt = 0; attempt < 3 && !inserted; attempt += 1) {
       complaintId = newId();
       const photo = photoDataUrl ? await uploadPhoto(photoDataUrl, complaintId) : { photoUrl: null, photoPublicId: null };
-      try { const now = new Date(); await db.collection("complaints").insertOne({ complaintId, ...data, ...photo, urgency: "normal", status: "Under Review", source: "website-complaint-form", createdAt: now, updatedAt: now }); inserted = true; } catch (error) { if (error?.code !== 11000) throw error; }
+      try { const now = new Date(); await db.collection("complaints").insertOne({ complaintId, ...data, ...photo, urgency: "normal", status: "Under Review", comments: [], source: "website-complaint-form", createdAt: now, updatedAt: now }); inserted = true; } catch (error) { if (error?.code !== 11000) throw error; }
     }
     if (!inserted) throw new Error("Could not create unique complaint number.");
     return NextResponse.json({ success: true, complaintId, status: "Under Review" }, { status: 201 });
@@ -45,9 +47,9 @@ export async function GET(request) {
   try {
     if (rateLimit(request, "complaint-track", 20, 10 * 60_000)) return NextResponse.json({ error: "Too many tracking attempts. Please wait." }, { status: 429 });
     const id = clean(new URL(request.url).searchParams.get("complaintId"), 40).toUpperCase();
-    if (!/^COMP-\d{8}-[A-F0-9]{6}$/.test(id)) return NextResponse.json({ error: "Enter a valid complaint number." }, { status: 400 });
+    if (!/^CMP-\d{6}$/.test(id)) return NextResponse.json({ error: "Enter a valid complaint number." }, { status: 400 });
     const db = await getDatabase();
-    const complaint = await db.collection("complaints").findOne({ complaintId: id }, { projection: { _id: 0, complaintId: 1, status: 1, createdAt: 1, updatedAt: 1, complaintType: 1, location: 1 } });
+    const complaint = await db.collection("complaints").findOne({ complaintId: id }, { projection: { _id: 0, complaintId: 1, status: 1, comments: 1, createdAt: 1, updatedAt: 1, complaintType: 1, location: 1 } });
     if (!complaint) return NextResponse.json({ error: "Complaint not found. Check the number and try again." }, { status: 404 });
     return NextResponse.json({ success: true, complaint });
   } catch (error) { console.error("Complaint tracking failed", error?.message); return NextResponse.json({ error: "Status is temporarily unavailable." }, { status: 500 }); }

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import {
   FiCheckCircle,
   FiMapPin,
@@ -9,7 +10,20 @@ import {
 import { workItems } from "./workData";
 
 export default function BeforeAfterShowcase({ mr = false }) {
-  if (!workItems || workItems.length === 0) {
+  const [publishedWorks, setPublishedWorks] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/works")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data) => { if (active && Array.isArray(data.works)) setPublishedWorks(data.works); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  const visibleWorks = [...publishedWorks, ...workItems];
+
+  if (visibleWorks.length === 0) {
     return (
       <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center">
         <p className="font-bold text-slate-700">
@@ -44,7 +58,7 @@ export default function BeforeAfterShowcase({ mr = false }) {
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        {workItems.map((work, index) => (
+        {visibleWorks.map((work, index) => (
           <WorkComparisonCard
             key={work.id || work.slug}
             work={work}
@@ -180,6 +194,7 @@ function ComparisonImage({
           src={image}
           alt={alt}
           fill
+          unoptimized={String(image || "").startsWith("http")}
           sizes="(max-width: 1024px) 100vw, 50vw"
           className="object-cover transition duration-500 group-hover:scale-105"
         />

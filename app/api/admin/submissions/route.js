@@ -50,7 +50,12 @@ function mapComplaint(doc) {
     urgency: doc.urgency || "",
     status: doc.status || "",
     location: doc.location || "",
+    description: doc.description || "",
     photoUrl: doc.photoUrl || "",
+    comments: Array.isArray(doc.comments) ? doc.comments.map((comment) => ({
+      text: String(comment?.text || ""),
+      createdAt: comment?.createdAt ? new Date(comment.createdAt).toISOString() : null,
+    })) : [],
     createdAt: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
     updatedAt: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
   };
@@ -95,7 +100,9 @@ export async function GET(request) {
               urgency: 1,
               status: 1,
               location: 1,
+              description: 1,
               photoUrl: 1,
+              comments: 1,
               createdAt: 1,
               updatedAt: 1,
             },
@@ -148,15 +155,16 @@ export async function PATCH(request) {
     const body = await request.json();
     const complaintId = String(body?.complaintId || "").trim().toUpperCase();
     const status = String(body?.status || "").trim();
+    const comment = String(body?.comment || "").trim().slice(0, 1000);
 
-    if (!complaintId || !status) {
+    if (!complaintId || (!status && !comment)) {
       return NextResponse.json(
-        { error: "complaintId and status are required." },
+        { error: "complaintId and a status or comment are required." },
         { status: 400 }
       );
     }
 
-    if (!ALLOWED_COMPLAINT_STATUSES.includes(status)) {
+    if (status && !ALLOWED_COMPLAINT_STATUSES.includes(status)) {
       return NextResponse.json(
         {
           error: "Invalid status.",
@@ -169,9 +177,13 @@ export async function PATCH(request) {
     const db = await getDatabase();
     const now = new Date();
 
+    const update = { $set: { updatedAt: now } };
+    if (status) update.$set.status = status;
+    if (comment) update.$push = { comments: { text: comment, createdAt: now } };
+
     const result = await db.collection(COMPLAINTS_COLLECTION).findOneAndUpdate(
       { complaintId },
-      { $set: { status, updatedAt: now } },
+      update,
       { returnDocument: "after" }
     );
     const updatedComplaint = result?.value || result;

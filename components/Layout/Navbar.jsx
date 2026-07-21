@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiAlertCircle, FiChevronDown, FiMenu, FiX } from "react-icons/fi";
@@ -31,8 +30,10 @@ export default function Navbar() {
     <nav className={`sticky top-0 z-[100] border-b bg-white/95 backdrop-blur-xl transition-all duration-300 ${scrolled ? "border-slate-200 shadow-[0_8px_30px_rgba(15,23,42,.08)]" : "border-slate-100"}`} aria-label="Primary navigation">
       <div className="container-responsive flex h-[88px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="Sachin Lavate home">
-          <Image src="/logo-3.png" alt={mr ? "सचिन देवप्पा लवटे" : "Sachin Devappa Lavate"} width={78} height={78} priority className="h-[78px] w-[78px] shrink-0 object-contain transition duration-300 group-hover:scale-[1.03]" />
-          <span className="hidden shrink-0 whitespace-nowrap border-l border-slate-200 pl-3 leading-tight sm:block"><strong className="block text-[17px] font-black tracking-tight text-slate-900">{mr ? "सचिन देवप्पा लवटे" : "Sachin D. Lavate"}</strong><span className="mt-1.5 block text-[10px] font-bold uppercase tracking-[.18em] text-orange-600">{mr ? "नगरसेवक • वॉर्ड २४(ड)" : "Corporator • Ward 24(D)"}</span></span>
+          <span className="shrink-0 whitespace-nowrap leading-tight">
+            <strong className="block text-[16px] font-black tracking-tight text-slate-900 transition group-hover:text-orange-700 sm:text-[19px]">{mr ? "सचिन देवप्पा लवटे" : "Sachin D. Lavate"}</strong>
+            <span className="mt-1.5 block text-[9px] font-bold uppercase tracking-[.13em] text-orange-600 sm:text-[10px] sm:tracking-[.18em]">{mr ? "नगरसेवक • वॉर्ड २४(ड)" : "Corporator • Ward 24(D)"}</span>
+          </span>
         </Link>
 
         <div className="hidden h-full items-center lg:flex">

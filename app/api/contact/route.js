@@ -1,75 +1,82 @@
 import { NextResponse } from "next/server";
-import { getDatabase } from "../../../lib/mongodb";
 import { rateLimit } from "../../../lib/rateLimit";
-import twilio from "twilio";
 
-const COLLECTION = "contact_messages";
+const EMAILJS_ENDPOINT = "https://api.emailjs.com/api/v1.0/email/send";
 
 const clean = (value, max = 1000) => String(value || "").trim().slice(0, max);
 
-const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID || "";
-const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || "";
-const TWILIO_WHATSAPP_FROM = process.env.TWILIO_WHATSAPP_FROM || "";
-const TWILIO_WHATSAPP_TO = process.env.TWILIO_WHATSAPP_TO || "";
-const TWILIO_CONTENT_SID = process.env.TWILIO_CONTENT_SID || "";
-const TWILIO_CONTENT_VARIABLES_JSON = process.env.TWILIO_CONTENT_VARIABLES_JSON || "";
+const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID || "service_ai8xkcz";
+const EMAILJS_CONTACT_TEMPLATE_ID = process.env.EMAILJS_CONTACT_TEMPLATE_ID || "template_0h513le";
+const EMAILJS_AUTO_REPLY_TEMPLATE_ID = process.env.EMAILJS_AUTO_REPLY_TEMPLATE_ID || "template_qe8wgrq";
+const EMAILJS_PUBLIC_KEY = process.env.EMAILJS_PUBLIC_KEY || "";
+const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || "";
 
-let twilioClient = null;
+async function sendEmail(templateId, templateParams) {
+  if (!EMAILJS_PUBLIC_KEY) throw new Error("EMAILJS_PUBLIC_KEY is not configured.");
 
-function getTwilioClient() {
-  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) return null;
-  if (!twilioClient) {
-    twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+  const response = await fetch(EMAILJS_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      service_id: EMAILJS_SERVICE_ID,
+      template_id: templateId,
+      user_id: EMAILJS_PUBLIC_KEY,
+      ...(EMAILJS_PRIVATE_KEY ? { accessToken: EMAILJS_PRIVATE_KEY } : {}),
+      template_params: templateParams,
+    }),
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(details || `EmailJS request failed with status ${response.status}.`);
   }
-  return twilioClient;
+
+  return { sent: true };
 }
 
-async function sendWhatsAppAlert({ name, phone, email, message, createdAt }) {
-  const client = getTwilioClient();
-
-  if (!client || !TWILIO_WHATSAPP_FROM || !TWILIO_WHATSAPP_TO) {
-    return { sent: false, reason: "Twilio WhatsApp env vars are incomplete." };
-  }
-
-  const payload = {
-    from: TWILIO_WHATSAPP_FROM,
-    to: TWILIO_WHATSAPP_TO,
+async function sendContactEmails({ name, phone, email, message, createdAt }) {
+  const submittedAt = createdAt.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+  const templateParams = {
+    name,
+    from_name: name,
+    phone,
+    email: email || "Not provided",
+    from_email: email || "Not provided",
+    reply_to: email || "",
+    message,
+    submitted_at: submittedAt,
+    time: submittedAt,
   };
+  const deliveries = [["contact", sendEmail(EMAILJS_CONTACT_TEMPLATE_ID, templateParams)]];
 
-  if (TWILIO_CONTENT_SID) {
-    let contentVariables = {
-      1: name || "-",
-      2: phone || "-",
-    };
-
-    if (TWILIO_CONTENT_VARIABLES_JSON) {
-      try {
-        contentVariables = JSON.parse(TWILIO_CONTENT_VARIABLES_JSON);
-      } catch {
-        // Fallback to default content variables if parsing fails.
-      }
-    }
-
-    payload.contentSid = TWILIO_CONTENT_SID;
-    payload.contentVariables = JSON.stringify(contentVariables);
-  } else {
-    payload.body = [
-      "New Contact Form Submission",
-      `Name: ${name || "-"}`,
-      `Phone: ${phone || "-"}`,
-      `Email: ${email || "-"}`,
-      `Message: ${message || "-"}`,
-      `Time: ${createdAt.toLocaleString("en-IN")}`,
-    ].join("\n");
+  if (email) {
+    deliveries.push([
+      "autoReply",
+      sendEmail(EMAILJS_AUTO_REPLY_TEMPLATE_ID, {
+        ...templateParams,
+        to_name: name,
+        to_email: email,
+      }),
+    ]);
   }
 
-  const twilioMessage = await client.messages.create(payload);
-  return { sent: true, sid: twilioMessage.sid };
+  const settled = await Promise.allSettled(deliveries.map(([, delivery]) => delivery));
+  return Object.fromEntries(
+    deliveries.map(([key], index) => {
+      const result = settled[index];
+      return [key, result.status === "fulfilled"
+        ? result.value
+        : { sent: false, reason: result.reason?.message || "Failed to send email." }];
+    })
+  );
 }
 
 export async function POST(request) {
   try {
-    if (rateLimit(request, "contact-post", 5, 10 * 60_000)) {
+    if (
+      process.env.NODE_ENV === "production" &&
+      rateLimit(request, "contact-post", 5, 10 * 60_000)
+    ) {
       return NextResponse.json({ error: "Too many messages. Please wait and try again." }, { status: 429 });
     }
     const body = await request.json();
@@ -88,31 +95,28 @@ export async function POST(request) {
       );
     }
 
-    const db = await getDatabase();
+    const emailDelivery = await sendContactEmails({ name, phone, email, message, createdAt });
 
-    const result = await db.collection(COLLECTION).insertOne({
-      name,
-      phone,
-      email,
-      message,
-      source: "website-contact-form",
-      createdAt,
-    });
-
-    let whatsapp = { sent: false };
-    try {
-      whatsapp = await sendWhatsAppAlert({ name, phone, email, message, createdAt });
-    } catch (error) {
-      whatsapp = { sent: false, reason: error?.message || "Failed to send WhatsApp alert." };
+    if (!emailDelivery.contact?.sent) {
+      throw new Error(emailDelivery.contact?.reason || "Contact email was not delivered.");
     }
 
     return NextResponse.json(
-      { success: true, id: result.insertedId.toString(), whatsapp },
+      {
+        success: true,
+        email: emailDelivery,
+      },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    console.error("Contact form submission failed:", error);
     return NextResponse.json(
-      { error: "Failed to submit contact form." },
+      {
+        error: "Failed to submit contact form.",
+        ...(process.env.NODE_ENV === "development" && error?.message
+          ? { details: error.message }
+          : {}),
+      },
       { status: 500 }
     );
   }
