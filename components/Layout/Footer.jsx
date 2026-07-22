@@ -2,14 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FiAlertCircle, FiArrowRight, FiMapPin } from "react-icons/fi";
 import { FaInstagram } from "react-icons/fa6";
 import { useLanguage } from "../../contexts/LanguageContext";
 
 export default function Footer() {
   const { language } = useLanguage();
+  const pathname = usePathname();
   const mr = language === "mr";
   const links = [["Home", "मुख्यपृष्ठ", "/"], ["About", "माहिती", "/about"], ["Ward works", "वॉर्ड कामे", "/works"], ["Ward services", "वॉर्ड सेवा", "/services"], ["News", "बातम्या", "/news"], ["Gallery", "छायाचित्रे", "/gallery"], ["Office", "कार्यालय", "/contact"]];
+  if (pathname.startsWith("/admin")) return null;
   return <footer className="relative overflow-hidden bg-[#071d2b] text-white">
     <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-orange-500/10 blur-3xl" />
     <div className="container-responsive relative px-5 py-12 sm:px-6 lg:px-8">

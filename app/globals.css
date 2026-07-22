@@ -11,10 +11,28 @@
   body {
     @apply text-gray-800 antialiased;
     font-size: 17px;
+    overflow-x: clip;
   }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold text-gray-900;
+    overflow-wrap: anywhere;
+  }
+
+  a[href],
+  button:not(:disabled),
+  summary,
+  select,
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
   }
 }
 
@@ -37,9 +55,10 @@
   .step-badge { @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-600 text-xl font-black text-white; }
   .field-wrap input, .field-wrap select, .field-wrap textarea, .form-control { @apply min-h-14 w-full rounded-xl border-2 border-slate-300 bg-white px-4 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100; }
   .field-wrap textarea { @apply py-3; }
+  .control { @apply mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-2 font-normal outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100; }
   
   .card {
-    @apply bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300;
+    @apply rounded-xl border border-gray-200 bg-white p-4 shadow-md transition-shadow duration-300 hover:shadow-lg sm:p-6;
   }
   
   .section-padding {
@@ -74,6 +93,13 @@
 }
 
 html { scroll-behavior: smooth; }
+
+/* Keep Leaflet's internal high z-index layers below the site navigation. */
+.leaflet-container {
+  position: relative;
+  z-index: 0;
+}
+
 @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 .animate-rise { animation: rise 10.0s ease-out both; }
 @keyframes lotus-reveal {

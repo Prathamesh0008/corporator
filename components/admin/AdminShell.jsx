@@ -25,10 +25,10 @@ export default function AdminShell({ children }) {
 
   useEffect(() => {
     const storedKey = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : "";
-    if (storedKey) {
-      setAdminKey(storedKey);
-    }
-    setInitialized(true);
+    queueMicrotask(() => {
+      if (storedKey) setAdminKey(storedKey);
+      setInitialized(true);
+    });
   }, []);
 
   const saveAdminKey = (key) => {
@@ -73,9 +73,9 @@ export default function AdminShell({ children }) {
   return (
     <AdminAuthContext.Provider value={{ adminKey, saveAdminKey, clearAdminKey, pathname }}>
       <div className="min-h-screen bg-slate-50">
-        <div className="container-responsive mx-auto flex min-h-screen flex-col gap-6 px-4 py-6 lg:flex-row lg:px-6">
+        <div className="container-responsive mx-auto flex min-h-screen flex-col gap-4 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 xl:flex-row xl:px-6">
           <AdminSidebar />
-          <div className="flex-1 space-y-6">
+          <div className="min-w-0 flex-1 space-y-4 sm:space-y-6">
             <AdminHeader />
             <main>{children}</main>
           </div>

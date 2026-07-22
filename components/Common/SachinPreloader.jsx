@@ -403,7 +403,7 @@ export default function SachinLogoPreloader() {
         }
 
         .sachin-preloader::after {
-          content: "Tap to continue";
+          content: "";
           position: absolute;
           bottom: 24px;
           left: 50%;

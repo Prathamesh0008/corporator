@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 const STORAGE_KEY = "admin-dashboard-key";
 const STATUS_OPTIONS = ["Under Review", "In Progress", "Resolved", "Rejected"];
+const EMPTY_NEWS = { titleEn: "", titleMr: "", categoryEn: "", categoryMr: "", summaryEn: "", summaryMr: "", contentEn: "", contentMr: "", externalUrl: "", date: new Date().toISOString().slice(0, 10), image: "" };
 const EMPTY_WORK = { titleEn: "", titleMr: "", categoryEn: "", categoryMr: "", locationEn: "", locationMr: "", statusEn: "Completed", statusMr: "पूर्ण झाले", descriptionEn: "", descriptionMr: "", beforeImage: "", afterImage: "", highlightsEn: "", highlightsMr: "" };
 
 function formatDate(value) {
@@ -48,6 +49,8 @@ export default function AdminPageClient() {
   const [statusUpdateMessage, setStatusUpdateMessage] = useState("");
   const [workForm, setWorkForm] = useState(EMPTY_WORK);
   const [workSaving, setWorkSaving] = useState(false);
+  const [newsForm, setNewsForm] = useState(EMPTY_NEWS);
+  const [newsSaving, setNewsSaving] = useState(false);
   const [complaintSearch, setComplaintSearch] = useState("");
   const [complaintStatusFilter, setComplaintStatusFilter] = useState("All");
 
@@ -195,11 +198,36 @@ export default function AdminPageClient() {
     reader.readAsDataURL(file);
   };
 
+  const publishNews = async (event) => {
+    event.preventDefault();
+    if (!adminKey.trim()) return setError("Enter admin key first.");
+    setNewsSaving(true); setError(""); setStatusUpdateMessage("");
+    try {
+      const response = await fetch("/api/news", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": adminKey.trim() }, body: JSON.stringify(newsForm) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to publish news.");
+      setNewsForm({ ...EMPTY_NEWS, date: new Date().toISOString().slice(0, 10) });
+      setStatusUpdateMessage(`Published "${data.article.titleEn}" on the news page.`);
+    } catch (err) { setError(err.message || "Unable to publish news."); }
+    finally { setNewsSaving(false); }
+  };
+
+  const selectNewsPhoto = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return setError("Please select an image file.");
+    if (file.size > 5 * 1024 * 1024) return setError("News photo must be 5 MB or smaller.");
+    const reader = new FileReader();
+    reader.onload = () => setNewsForm((old) => ({ ...old, image: String(reader.result || "") }));
+    reader.onerror = () => setError("Unable to read the selected image.");
+    reader.readAsDataURL(file);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
-      <div className="container-responsive px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="min-w-0 bg-transparent">
+      <div className="w-full min-w-0 space-y-4 sm:space-y-6">
         <div className="card">
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+          <h2 className="text-xl font-bold text-gray-900">Load submissions</h2>
           <p className="mt-1 text-sm text-gray-600">
             View recent complaint and contact form submissions.
           </p>
@@ -266,6 +294,24 @@ export default function AdminPageClient() {
             <label className="text-sm font-semibold text-slate-700">Highlights (Marathi, one per line)<textarea rows={4} value={workForm.highlightsMr} onChange={(e) => setWorkForm((old) => ({ ...old, highlightsMr: e.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" /></label>
           </div>
           <button disabled={workSaving} className="btn-primary mt-5 disabled:opacity-60">{workSaving ? "Publishing..." : "Publish Work"}</button>
+        </form>
+
+        <form onSubmit={publishNews} className="card">
+          <h2 className="text-xl font-semibold text-gray-900">Publish News</h2>
+          <p className="mt-1 text-sm text-gray-600">Publish an announcement or ward update with a photo. New articles appear first on the public News page.</p>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {[["titleEn", "Title (English) *"], ["titleMr", "Title (Marathi)"], ["categoryEn", "Category (English)"], ["categoryMr", "Category (Marathi)"]].map(([key, label]) => (
+              <label key={key} className="text-sm font-semibold text-slate-700">{label}<input required={label.includes("*")} value={newsForm[key]} onChange={(e) => setNewsForm((old) => ({ ...old, [key]: e.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" /></label>
+            ))}
+            <label className="text-sm font-semibold text-slate-700">Publication date *<input required type="date" value={newsForm.date} onChange={(e) => setNewsForm((old) => ({ ...old, date: e.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" /></label>
+            <label className="text-sm font-semibold text-slate-700">External news URL (optional)<input type="url" placeholder="https://news-website.com/article" value={newsForm.externalUrl} onChange={(e) => setNewsForm((old) => ({ ...old, externalUrl: e.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" /></label>
+            <label className="text-sm font-semibold text-slate-700">News photo *<span className="mt-2 block rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4"><input required={!newsForm.image} type="file" accept="image/*" onChange={selectNewsPhoto} className="block w-full text-sm font-normal text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-orange-100 file:px-4 file:py-2 file:font-semibold file:text-orange-700" />{newsForm.image ? <span className="mt-2 block text-xs font-semibold text-green-700">Photo selected and ready to upload.</span> : null}</span></label>
+            <label className="text-sm font-semibold text-slate-700">Summary (English) *<textarea required rows={3} value={newsForm.summaryEn} onChange={(e) => setNewsForm((old) => ({ ...old, summaryEn: e.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" /></label>
+            <label className="text-sm font-semibold text-slate-700">Summary (Marathi)<textarea rows={3} value={newsForm.summaryMr} onChange={(e) => setNewsForm((old) => ({ ...old, summaryMr: e.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" /></label>
+            <label className="text-sm font-semibold text-slate-700">Full article (English)<textarea rows={7} value={newsForm.contentEn} onChange={(e) => setNewsForm((old) => ({ ...old, contentEn: e.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" /></label>
+            <label className="text-sm font-semibold text-slate-700">Full article (Marathi)<textarea rows={7} value={newsForm.contentMr} onChange={(e) => setNewsForm((old) => ({ ...old, contentMr: e.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" /></label>
+          </div>
+          <button disabled={newsSaving} className="btn-primary mt-5 disabled:opacity-60">{newsSaving ? "Publishing..." : "Publish News"}</button>
         </form>
 
         <section className="border-y border-slate-200 bg-white">

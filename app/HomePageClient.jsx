@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { FiAlertCircle, FiArrowRight, FiCamera, FiCheckCircle, FiChevronLeft, FiChevronRight, FiClock, FiMapPin, FiSearch } from "react-icons/fi";
+import { FiArrowRight, FiCamera, FiCheckCircle, FiClock, FiMapPin, FiSearch } from "react-icons/fi";
 import { GiRoad, GiStreetLight, GiWaterTank } from "react-icons/gi";
 import { MdCleaningServices } from "react-icons/md";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -39,39 +39,10 @@ const wardBoundary = [
 export default function HomePageClient() {
   const { language } = useLanguage();
   const mr = language === "mr";
-  const [slide, setSlide] = useState(0);
   const [showMap, setShowMap] = useState(false);
+  const [homeBanner, setHomeBanner] = useState("/main.png");
 
-  const slides = [
-    {
-      image: "/images/banner-1.jpg",
-      titleEn: "Your ward problem deserves action",
-      titleMr: "आपली समस्या, आमचा पाठपुरावा",
-      textEn: "Tell Corporator Sachin Lavate’s office about civic problems in Ward 24(D)—simply, clearly, and from your phone.",
-      textMr: "नगरसेवक सचिन लवटे यांच्या कार्यालयाला आपल्या परिसरातील नागरी समस्या सोप्या पद्धतीने कळवा.",
-    },
-    {
-      image: "/images/banner-2.jpg",
-      titleEn: "Report the exact place. Help us follow up.",
-      titleMr: "अचूक ठिकाण सांगा, पाठपुराव्यास मदत करा",
-      textEn: "Roads, water, garbage, drains and street lights—add the location and a photo for clearer follow-up.",
-      textMr: "रस्ते, पाणी, कचरा, गटारे आणि पथदिवे—ठिकाण आणि फोटो दिल्यास पाठपुरावा सोपा होतो.",
-    },
-    {
-      image: "/images/banner-3.jpeg",
-      titleEn: "Save your complaint number and track progress",
-      titleMr: "तक्रार क्रमांक जतन करा आणि स्थिती तपासा",
-      textEn: "Every successful submission gives you a complaint number that can be checked on this website.",
-      textMr: "प्रत्येक यशस्वी तक्रारीनंतर मिळालेल्या क्रमांकाने या संकेतस्थळावर स्थिती तपासा.",
-    },
-  ];
-
-  useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) return undefined;
-    const timer = window.setInterval(() => setSlide((value) => (value + 1) % slides.length), 6000);
-    return () => window.clearInterval(timer);
-  }, [slides.length]);
+  useEffect(() => { fetch("/api/site-content").then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { if (data.content?.homeBanner) setHomeBanner(data.content.homeBanner); }).catch(() => {}); }, []);
 
   useEffect(() => {
     if (!showMap) return undefined;
@@ -97,45 +68,17 @@ export default function HomePageClient() {
 
   return (
     <div className="overflow-hidden bg-[#fffdf9]">
-      <section className="relative isolate min-h-[610px] overflow-hidden bg-[#082f49] text-white" aria-roledescription="carousel" aria-label={mr ? "मुख्य माहिती" : "Featured information"}>
-        {slides.map((item, index) => (
-          <Image
-            key={item.image}
-            src={item.image}
-            alt=""
-            fill
-            priority={index === 0}
-            className={`absolute inset-0 h-full w-full scale-105 object-cover object-center transition-opacity duration-700 ${index === slide ? "opacity-100" : "opacity-0"}`}
-            sizes="100vw"
-            aria-hidden="true"
-          />
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#082f49]/90 via-[#082f49]/70 to-[#082f49]/25" />
-        <div className="container-responsive relative z-10 flex min-h-[610px] items-center px-4 py-16 sm:px-6 lg:px-8">
-          <div className="max-w-3xl animate-rise">
-            
-            <h1 key={`title-${slide}-${language}`} className="animate-rise text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
-              {mr ? slides[slide].titleMr : slides[slide].titleEn}
-            </h1>
-            <p key={`text-${slide}-${language}`} className="animate-rise mt-5 max-w-2xl text-lg leading-8 text-blue-50 sm:text-xl">
-              {mr ? slides[slide].textMr : slides[slide].textEn}
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/complaints#register" className="complaint-cta justify-center text-lg">
-                <FiAlertCircle className="h-6 w-6" /> {mr ? "आता तक्रार नोंदवा" : "Register a Complaint"} <FiArrowRight />
-              </Link>
-              <Link href="/complaints#track" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 border-white bg-white/10 px-6 font-bold text-white backdrop-blur transition hover:bg-white hover:text-[#082f49]">
-                <FiSearch /> {mr ? "तक्रार तपासा" : "Track Complaint"}
-              </Link>
-            </div>
-            <p className="mt-4 text-sm text-blue-100">{mr ? "ही सेवा वॉर्ड २४(ड), नेरूळमधील नागरी समस्यांसाठी आहे." : "For civic issues within Ward 24(D), Nerul."}</p>
-            <div className="mt-7 flex items-center gap-3" role="group" aria-label={mr ? "स्लाइड नियंत्रणे" : "Slider controls"}>
-              <button type="button" onClick={() => setSlide((slide - 1 + slides.length) % slides.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-black/20 text-white transition hover:bg-white hover:text-slate-900" aria-label={mr ? "मागील स्लाइड" : "Previous slide"}><FiChevronLeft /></button>
-              <div className="flex gap-2">{slides.map((item, index) => <button type="button" key={item.image} onClick={() => setSlide(index)} aria-label={`${mr ? "स्लाइड" : "Slide"} ${index + 1}`} aria-current={index === slide} className={`h-2.5 rounded-full transition-all ${index === slide ? "w-8 bg-orange-400" : "w-2.5 bg-white/60 hover:bg-white"}`} />)}</div>
-              <button type="button" onClick={() => setSlide((slide + 1) % slides.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-black/20 text-white transition hover:bg-white hover:text-slate-900" aria-label={mr ? "पुढील स्लाइड" : "Next slide"}><FiChevronRight /></button>
-            </div>
-          </div>
-        </div>
+      <section className="overflow-hidden" aria-label={mr ? "मुख्य बॅनर" : "Main banner"}>
+        <Image
+          src={homeBanner}
+          alt={mr ? "सचिन देवप्पा लवटे मुख्य बॅनर" : "Sachin Devappa Lavate main banner"}
+          width={1672}
+          height={941}
+          priority
+          unoptimized={homeBanner.startsWith("http")}
+          className="block h-auto w-full"
+          sizes="100vw"
+        />
       </section>
 
       <section className="section-padding bg-white" aria-labelledby="issues-title">

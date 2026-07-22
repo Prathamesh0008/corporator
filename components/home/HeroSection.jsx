@@ -39,7 +39,7 @@ export default function HeroSection() {
         <div className="relative mx-auto w-full max-w-md">
           <div className="absolute inset-0 rounded-[32px] bg-white/10 blur-3xl" />
           <div className="relative overflow-hidden rounded-[32px] border border-white/20 bg-white/10 p-3 shadow-2xl backdrop-blur">
-            <Image src="/bio.png" alt={mr ? "सचिन देवप्पा लवटे" : "Sachin Devappa Lavate"} width={720} height={900} className="h-[500px] w-full rounded-[24px] object-cover object-top" priority sizes="(max-width: 1024px) 100vw, 45vw" />
+            <Image src="/main.png" alt={mr ? "सचिन देवप्पा लवटे" : "Sachin Devappa Lavate"} width={720} height={900} className="h-[500px] w-full rounded-[24px] object-cover object-top" priority sizes="(max-width: 1024px) 100vw, 45vw" />
           </div>
         </div>
       </div>

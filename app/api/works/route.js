@@ -34,10 +34,12 @@ function mapWork(doc) {
   return { ...doc, _id: undefined, id: doc._id?.toString() || doc.id, createdAt: doc.createdAt?.toISOString?.() || doc.createdAt };
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
     const db = await getDatabase();
-    const works = await db.collection(COLLECTION).find({ published: true }).sort({ createdAt: -1 }).toArray();
+    const adminView = new URL(request.url).searchParams.get("admin") === "1";
+    if (adminView && !isAdmin(request)) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    const works = await db.collection(COLLECTION).find(adminView ? {} : { published: true }).sort({ createdAt: -1 }).toArray();
     return NextResponse.json({ success: true, works: works.map(mapWork) });
   } catch (error) {
     console.error("Works loading failed", error?.message);

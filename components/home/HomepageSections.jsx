@@ -74,7 +74,7 @@ export default function HomepageSections() {
   
 
       <section className="py-10 sm:py-14">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col  lg:flex-row lg:items-end lg:justify-between">
           <SectionHeading eyebrow={mr ? "सध्याच्या बातम्या" : "Latest updates"} title={mr ? "नवीन घोषणा आणि अपडेट्स" : "Recent announcements and updates"} description={mr ? "वॉर्डातील कामे आणि सेवा बद्दल ताज्या बातम्या." : "Fresh updates about service delivery and ward initiatives."} align="left" />
           <Link href="/news" className="inline-flex items-center gap-2 font-semibold text-orange-600">{mr ? "सर्व बातम्या पहा" : "View all news"}<FiChevronRight /></Link>
         </div>
