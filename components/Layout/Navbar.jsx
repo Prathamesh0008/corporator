@@ -34,7 +34,7 @@ export default function Navbar() {
       <div className="container-responsive flex h-[76px] items-center justify-between gap-2 px-3 sm:h-[88px] sm:gap-4 sm:px-6 lg:px-8">
         <Link href="/" className="group flex min-w-0 shrink items-center gap-2 sm:shrink-0 sm:gap-3" aria-label="Sachin Lavate home">
           <span className="shrink-0 whitespace-nowrap leading-tight">
-            <strong className="block truncate text-[14px] font-black tracking-tight text-slate-900 transition group-hover:text-orange-700 sm:text-[19px]">{mr ? "सचिन देवप्पा लवटे" : "Sachin D. Lavate"}</strong>
+            <strong className="block whitespace-nowrap text-[14px] font-black tracking-tight text-slate-900 transition group-hover:text-orange-700 sm:text-[19px]">{mr ? "सचिन देवप्पा लवटे" : "Sachin D. Lavate"}</strong>
             <span className="mt-1.5 hidden text-[9px] font-bold uppercase min-[380px]:block tracking-[.13em] text-orange-600 sm:text-[10px] sm:tracking-[.18em]">{mr ? "नगरसेवक • वॉर्ड २४(ड)" : "Corporator • Ward 24(D)"}</span>
           </span>
         </Link>

@@ -33,6 +33,18 @@ function toCloudinaryDownloadUrl(url) {
   return url;
 }
 
+async function imageUrlToDataUrl(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Unable to load demo image.");
+  const blob = await response.blob();
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Unable to prepare demo image."));
+    reader.readAsDataURL(blob);
+  });
+}
+
 export default function AdminPageClient() {
   const [adminKey, setAdminKey] = useState(
     () => (typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) || "" : "")
@@ -223,6 +235,24 @@ export default function AdminPageClient() {
     reader.readAsDataURL(file);
   };
 
+  const fillDemoWork = async () => {
+    setError("");
+    try {
+      const [beforeImage, afterImage] = await Promise.all([imageUrlToDataUrl("/works/r1.png"), imageUrlToDataUrl("/works/r2.png")]);
+      setWorkForm({ titleEn: "Demo Road Improvement Work", titleMr: "नमुना रस्ता सुधारणा काम", categoryEn: "Road Development", categoryMr: "रस्ता विकास", locationEn: "Sector 18, Nerul", locationMr: "सेक्टर १८, नेरूळ", statusEn: "Completed", statusMr: "पूर्ण झाले", descriptionEn: "Demo entry created to test the complete civic work publishing workflow, including before and after photographs.", descriptionMr: "कामापूर्वी आणि कामानंतरच्या छायाचित्रांसह संपूर्ण विकासकाम प्रकाशन प्रक्रिया तपासण्यासाठी तयार केलेली नमुना नोंद.", highlightsEn: "Damaged surface repaired\nSafer vehicle movement\nImproved road quality", highlightsMr: "खराब पृष्ठभागाची दुरुस्ती\nसुरक्षित वाहतूक\nरस्त्याच्या गुणवत्तेत सुधारणा", beforeImage, afterImage });
+      setStatusUpdateMessage("Demo work data is ready. Review it and click Publish Work.");
+    } catch (err) { setError(err.message); }
+  };
+
+  const fillDemoNews = async () => {
+    setError("");
+    try {
+      const image = await imageUrlToDataUrl("/images/banner-1.jpg");
+      setNewsForm({ titleEn: "Demo Ward Development Update", titleMr: "नमुना वॉर्ड विकास अपडेट", categoryEn: "Ward Update", categoryMr: "वॉर्ड अपडेट", summaryEn: "A demo news post for testing image upload, bilingual content and article publishing from the admin dashboard.", summaryMr: "अॅडमिन डॅशबोर्डमधून फोटो, द्विभाषिक मजकूर आणि बातमी प्रकाशन तपासण्यासाठी नमुना बातमी.", contentEn: "This is a demonstration article. It can be edited, hidden or deleted later from the Manage News page.", contentMr: "ही एक नमुना बातमी आहे. मॅनेज न्यूज पृष्ठावरून ती नंतर संपादित, लपविता किंवा हटविता येईल.", externalUrl: "", date: new Date().toISOString().slice(0, 10), image });
+      setStatusUpdateMessage("Demo news data is ready. Review it and click Publish News.");
+    } catch (err) { setError(err.message); }
+  };
+
   return (
     <div className="min-w-0 bg-transparent">
       <div className="w-full min-w-0 space-y-4 sm:space-y-6">
@@ -279,7 +309,7 @@ export default function AdminPageClient() {
         </div>
 
         <form onSubmit={publishWork} className="card">
-          <h2 className="text-xl font-semibold text-gray-900">Publish a Civic Work</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><h2 className="text-xl font-semibold text-gray-900">Publish a Civic Work</h2><button type="button" onClick={fillDemoWork} className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700 hover:bg-orange-100">Fill Demo Data</button></div>
           <p className="mt-1 text-sm text-gray-600">New entries appear at the top of the public Works page. Upload before and after photos up to 5 MB each.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {[
@@ -297,7 +327,7 @@ export default function AdminPageClient() {
         </form>
 
         <form onSubmit={publishNews} className="card">
-          <h2 className="text-xl font-semibold text-gray-900">Publish News</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><h2 className="text-xl font-semibold text-gray-900">Publish News</h2><button type="button" onClick={fillDemoNews} className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700 hover:bg-orange-100">Fill Demo Data</button></div>
           <p className="mt-1 text-sm text-gray-600">Publish an announcement or ward update with a photo. New articles appear first on the public News page.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {[["titleEn", "Title (English) *"], ["titleMr", "Title (Marathi)"], ["categoryEn", "Category (English)"], ["categoryMr", "Category (Marathi)"]].map(([key, label]) => (

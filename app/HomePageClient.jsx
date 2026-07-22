@@ -76,7 +76,7 @@ export default function HomePageClient() {
           height={941}
           priority
           unoptimized={homeBanner.startsWith("http")}
-          className="block h-auto w-full"
+          className="block h-auto w-full lg:h-[520px] lg:object-fill 2xl:h-[600px]"
           sizes="100vw"
         />
       </section>
