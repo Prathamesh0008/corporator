@@ -1,31 +1,49 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function Counter({ value, suffix = "", prefix = "" }) {
   const [displayValue, setDisplayValue] = useState(0);
+  const counterRef = useRef(null);
 
   useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) {
-      setDisplayValue(value);
-      return undefined;
-    }
-
     let frame = 0;
-    const duration = 900;
-    const startTime = performance.now();
+    let started = false;
 
-    const tick = (now) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      setDisplayValue(Math.round(value * progress));
-      if (progress < 1) {
-        frame = window.requestAnimationFrame(tick);
+    const runCounter = () => {
+      if (started) return;
+      started = true;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        setDisplayValue(value);
+        return;
       }
+
+      const duration = 1600;
+      const startTime = performance.now();
+      const tick = (now) => {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setDisplayValue(Math.round(value * eased));
+        if (progress < 1) frame = window.requestAnimationFrame(tick);
+      };
+      frame = window.requestAnimationFrame(tick);
     };
 
-    frame = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frame);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          runCounter();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    if (counterRef.current) observer.observe(counterRef.current);
+    return () => {
+      observer.disconnect();
+      window.cancelAnimationFrame(frame);
+    };
   }, [value]);
 
   const formatted = useMemo(() => {
@@ -33,5 +51,5 @@ export default function Counter({ value, suffix = "", prefix = "" }) {
     return `${prefix}${normalized}${suffix}`;
   }, [displayValue, prefix, suffix]);
 
-  return <span>{formatted}</span>;
+  return <span ref={counterRef}>{formatted}</span>;
 }

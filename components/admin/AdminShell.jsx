@@ -25,10 +25,23 @@ export default function AdminShell({ children }) {
 
   useEffect(() => {
     const storedKey = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : "";
-    queueMicrotask(() => {
-      if (storedKey) setAdminKey(storedKey);
-      setInitialized(true);
-    });
+    if (!storedKey) {
+      queueMicrotask(() => setInitialized(true));
+      return;
+    }
+
+    fetch("/api/admin/auth", {
+      method: "POST",
+      headers: { "x-admin-key": storedKey },
+    })
+      .then((response) => {
+        if (response.ok) {
+          setAdminKey(storedKey);
+        } else {
+          sessionStorage.removeItem(STORAGE_KEY);
+        }
+      })
+      .finally(() => setInitialized(true));
   }, []);
 
   const saveAdminKey = (key) => {
@@ -47,11 +60,11 @@ export default function AdminShell({ children }) {
 
   if (!adminKey) {
     return (
-      <div className="min-h-screen bg-slate-50 px-4 py-10">
-        <div className="mx-auto max-w-lg rounded-[32px] border border-slate-200 bg-white p-8 shadow-xl">
+      <div className="min-h-screen bg-white px-5 py-14 sm:py-20">
+        <main className="mx-auto max-w-xl">
           <div className="text-center">
-            <p className="text-sm uppercase tracking-[0.24em] text-orange-600">Administrator Access</p>
-            <h1 className="mt-4 text-3xl font-black text-slate-900">Admin Dashboard Login</h1>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#b96820]">Administrator Access</p>
+            <h1 className="mt-4 text-3xl font-black text-[#163247]">Admin Dashboard Login</h1>
             <p className="mt-3 text-sm leading-6 text-slate-600">
               Enter your admin dashboard key to access complaints, contact messages, and civic works management.
             </p>
@@ -59,25 +72,22 @@ export default function AdminShell({ children }) {
 
           <AdminKeyForm onSave={saveAdminKey} />
 
-          <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600">
-            <p className="font-semibold">Note</p>
-            <p className="mt-2">
-              This dashboard uses a secure admin key. The key is stored only in your browser session and is never sent in plain text to the UI.
-            </p>
-          </div>
-        </div>
+          <p className="mt-8 border-t border-slate-200 pt-5 text-center text-xs leading-5 text-slate-500">
+            Your admin key is kept only for the current browser session.
+          </p>
+        </main>
       </div>
     );
   }
 
   return (
     <AdminAuthContext.Provider value={{ adminKey, saveAdminKey, clearAdminKey, pathname }}>
-      <div className="min-h-screen bg-slate-50">
-        <div className="container-responsive mx-auto flex min-h-screen flex-col gap-4 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 xl:flex-row xl:px-6">
+      <div className="admin-ui min-h-screen bg-[#eef2f6]">
+        <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col xl:flex-row">
           <AdminSidebar />
-          <div className="min-w-0 flex-1 space-y-4 sm:space-y-6">
+          <div className="min-w-0 flex-1 bg-white">
             <AdminHeader />
-            <main>{children}</main>
+            <main className="px-4 py-6 sm:px-6 lg:px-8">{children}</main>
           </div>
         </div>
       </div>
@@ -88,32 +98,53 @@ export default function AdminShell({ children }) {
 function AdminKeyForm({ onSave }) {
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
+  const [checking, setChecking] = useState(false);
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
     if (!value.trim()) {
       setError("Enter admin key first.");
       return;
     }
+
     setError("");
-    onSave(value.trim());
+    setChecking(true);
+    try {
+      const response = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "x-admin-key": value.trim() },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data?.error || "Unable to verify the admin key.");
+        return;
+      }
+      onSave(value.trim());
+    } catch {
+      setError("Unable to verify the key. Check your connection and try again.");
+    } finally {
+      setChecking(false);
+    }
   };
 
   return (
-    <form onSubmit={submit} className="mt-8 space-y-4">
+    <form onSubmit={submit} className="mt-10 space-y-5">
       <div>
         <label className="block text-sm font-semibold text-slate-700">Admin dashboard key</label>
         <input
           type="password"
           value={value}
-          onChange={(event) => setValue(event.target.value)}
+          onChange={(event) => {
+            setValue(event.target.value);
+            if (error) setError("");
+          }}
           placeholder="Enter your admin key"
-          className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+          className="mt-2 min-h-14 w-full border border-slate-300 bg-white px-4 text-slate-900 outline-none transition focus:border-[#1f5a7a] focus:ring-2 focus:ring-[#1f5a7a]/15"
         />
       </div>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <button type="submit" className="inline-flex w-full items-center justify-center rounded-2xl bg-orange-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-700">
-        Continue
+      <button disabled={checking} type="submit" className="inline-flex min-h-13 w-full items-center justify-center bg-[#1f5a7a] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#163247] disabled:cursor-not-allowed disabled:opacity-60">
+        {checking ? "Checking..." : "Continue"}
       </button>
     </form>
   );

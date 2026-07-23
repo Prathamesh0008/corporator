@@ -67,7 +67,7 @@ export default function HomePageClient() {
   ];
 
   return (
-    <div className="overflow-hidden bg-[#fffdf9]">
+    <div className="home-ui overflow-hidden bg-white">
       <section className="overflow-hidden" aria-label={mr ? "मुख्य बॅनर" : "Main banner"}>
         <Image
           src={homeBanner}
@@ -76,7 +76,7 @@ export default function HomePageClient() {
           height={941}
           priority
           unoptimized={homeBanner.startsWith("http")}
-          className="block h-auto w-full lg:h-[520px] lg:object-fill 2xl:h-[600px]"
+          className="block h-[240px] w-full object-cover object-center sm:h-[360px] lg:h-[520px] 2xl:h-[600px]"
           sizes="100vw"
         />
       </section>
@@ -87,15 +87,15 @@ export default function HomePageClient() {
             <p className="eyebrow">{mr ? "आम्ही कशासाठी पाठपुरावा करतो" : "WHAT WE FOLLOW UP"}</p>
             <h2 id="issues-title" className="mt-2 text-3xl font-black sm:text-4xl">{mr ? "आपल्या परिसरातील रोजच्या समस्या" : "Everyday civic issues in your area"}</h2>
           </div>
-          <div className="mt-9 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="mt-9 grid grid-cols-2 gap-6 md:grid-cols-4">
             {issues.map((issue, index) => (
-              <Link key={issue.en} href="/complaints#register" className="group rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-xl" style={{ animationDelay: `${index * 80}ms` }}>
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-3xl text-orange-600 transition group-hover:rotate-3 group-hover:scale-110">{issue.icon}</span>
+              <Link key={issue.en} href="/complaints#register" className="group p-5 text-center transition hover:bg-orange-50" style={{ animationDelay: `${index * 80}ms` }}>
+                <span className="mx-auto flex h-14 w-14 items-center justify-center text-3xl text-orange-600 transition group-hover:scale-110">{issue.icon}</span>
                 <span className="mt-3 block font-bold text-slate-800">{mr ? issue.mr : issue.en}</span>
               </Link>
             ))}
           </div>
-          <p className="mx-auto mt-6 max-w-3xl rounded-xl bg-blue-50 px-4 py-3 text-center text-sm text-blue-900">
+          <p className="mx-auto mt-6 max-w-3xl border-l-4 border-blue-700 bg-blue-50 px-4 py-3 text-sm text-blue-900">
             {mr ? "पोलीस, रुग्णवाहिका किंवा अग्निशमन आपत्कालीन मदतीसाठी कृपया ११२ वर कॉल करा. या संकेतस्थळावरील तक्रार सेवा आपत्कालीन सेवा नाही." : "For police, ambulance, or fire emergencies, call 112. This complaint service is not an emergency service."}
           </p>
         </div>
@@ -110,9 +110,9 @@ export default function HomePageClient() {
               <p className="mt-4 text-lg leading-8 text-slate-600">{mr ? "फॉर्म वाचायला आणि भरायला सोपा ठेवला आहे. आवश्यक ठिकाणी घरातील व्यक्तीची मदत घेऊ शकता." : "The form uses large labels and simple words. A family member can also help you submit it."}</p>
               <Link href="/complaints#register" className="complaint-cta mt-6">{mr ? "तक्रार सुरू करा" : "Start Your Complaint"} <FiArrowRight /></Link>
             </div>
-            <ol className="grid gap-4 sm:grid-cols-2">
+            <ol className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
               {steps.map((step, index) => (
-                <li key={step.en} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <li key={step.en} className="p-5">
                   <div className="flex items-start gap-4">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0b6e4f] text-xl font-black text-white">{index + 1}</span>
                     <div><h3 className="text-lg font-bold">{mr ? step.mr : step.en}</h3><p className="mt-1 leading-6 text-slate-600">{mr ? step.detailMr : step.detailEn}</p></div>
@@ -142,7 +142,7 @@ export default function HomePageClient() {
             <div><p className="eyebrow">{mr ? "आपले सेवा क्षेत्र" : "OUR SERVICE AREA"}</p><h2 id="ward-map-title" className="mt-2 text-3xl font-black">{mr ? "वॉर्ड २४(ड), नेरूळ नकाशा" : "Ward 24(D), Nerul Map"}</h2><p className="mt-2 text-slate-600">{mr ? "नकाशावरील सीमा संदर्भासाठी दाखवली आहे." : "The ward boundary is shown for reference."}</p></div>
             <button type="button" onClick={() => setShowMap(true)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-blue-700 px-5 font-black text-blue-700 transition hover:bg-blue-700 hover:text-white"><FiMapPin />{mr ? "मोठा नकाशा उघडा" : "Open Large Map"}</button>
           </div>
-          <div className="h-80 overflow-hidden rounded-3xl border border-slate-200 shadow-lg md:h-[430px]"><LeafletMap center={[19.0285, 73.012]} zoom={13} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div>
+          <div className="h-80 overflow-hidden md:h-[430px]"><LeafletMap center={[19.0285, 73.012]} zoom={13} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div>
         </div>
       </section>
       <HomeFaqSection />

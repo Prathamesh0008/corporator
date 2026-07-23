@@ -30,7 +30,7 @@ export default function AnnouncementBar() {
   }, []);
 
   const enabled = managedContent && "announcementEnabled" in managedContent ? managedContent.announcementEnabled : announcementContent.enabled;
-  if (pathname.startsWith("/admin") || !enabled || !visible) return null;
+  if (pathname.startsWith("/ward-control") || !enabled || !visible) return null;
 
   const defaultCopy = language === "mr" ? announcementContent.mr : announcementContent.en;
   const managedText = language === "mr" ? managedContent?.announcementMr : managedContent?.announcementEn;

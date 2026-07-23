@@ -8,7 +8,7 @@ export const metadata = {
     follow: false,
   },
   alternates: {
-    canonical: "/admin",
+    canonical: "/ward-control",
   },
 };
 

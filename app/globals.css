@@ -94,6 +94,67 @@
 
 html { scroll-behavior: smooth; }
 
+/* Admin is one continuous workspace: sections are separated by rules, not cards. */
+.admin-ui main > div {
+  gap: 0;
+}
+.admin-ui main > div > section,
+.admin-ui main > div > form {
+  border-radius: 0;
+  box-shadow: none;
+}
+.admin-ui main article {
+  border-radius: 0;
+  box-shadow: none;
+}
+.admin-ui {
+  --admin-navy: #1f5a7a;
+  --admin-navy-dark: #163247;
+  --admin-accent: #c97428;
+  --admin-accent-soft: #fff6ed;
+}
+.admin-ui .text-orange-600,
+.admin-ui .text-orange-700 {
+  color: var(--admin-accent);
+}
+.admin-ui .bg-orange-600 {
+  background-color: var(--admin-navy);
+}
+.admin-ui .bg-orange-600:hover,
+.admin-ui .hover\:bg-orange-700:hover {
+  background-color: var(--admin-navy-dark);
+}
+.admin-ui .bg-orange-50 {
+  background-color: var(--admin-accent-soft);
+}
+.admin-ui .bg-orange-100 {
+  background-color: #fce8d5;
+}
+.admin-ui .border-orange-600,
+.admin-ui .border-orange-500 {
+  border-color: var(--admin-navy);
+}
+.admin-ui .border-orange-200 {
+  border-color: #e8d5c2;
+}
+.admin-ui .focus\:border-orange-500:focus {
+  border-color: var(--admin-navy);
+}
+.admin-ui .focus\:ring-orange-100:focus,
+.admin-ui .focus\:ring-orange-200:focus,
+.admin-ui .focus\:ring-orange-500:focus {
+  --tw-ring-color: rgb(31 90 122 / 0.16);
+}
+.admin-ui .btn-primary {
+  background: var(--admin-navy);
+  border-radius: 4px;
+  box-shadow: none;
+}
+.admin-ui .btn-primary:hover {
+  background: var(--admin-navy-dark);
+  box-shadow: none;
+}
+
 /* Keep Leaflet's internal high z-index layers below the site navigation. */
 .leaflet-container {
   position: relative;

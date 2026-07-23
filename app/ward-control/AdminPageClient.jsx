@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAdminAuth } from "../../components/admin/AdminShell";
 
-const STORAGE_KEY = "admin-dashboard-key";
 const STATUS_OPTIONS = ["Under Review", "In Progress", "Resolved", "Rejected"];
 const EMPTY_NEWS = { titleEn: "", titleMr: "", categoryEn: "", categoryMr: "", summaryEn: "", summaryMr: "", contentEn: "", contentMr: "", externalUrl: "", date: new Date().toISOString().slice(0, 10), image: "" };
 const EMPTY_WORK = { titleEn: "", titleMr: "", categoryEn: "", categoryMr: "", locationEn: "", locationMr: "", statusEn: "Completed", statusMr: "पूर्ण झाले", descriptionEn: "", descriptionMr: "", beforeImage: "", afterImage: "", highlightsEn: "", highlightsMr: "" };
@@ -46,9 +46,7 @@ async function imageUrlToDataUrl(url) {
 }
 
 export default function AdminPageClient() {
-  const [adminKey, setAdminKey] = useState(
-    () => (typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) || "" : "")
-  );
+  const { adminKey } = useAdminAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [fetchedAt, setFetchedAt] = useState("");
@@ -89,9 +87,8 @@ export default function AdminPageClient() {
     });
   }, [complaints, complaintSearch, complaintStatusFilter]);
 
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = useCallback(async () => {
     if (!adminKey.trim()) {
-      setError("Enter admin key first.");
       return;
     }
 
@@ -111,7 +108,6 @@ export default function AdminPageClient() {
         throw new Error(data?.error || "Unable to load data.");
       }
 
-      sessionStorage.setItem(STORAGE_KEY, adminKey.trim());
       const nextComplaints = Array.isArray(data.complaints) ? data.complaints : [];
       setComplaints(nextComplaints);
       setContacts(Array.isArray(data.contacts) ? data.contacts : []);
@@ -128,7 +124,11 @@ export default function AdminPageClient() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [adminKey, limit]);
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, [fetchSubmissions]);
 
   const updateComplaintStatus = async (complaintId) => {
     if (!adminKey.trim()) {
@@ -256,24 +256,20 @@ export default function AdminPageClient() {
   return (
     <div className="min-w-0 bg-transparent">
       <div className="w-full min-w-0 space-y-4 sm:space-y-6">
-        <div className="card">
-          <h2 className="text-xl font-bold text-gray-900">Load submissions</h2>
+        <section className="border-y border-slate-200 bg-white py-6">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+          <h2 className="text-xl font-bold text-gray-900">Submissions overview</h2>
           <p className="mt-1 text-sm text-gray-600">
-            View recent complaint and contact form submissions.
+            Complaint and contact submissions load automatically after login.
           </p>
-
-          <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-[1fr_120px_auto]">
-            <input
-              type="password"
-              value={adminKey}
-              onChange={(e) => setAdminKey(e.target.value)}
-              placeholder="Enter admin key"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
+            </div>
+          <div className="flex gap-3">
             <select
               value={limit}
               onChange={(e) => setLimit(Number(e.target.value))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-3 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              aria-label="Number of submissions"
+              className="border border-gray-300 px-3 py-2 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value={25}>25</option>
               <option value={50}>50</option>
@@ -286,8 +282,9 @@ export default function AdminPageClient() {
               disabled={isLoading}
               className="btn-primary disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isLoading ? "Loading..." : "Load Submissions"}
+              {isLoading ? "Loading..." : "Refresh"}
             </button>
+          </div>
           </div>
 
           {error && (
@@ -306,9 +303,9 @@ export default function AdminPageClient() {
             <span>Total contacts: {totals.contacts}</span>
             <span>Last refresh: {formatDate(fetchedAt)}</span>
           </div>
-        </div>
+        </section>
 
-        <form onSubmit={publishWork} className="card">
+        <form onSubmit={publishWork} className="border-b border-slate-200 bg-white py-7">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><h2 className="text-xl font-semibold text-gray-900">Publish a Civic Work</h2><button type="button" onClick={fillDemoWork} className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700 hover:bg-orange-100">Fill Demo Data</button></div>
           <p className="mt-1 text-sm text-gray-600">New entries appear at the top of the public Works page. Upload before and after photos up to 5 MB each.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -326,7 +323,7 @@ export default function AdminPageClient() {
           <button disabled={workSaving} className="btn-primary mt-5 disabled:opacity-60">{workSaving ? "Publishing..." : "Publish Work"}</button>
         </form>
 
-        <form onSubmit={publishNews} className="card">
+        <form onSubmit={publishNews} className="border-b border-slate-200 bg-white py-7">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><h2 className="text-xl font-semibold text-gray-900">Publish News</h2><button type="button" onClick={fillDemoNews} className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700 hover:bg-orange-100">Fill Demo Data</button></div>
           <p className="mt-1 text-sm text-gray-600">Publish an announcement or ward update with a photo. New articles appear first on the public News page.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -484,7 +481,7 @@ export default function AdminPageClient() {
           </div>
         </section>
 
-        <div className="card overflow-x-auto">
+        <section className="overflow-x-auto border-y border-slate-200 bg-white py-6">
           <h2 className="mb-4 text-xl font-semibold text-gray-900">Contact Messages</h2>
           <table className="min-w-full text-left text-sm">
             <thead className="bg-gray-100 text-gray-700">
@@ -515,7 +512,7 @@ export default function AdminPageClient() {
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       </div>
     </div>
   );

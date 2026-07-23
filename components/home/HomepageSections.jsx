@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useRef } from "react";
 import { FiArrowRight, FiChevronRight, FiClock, FiMapPin, FiPhone, FiShield, FiTrendingUp } from "react-icons/fi";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { newsData, schemesData, statsData, testimonialsData } from "../../data/siteContent";
@@ -12,9 +13,41 @@ import BeforeAfterComparison from "./BeforeAfterComparison";
 export default function HomepageSections() {
   const { language } = useLanguage();
   const mr = language === "mr";
+  const testimonialsRef = useRef(null);
+  const testimonialDragRef = useRef({ dragging: false, startX: 0, scrollLeft: 0 });
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const row = testimonialsRef.current;
+      if (!row) return;
+      const firstItem = row.firstElementChild;
+      const step = (firstItem?.clientWidth || row.clientWidth) + 32;
+      if (row.scrollLeft >= step * testimonialsData.length - 2) row.scrollLeft = 0;
+      row.scrollBy({ left: step, behavior: "smooth" });
+    }, 4000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const startTestimonialDrag = (event) => {
+    const row = testimonialsRef.current;
+    if (!row) return;
+    testimonialDragRef.current = { dragging: true, startX: event.clientX, scrollLeft: row.scrollLeft };
+    row.setPointerCapture(event.pointerId);
+  };
+
+  const moveTestimonialDrag = (event) => {
+    const row = testimonialsRef.current;
+    const drag = testimonialDragRef.current;
+    if (!row || !drag.dragging) return;
+    row.scrollLeft = drag.scrollLeft - (event.clientX - drag.startX);
+  };
+
+  const stopTestimonialDrag = () => {
+    testimonialDragRef.current.dragging = false;
+  };
 
   return (
-    <div className="divide-y divide-slate-200 ">
+    <div>
       <section className="py-10 sm:py-14">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
@@ -32,7 +65,7 @@ export default function HomepageSections() {
               <Link href="/complaints#track" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-slate-300 bg-white px-5 font-semibold text-slate-700 transition hover:border-orange-400 hover:text-orange-600">{mr ? "तक्रार तपासा" : "Track Complaint"}</Link>
             </div>
           </div>
-          <div className="rounded-[28px] border border-slate-200 bg-gradient-to-br from-[#082f49] via-[#0d3d57] to-[#1a5f7f] p-6 text-white shadow-lg">
+          <div className="border-l-4 border-orange-500 bg-[#082f49] p-6 text-white">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
                 <FiShield className="h-6 w-6" />
@@ -43,11 +76,11 @@ export default function HomepageSections() {
               </div>
             </div>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">
+              <div className="border-t border-white/20 p-4">
                 <p className="text-sm text-slate-200">{mr ? "कार्यालय वेळ" : "Office hours"}</p>
                 <p className="mt-2 flex items-center gap-2 font-semibold"> <FiClock className="text-orange-300" /> {mr ? "सकाळी १० ते ६" : "10 AM to 6 PM"}</p>
               </div>
-              <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">
+              <div className="border-t border-white/20 p-4">
                 <p className="text-sm text-slate-200">{mr ? "संपर्क" : "Contact"}</p>
                 <p className="mt-2 flex items-center gap-2 font-semibold"> <FiPhone className="text-orange-300" /> +91 98765 43210</p>
               </div>
@@ -58,9 +91,9 @@ export default function HomepageSections() {
 
       <section className="py-10 sm:py-14">
         <SectionHeading eyebrow={mr ? "आकडेवारी" : "Public impact"} title={mr ? "वॉर्डातील सार्वजनिक सेवेची पार्श्वभूमी" : "A clear picture of ward service impact"} description={mr ? "लोकांच्या तक्रारी, प्रगती आणि सेवा स्तराची स्पष्ट मोजमापे." : "Numbers that reflect public service, development progress and citizen support."} />
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {statsData.map((item) => (
-            <div key={item.id} className="rounded-[24px] border border-slate-200 bg-slate-50 p-6 text-center shadow-sm">
+            <div key={item.id} className="p-6 text-center">
               <p className="text-sm font-semibold text-slate-600">{mr ? item.labelMr : item.labelEn}</p>
               <p className="mt-3 text-4xl font-black text-[#082f49]">
                 <Counter value={item.value} suffix={item.suffix ?? ""} prefix={item.prefix ?? ""} />
@@ -78,9 +111,9 @@ export default function HomepageSections() {
           <SectionHeading eyebrow={mr ? "सध्याच्या बातम्या" : "Latest updates"} title={mr ? "नवीन घोषणा आणि अपडेट्स" : "Recent announcements and updates"} description={mr ? "वॉर्डातील कामे आणि सेवा बद्दल ताज्या बातम्या." : "Fresh updates about service delivery and ward initiatives."} align="left" />
           <Link href="/news" className="inline-flex items-center gap-2 font-semibold text-orange-600">{mr ? "सर्व बातम्या पहा" : "View all news"}<FiChevronRight /></Link>
         </div>
-        <div className="mt-8 grid gap-5 lg:grid-cols-3">
+        <div className="mt-8 grid gap-8 lg:grid-cols-3">
           {newsData.slice(0, 3).map((item) => (
-            <article key={item.id} className="overflow-hidden rounded-[24px] border border-slate-200 bg-slate-50 shadow-sm">
+            <article key={item.id} className="overflow-hidden bg-white">
               <div className="relative h-44">
                 <Image src={item.image} alt={mr ? item.titleMr : item.titleEn} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 33vw" />
               </div>
@@ -100,9 +133,16 @@ export default function HomepageSections() {
 
       <section className="py-10 sm:py-14">
         <SectionHeading eyebrow={mr ? "नागरिक अभिप्राय" : "Testimonials"} title={mr ? "राहिवाशांच्या अनुभव" : "What citizens say"} description={mr ? "वॉर्डाच्या सेवा अनुभवांविषयी नागरिकांचे प्रत्यक्ष मत." : "Real feedback from citizens who used the ward service channels."} />
-        <div className="mt-8 grid gap-5 lg:grid-cols-3">
-          {testimonialsData.map((item) => (
-            <div key={item.id} className="rounded-[24px] border border-slate-200 bg-slate-50 p-5 shadow-sm">
+        <div
+          ref={testimonialsRef}
+          onPointerDown={startTestimonialDrag}
+          onPointerMove={moveTestimonialDrag}
+          onPointerUp={stopTestimonialDrag}
+          onPointerCancel={stopTestimonialDrag}
+          className="mt-8 flex cursor-grab snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth select-none active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {[...testimonialsData, ...testimonialsData].map((item, index) => (
+            <div key={`${item.id}-${index}`} className="w-full shrink-0 snap-start border border-slate-200 p-5 md:w-[calc((100%_-_4rem)/3)]">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#082f49] text-lg font-black text-white">{item.name.charAt(0)}</div>
                 <div>
@@ -119,9 +159,9 @@ export default function HomepageSections() {
 
       <section className="py-10 sm:py-14">
         <SectionHeading eyebrow={mr ? "सरकारी योजना" : "Government schemes"} title={mr ? "नागरिकांसाठी उपलब्ध योजना" : "Schemes and citizen services"} description={mr ? "वॉर्डातील नागरिकांसाठी उपलब्ध सरकारी आणि शासकीय सेवा." : "Helpful schemes and services for citizens in the ward."} />
-        <div className="mt-8 grid gap-5 lg:grid-cols-2">
+        <div className="mt-8 grid gap-8 lg:grid-cols-2">
           {schemesData.map((scheme) => (
-            <div key={scheme.id} className="rounded-[24px] border border-slate-200 bg-slate-50 p-5 shadow-sm">
+            <div key={scheme.id} className="border border-slate-200 p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="text-xl font-black text-slate-900">{mr ? scheme.titleMr : scheme.titleEn}</h3>
