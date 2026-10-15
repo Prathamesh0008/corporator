@@ -1,185 +1,70 @@
 "use client";
-
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
-import { FiArrowRight, FiChevronRight, FiClock, FiMapPin, FiPhone, FiShield, FiTrendingUp } from "react-icons/fi";
+import Link from "next/link";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { newsData, schemesData, statsData, testimonialsData } from "../../data/siteContent";
-import SectionHeading from "./SectionHeading";
-import Counter from "./Counter";
-import BeforeAfterComparison from "./BeforeAfterComparison";
+import { workItems } from "../workData";
+import { newsData } from "../../data/siteContent";
 
+function Photo({ src, alt, sizes = "(max-width: 767px) 100vw, 55vw" }) {
+  return <Image src={src} alt={alt} fill unoptimized={src.startsWith("http")} sizes={sizes} className="editorial-photo" />;
+}
+
+function FeaturedNewsImage({ src, alt }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) return null;
+
+  return <div className="news-photo"><Image
+    src={src}
+    alt={alt}
+    fill
+    loading="eager"
+    unoptimized={src.startsWith("http")}
+    sizes="(max-width: 767px) 100vw, 55vw"
+    className="editorial-photo"
+    onError={() => setFailed(true)}
+  /></div>;
+}
+const galleryFallback = ["/gallery/support/1.png", "/gallery/support/2.png", "/gallery/support/3.png"].map((image, i) => ({ id: `existing-${i}`, image, titleMr: "नागरिक सेवा आणि सार्वजनिक कार्यक्रम", titleEn: "Citizen services and public events" }));
 export default function HomepageSections() {
   const { language } = useLanguage();
   const mr = language === "mr";
-  const testimonialsRef = useRef(null);
-  const testimonialDragRef = useRef({ dragging: false, startX: 0, scrollLeft: 0 });
-
+  const [published, setPublished] = useState({ works: [], news: [], gallery: [] });
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      const row = testimonialsRef.current;
-      if (!row) return;
-      const firstItem = row.firstElementChild;
-      const step = (firstItem?.clientWidth || row.clientWidth) + 32;
-      if (row.scrollLeft >= step * testimonialsData.length - 2) row.scrollLeft = 0;
-      row.scrollBy({ left: step, behavior: "smooth" });
-    }, 4000);
-    return () => window.clearInterval(timer);
+    const controller = new AbortController();
+    const sources = [["works", "/api/works", "works"], ["news", "/api/news", "news"], ["gallery", "/api/gallery", "items"]];
+    sources.forEach(([key, url, field]) => {
+      fetch(url, { signal: controller.signal }).then(r => r.ok ? r.json() : Promise.reject()).then(data => {
+        if (Array.isArray(data[field])) setPublished(current => ({ ...current, [key]: data[field] }));
+      }).catch(() => {});
+    });
+    return () => controller.abort();
   }, []);
-
-  const startTestimonialDrag = (event) => {
-    const row = testimonialsRef.current;
-    if (!row) return;
-    testimonialDragRef.current = { dragging: true, startX: event.clientX, scrollLeft: row.scrollLeft };
-    row.setPointerCapture(event.pointerId);
-  };
-
-  const moveTestimonialDrag = (event) => {
-    const row = testimonialsRef.current;
-    const drag = testimonialDragRef.current;
-    if (!row || !drag.dragging) return;
-    row.scrollLeft = drag.scrollLeft - (event.clientX - drag.startX);
-  };
-
-  const stopTestimonialDrag = () => {
-    testimonialDragRef.current.dragging = false;
-  };
-
-  return (
-    <div>
-      <section className="py-10 sm:py-14">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.24em] text-orange-600">{mr ? "अधिकृत सार्वजनिक सेवा" : "Official public service"}</p>
-            <h2 className="mt-3 text-3xl font-black text-slate-900 sm:text-4xl">
-              {mr ? "वॉर्ड २४(ड) साठी पारदर्शक, सोयीची आणि जलद सेवा" : "Transparent, convenient and prompt service for Ward 24(D)"}
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-slate-600">
-              {mr
-                ? "तक्रार नोंदणीपासून विकास प्रकल्पांपर्यंत सर्व माहिती एका ठिकाणी. नागरिकांना स्पष्ट मार्गदर्शन आणि वेळेवर पाठपुरावा मिळावा यासाठी हे पृष्ठ सज्ज केले आहे."
-                : "From complaint registration to development work updates, everything is arranged in one place to make civic service clearer and faster."}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/complaints#register" className="complaint-cta">{mr ? "तक्रार नोंदवा" : "Register Complaint"}</Link>
-              <Link href="/complaints#track" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-slate-300 bg-white px-5 font-semibold text-slate-700 transition hover:border-orange-400 hover:text-orange-600">{mr ? "तक्रार तपासा" : "Track Complaint"}</Link>
-            </div>
-          </div>
-          <div className="border-l-4 border-orange-500 bg-[#082f49] p-6 text-white">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
-                <FiShield className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">{mr ? "प्राथमिक सेवा" : "Core service"}</p>
-                <p className="text-lg font-black">{mr ? "तात्काळ मदत आणि विचाराधीन तक्रारी" : "Fast support and follow-up for civic issues"}</p>
-              </div>
-            </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="border-t border-white/20 p-4">
-                <p className="text-sm text-slate-200">{mr ? "कार्यालय वेळ" : "Office hours"}</p>
-                <p className="mt-2 flex items-center gap-2 font-semibold"> <FiClock className="text-orange-300" /> {mr ? "सकाळी १० ते ६" : "10 AM to 6 PM"}</p>
-              </div>
-              <div className="border-t border-white/20 p-4">
-                <p className="text-sm text-slate-200">{mr ? "संपर्क" : "Contact"}</p>
-                <p className="mt-2 flex items-center gap-2 font-semibold"> <FiPhone className="text-orange-300" /> +91 98765 43210</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-10 sm:py-14">
-        <SectionHeading eyebrow={mr ? "आकडेवारी" : "Public impact"} title={mr ? "वॉर्डातील सार्वजनिक सेवेची पार्श्वभूमी" : "A clear picture of ward service impact"} description={mr ? "लोकांच्या तक्रारी, प्रगती आणि सेवा स्तराची स्पष्ट मोजमापे." : "Numbers that reflect public service, development progress and citizen support."} />
-        <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {statsData.map((item) => (
-            <div key={item.id} className="p-6 text-center">
-              <p className="text-sm font-semibold text-slate-600">{mr ? item.labelMr : item.labelEn}</p>
-              <p className="mt-3 text-4xl font-black text-[#082f49]">
-                <Counter value={item.value} suffix={item.suffix ?? ""} prefix={item.prefix ?? ""} />
-              </p>
-              <p className="mt-2 text-sm text-slate-500">{mr ? item.noteMr ?? "" : item.noteEn ?? ""}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-  
-
-      <section className="py-10 sm:py-14">
-        <div className="flex flex-col  lg:flex-row lg:items-end lg:justify-between">
-          <SectionHeading eyebrow={mr ? "सध्याच्या बातम्या" : "Latest updates"} title={mr ? "नवीन घोषणा आणि अपडेट्स" : "Recent announcements and updates"} description={mr ? "वॉर्डातील कामे आणि सेवा बद्दल ताज्या बातम्या." : "Fresh updates about service delivery and ward initiatives."} align="left" />
-          <Link href="/news" className="inline-flex items-center gap-2 font-semibold text-orange-600">{mr ? "सर्व बातम्या पहा" : "View all news"}<FiChevronRight /></Link>
-        </div>
-        <div className="mt-8 grid gap-8 lg:grid-cols-3">
-          {newsData.slice(0, 3).map((item) => (
-            <article key={item.id} className="overflow-hidden bg-white">
-              <div className="relative h-44">
-                <Image src={item.image} alt={mr ? item.titleMr : item.titleEn} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 33vw" />
-              </div>
-              <div className="p-5">
-                <p className="text-sm font-semibold text-orange-600">{mr ? item.categoryMr : item.categoryEn}</p>
-                <h3 className="mt-2 text-xl font-black text-slate-900">{mr ? item.titleMr : item.titleEn}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{mr ? item.summaryMr : item.summaryEn}</p>
-                <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
-                  <span>{new Date(item.date).toLocaleDateString(language === "mr" ? "en-IN" : "en-US")}</span>
-                  <Link href={`/news/${item.slug}`} className="font-semibold text-orange-600">{mr ? "अधिक वाचा" : "Read More"}</Link>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="py-10 sm:py-14">
-        <SectionHeading eyebrow={mr ? "नागरिक अभिप्राय" : "Testimonials"} title={mr ? "राहिवाशांच्या अनुभव" : "What citizens say"} description={mr ? "वॉर्डाच्या सेवा अनुभवांविषयी नागरिकांचे प्रत्यक्ष मत." : "Real feedback from citizens who used the ward service channels."} />
-        <div
-          ref={testimonialsRef}
-          onPointerDown={startTestimonialDrag}
-          onPointerMove={moveTestimonialDrag}
-          onPointerUp={stopTestimonialDrag}
-          onPointerCancel={stopTestimonialDrag}
-          className="mt-8 flex cursor-grab snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth select-none active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {[...testimonialsData, ...testimonialsData].map((item, index) => (
-            <div key={`${item.id}-${index}`} className="w-full shrink-0 snap-start border border-slate-200 p-5 md:w-[calc((100%_-_4rem)/3)]">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#082f49] text-lg font-black text-white">{item.name.charAt(0)}</div>
-                <div>
-                  <h3 className="font-black text-slate-900">{item.name}</h3>
-                  <p className="text-sm text-slate-600">{mr ? item.areaMr : item.areaEn}</p>
-                </div>
-              </div>
-              <p className="mt-4 text-sm leading-7 text-slate-600">“{mr ? item.feedbackMr : item.feedbackEn}”</p>
-              {item.rating ? <div className="mt-3 text-orange-500">{'★'.repeat(item.rating)}</div> : null}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="py-10 sm:py-14">
-        <SectionHeading eyebrow={mr ? "सरकारी योजना" : "Government schemes"} title={mr ? "नागरिकांसाठी उपलब्ध योजना" : "Schemes and citizen services"} description={mr ? "वॉर्डातील नागरिकांसाठी उपलब्ध सरकारी आणि शासकीय सेवा." : "Helpful schemes and services for citizens in the ward."} />
-        <div className="mt-8 grid gap-8 lg:grid-cols-2">
-          {schemesData.map((scheme) => (
-            <div key={scheme.id} className="border border-slate-200 p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">{mr ? scheme.titleMr : scheme.titleEn}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{mr ? `अंतिम अद्यतन: ${scheme.updated}` : `Last updated: ${scheme.updated}`}</p>
-                </div>
-                <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-orange-700">{mr ? "अधिकृत" : "Official"}</span>
-              </div>
-              <div className="mt-4 space-y-3 text-sm text-slate-700">
-                <div><span className="font-black text-slate-900">{mr ? "पात्रता" : "Eligibility"}: </span>{mr ? scheme.eligibilityMr : scheme.eligibilityEn}</div>
-                <div><span className="font-black text-slate-900">{mr ? "फायदे" : "Benefits"}: </span>{mr ? scheme.benefitsMr : scheme.benefitsEn}</div>
-                <div><span className="font-black text-slate-900">{mr ? "दस्तऐवज" : "Documents"}: </span>{mr ? scheme.docsMr : scheme.docsEn}</div>
-              </div>
-              <Link href={scheme.link} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 font-semibold text-orange-600">{mr ? "अधिकृत दुवा" : "Official link"}<FiArrowRight /></Link>
-            </div>
-          ))}
-        </div>
-      </section>
-
-    </div>
-  );
+  const text = (item, field) => mr ? item[`${field}Mr`] || item[`${field}En`] : item[`${field}En`];
+  const works = [...published.works, ...workItems].slice(0, 2);
+  const news = [...published.news, ...newsData].sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0)).slice(0, 4);
+  const gallery = [...published.gallery.filter(item => item.type === "photo"), ...galleryFallback].slice(0, 3);
+  const heading = (id, title, href, action) => <header className="editorial-section-head"><h2 id={id} className="civic-title">{title}</h2><Link href={href} className="civic-text-action">{action} <span>→</span></Link></header>;
+  const issues = [["रस्ते आणि पदपथ", "Roads and footpaths"], ["पाणीपुरवठा", "Water supply"], ["गटारे आणि स्वच्छता", "Drainage and sanitation"], ["पथदिवे", "Street lights"], ["उद्याने आणि सार्वजनिक जागा", "Parks and public spaces"]];
+  return <>
+    <section className="civic-section" aria-labelledby="works-title"><div className="editorial-container">
+      {heading("works-title", mr ? "विकासकामे" : "Development works", "/works", mr ? "सर्व विकासकामे पहा" : "All development works")}
+      <div className="editorial-works">{works.map((work, index) => <article className="editorial-work" key={work.id}>
+        <div className="work-photographs"><figure className="work-after"><Photo src={work.afterImage} alt={`${text(work, "title")} — ${mr ? "नंतर" : "After"}`} /><figcaption>{mr ? "नंतर" : "After"}</figcaption></figure>{work.beforeImage && <figure className="work-before"><Photo src={work.beforeImage} alt={`${text(work, "title")} — ${mr ? "पूर्वी" : "Before"}`} sizes="(max-width: 767px) 35vw, 18vw" /><figcaption>{mr ? "पूर्वी" : "Before"}</figcaption></figure>}</div>
+        <div className="work-copy"><span className="editorial-number">{String(index + 1).padStart(2, "0")}</span><h3>{text(work, "title")}</h3><p className="work-location">{text(work, "location")}</p><p className="civic-muted">{text(work, "description")}</p><p className="work-status">{text(work, "status")}</p><Link className="civic-text-action" href="/works#completed-works">{mr ? "कामाची माहिती पहा" : "View work details"} <span>→</span></Link></div>
+      </article>)}</div>
+    </div></section>
+    <section className="civic-section citizen-help" aria-labelledby="help-title"><div className="editorial-container help-layout"><div><h2 id="help-title" className="civic-title">{mr ? "नागरिक सहाय्य" : "Citizen help"}</h2><p className="civic-muted">{mr ? "आपल्या परिसरातील नागरी समस्या आम्हाला कळवा." : "Tell us about civic issues in your neighbourhood."}</p><Link href="/complaints#track" className="civic-text-action">{mr ? "तक्रारीची स्थिती तपासा" : "Track your complaint"} <span>→</span></Link></div><div><ol className="issue-list">{issues.map(([marathi, english], index) => <li key={english}><Link href="/complaints#register"><span className="civic-muted">{String(index + 1).padStart(2, "0")}</span><span>{mr ? marathi : english}</span><span aria-hidden="true">→</span></Link></li>)}</ol><Link href="/complaints#register" className="civic-text-action help-action">{mr ? "नागरी समस्या नोंदवा" : "Report a civic issue"} <span>→</span></Link><p className="emergency-note civic-muted">{mr ? "आपत्कालीन मदतीसाठी ११२ वर कॉल करा. ही सेवा आपत्कालीन सेवा नाही." : "For emergencies, call 112. This complaint service is not an emergency service."}</p></div></div></section>
+    <section className="civic-section" aria-labelledby="news-title"><div className="editorial-container">
+      {heading("news-title", mr ? "बातम्या आणि घडामोडी" : "News and updates", "/news", mr ? "सर्व बातम्या पहा" : "All news")}
+      <div className="editorial-news">{news.slice(0, 3).map((item, index) => <article className={index === 0 ? "news-feature" : "news-brief"} key={item.id || item.slug}>
+        {index === 0 && <FeaturedNewsImage key={item.image || "no-image"} src={item.image?.trim()} alt={text(item, "title")} />}
+        <div><p className="news-meta"><time dateTime={item.date}>{Number.isNaN(Date.parse(item.date)) ? item.date : new Date(item.date).toLocaleDateString(mr ? "mr-IN" : "en-IN", { day: "numeric", month: "short", year: "numeric" })}</time><span>{text(item, "category")}</span></p><h3><Link href={item.externalUrl || `/news/${item.slug}`} target={item.externalUrl ? "_blank" : undefined} rel={item.externalUrl ? "noopener noreferrer" : undefined}>{text(item, "title")}</Link></h3>{index === 0 && <p className="civic-muted">{text(item, "summary")}</p>}<Link href={item.externalUrl || `/news/${item.slug}`} target={item.externalUrl ? "_blank" : undefined} rel={item.externalUrl ? "noopener noreferrer" : undefined} className="civic-text-action">{mr ? "अधिक वाचा" : "Read more"} <span>→</span></Link></div>
+      </article>)}</div>
+    </div></section>
+    <section className="civic-section" aria-labelledby="gallery-title"><div className="editorial-container">
+      {heading("gallery-title", mr ? "लोकांमध्ये, लोकांसाठी" : "With people, for people", "/gallery", mr ? "संपूर्ण गॅलरी पहा" : "View full gallery")}
+      <div className="editorial-gallery">{gallery.map(item => <Link href="/gallery" key={item.id} aria-label={mr ? "गॅलरी पहा" : "View gallery"}><Photo src={item.image} alt={text(item, "title")} sizes="(max-width: 767px) 100vw, 60vw" /></Link>)}</div>
+    </div></section>
+  </>;
 }

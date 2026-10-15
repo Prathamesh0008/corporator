@@ -1,140 +1,324 @@
 "use client";
 
-import { useState } from "react";
-import { FiAlertCircle, FiCamera, FiCheckCircle, FiCopy, FiMapPin, FiSearch, FiSend, FiUser } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { FiCheck, FiCheckCircle, FiCopy, FiSearch } from "react-icons/fi";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { t } from "../../lib/translations";
 
 const initialForm = { name: "", phone: "", address: "", ward: "24(D)", complaintType: "", location: "", description: "", urgency: "normal", website: "" };
+const types = [
+  ["Road / pothole / footpath", "रस्ता / खड्डा / पदपथ"],
+  ["Water supply / leakage", "पाणीपुरवठा / गळती"],
+  ["Garbage / cleanliness", "कचरा / स्वच्छता"],
+  ["Drainage / sewer", "गटार / मलनिस्सारण"],
+  ["Street light", "पथदिवा"],
+  ["Public toilet", "सार्वजनिक स्वच्छतागृह"],
+  ["Garden / public space", "उद्यान / सार्वजनिक जागा"],
+  ["Other civic issue", "इतर नागरी समस्या"],
+];
+const progressSteps = [
+  ["Submitted", "तक्रार नोंदवली"],
+  ["Under Review", "तपासणी सुरू"],
+  ["In Progress", "कार्यवाही सुरू"],
+  ["Resolved", "निराकरण झाले"],
+];
+const statusLabels = { ...Object.fromEntries(progressSteps), Rejected: "तक्रार नाकारली" };
+
+function scrollToElement(element) {
+  element?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+}
+
+function dateText(value, mr) {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleString(mr ? "mr-IN" : "en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
 
 export default function ComplaintsPageClient() {
   const { language } = useLanguage();
   const mr = language === "mr";
   const [form, setForm] = useState(initialForm);
   const [photoDataUrl, setPhotoDataUrl] = useState("");
+  const [photoName, setPhotoName] = useState("");
+  const [readingPhoto, setReadingPhoto] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [complaintId, setComplaintId] = useState("");
+  const [copyState, setCopyState] = useState("");
   const [trackId, setTrackId] = useState("");
   const [tracking, setTracking] = useState(false);
   const [trackError, setTrackError] = useState("");
   const [result, setResult] = useState(null);
+  const photoInput = useRef(null);
+  const photoReader = useRef(null);
+  const successHeading = useRef(null);
+  const trackInput = useRef(null);
 
-  const types = [
-    ["Road / pothole / footpath", "रस्ता / खड्डा / पदपथ"],
-    ["Water supply / leakage", "पाणीपुरवठा / गळती"],
-    ["Garbage / cleanliness", "कचरा / स्वच्छता"],
-    ["Drainage / sewer", "गटार / मलनिस्सारण"],
-    ["Street light", "पथदिवा"],
-    ["Public toilet", "सार्वजनिक स्वच्छतागृह"],
-    ["Garden / public space", "उद्यान / सार्वजनिक जागा"],
-    ["Other civic issue", "इतर नागरी समस्या"],
-  ];
+  useEffect(() => {
+    if (complaintId) {
+      successHeading.current?.focus({ preventScroll: true });
+      scrollToElement(successHeading.current);
+    }
+  }, [complaintId]);
 
-  const update = (key) => (event) => setForm((old) => ({ ...old, [key]: event.target.value }));
+  useEffect(() => () => {
+    if (photoReader.current?.readyState === 1) photoReader.current.abort();
+  }, []);
 
-  const choosePhoto = (event) => {
+  const update = key => event => setForm(old => ({ ...old, [key]: event.target.value }));
+
+  const clearPhoto = () => {
+    if (photoReader.current?.readyState === 1) photoReader.current.abort();
+    setPhotoDataUrl("");
+    setPhotoName("");
+    setReadingPhoto(false);
+    if (photoInput.current) photoInput.current.value = "";
+  };
+
+  const choosePhoto = event => {
     const file = event.target.files?.[0];
     setError("");
     if (!file) return;
-    if (!file.type.startsWith("image/")) return setError(mr ? "फक्त फोटो निवडा." : "Please choose an image file.");
-    if (file.size > 1_500_000) return setError(mr ? "फोटो १.५ MB पेक्षा लहान असावा." : "Photo must be smaller than 1.5 MB.");
+    if (photoReader.current?.readyState === 1) photoReader.current.abort();
+    setPhotoDataUrl("");
+    setPhotoName("");
+    setReadingPhoto(false);
+    if (!file.type.startsWith("image/")) {
+      event.target.value = "";
+      return setError(mr ? "फक्त फोटो निवडा." : "Please choose an image file.");
+    }
+    if (file.size > 1_500_000) {
+      event.target.value = "";
+      return setError(mr ? "फोटो १.५ MB पेक्षा लहान असावा." : "Photo must be smaller than 1.5 MB.");
+    }
     const reader = new FileReader();
-    reader.onload = () => setPhotoDataUrl(String(reader.result || ""));
+    photoReader.current = reader;
+    setReadingPhoto(true);
+    reader.onload = () => {
+      setPhotoDataUrl(String(reader.result || ""));
+      setPhotoName(file.name);
+      setReadingPhoto(false);
+    };
+    reader.onerror = () => {
+      setReadingPhoto(false);
+      setError(mr ? "फोटो वाचता आला नाही. कृपया पुन्हा निवडा." : "Could not read the photo. Please choose it again.");
+    };
     reader.readAsDataURL(file);
   };
 
-  const submit = async (event) => {
+  const submit = async event => {
     event.preventDefault();
-    setSubmitting(true); setError("");
+    setSubmitting(true);
+    setError("");
     try {
-      const response = await fetch("/api/complaints", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, photoDataUrl }) });
+      const response = await fetch("/api/complaints", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, photoDataUrl }),
+      });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Could not submit complaint.");
-      setComplaintId(data.complaintId); setForm(initialForm); setPhotoDataUrl("");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) { setError(err.message); } finally { setSubmitting(false); }
+      if (!response.ok) throw new Error(data.error || (mr ? "तक्रार पाठवता आली नाही." : "Could not submit complaint."));
+      setComplaintId(data.complaintId);
+      setCopyState("");
+      setForm(initialForm);
+      clearPhoto();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const track = async (event) => {
-    event.preventDefault(); setTracking(true); setTrackError(""); setResult(null);
+  const lookupComplaint = async id => {
+    setTracking(true);
+    setTrackError("");
+    setResult(null);
     try {
-      const response = await fetch(`/api/complaints?complaintId=${encodeURIComponent(trackId.trim())}`);
+      const response = await fetch(`/api/complaints?complaintId=${encodeURIComponent(id.trim())}`);
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Complaint not found.");
+      if (!response.ok) throw new Error(data.error || (mr ? "तक्रार सापडली नाही." : "Complaint not found."));
       setResult(data.complaint);
-    } catch (err) { setTrackError(err.message); } finally { setTracking(false); }
+    } catch (err) {
+      setTrackError(err.message);
+    } finally {
+      setTracking(false);
+    }
   };
 
-  if (complaintId) return (
-    <section className="section-padding min-h-[70vh] bg-green-50">
-      <div className="mx-auto max-w-xl rounded-3xl border border-green-200 bg-white p-7 text-center shadow-xl sm:p-10">
-        <FiCheckCircle className="mx-auto h-20 w-20 text-green-600" />
-        <h1 className="mt-5 text-3xl font-black">{mr ? "तक्रार नोंदवली आहे" : "Complaint registered"}</h1>
-        <p className="mt-3 text-lg text-slate-600">{mr ? "हा क्रमांक लिहून ठेवा किंवा त्याचा फोटो घ्या." : "Write down this number or take a screenshot."}</p>
-        <div className="mt-6 rounded-2xl bg-slate-900 p-5 text-2xl font-black tracking-wide text-white">{complaintId}</div>
-        <button onClick={() => navigator.clipboard?.writeText(complaintId)} className="mt-3 inline-flex items-center gap-2 font-bold text-blue-700"><FiCopy /> {mr ? "क्रमांक कॉपी करा" : "Copy number"}</button>
-        <p className="mt-6 rounded-xl bg-blue-50 p-4 text-left text-blue-950">{mr ? "कार्यालय तक्रार तपासून संबंधित महानगरपालिका विभागाशी पाठपुरावा करेल. हा आपत्कालीन प्रतिसादाचा हमी कालावधी नाही." : "The office will review the complaint and follow up with the relevant municipal department. This is not an emergency response guarantee."}</p>
-        <button onClick={() => setComplaintId("")} className="complaint-cta mt-6">{mr ? "दुसरी तक्रार नोंदवा" : "Register another complaint"}</button>
-      </div>
-    </section>
-  );
+  const track = event => {
+    event.preventDefault();
+    lookupComplaint(trackId);
+  };
+
+  const trackThisComplaint = () => {
+    setTrackId(complaintId);
+    trackInput.current?.focus({ preventScroll: true });
+    scrollToElement(document.getElementById("track"));
+    lookupComplaint(complaintId);
+  };
+
+  const copyComplaintId = async () => {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(complaintId);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+  };
+
+  const reportAnother = () => {
+    setComplaintId("");
+    setCopyState("");
+    setError("");
+    requestAnimationFrame(() => {
+      document.getElementById("complaint-name")?.focus({ preventScroll: true });
+      scrollToElement(document.getElementById("register"));
+    });
+  };
+
+  const nextSteps = [
+    ["Submit issue", "समस्या नोंदवा", "Share the details and location.", "समस्या आणि ठिकाणाची माहिती द्या."],
+    ["Receive complaint ID", "तक्रार क्रमांक मिळवा", "Keep the number for future reference.", "पुढील संदर्भासाठी क्रमांक जतन करा."],
+    ["Office follow-up", "कार्यालय पाठपुरावा करेल", "The office coordinates with the relevant department.", "कार्यालय संबंधित विभागाशी समन्वय करेल."],
+    ["Track resolution", "कार्यवाहीची स्थिती पहा", "Use your complaint ID to check updates.", "तक्रार क्रमांक वापरून अपडेट्स पहा."],
+  ];
 
   return (
-    <div className="bg-slate-50">
-      <section className="bg-[#082f49] px-4 py-12 text-center text-white">
-        <p className="font-bold text-orange-300">{mr ? "वॉर्ड २४(ड), नेरूळ" : "WARD 24(D), NERUL"}</p>
-        <h1 className="mx-auto mt-2 max-w-3xl text-4xl font-black text-white sm:text-5xl">{t("complaints.title", language)}</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-100">{mr ? "रस्ता, पाणी, कचरा, गटार किंवा पथदिव्याची समस्या असल्यास खाली माहिती भरा." : "For roads, water, garbage, drains, street lights, and other ward civic issues, fill in the simple form below."}</p>
-      </section>
-
-      <section id="register" className="section-padding scroll-mt-24">
-        <form onSubmit={submit} className="container-responsive grid gap-7 lg:grid-cols-[1fr_340px]">
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
-            <div className="mb-7 flex items-center gap-3"><span className="step-badge">1</span><div><h2 className="text-2xl font-black">{mr ? "आपली माहिती" : "Your details"}</h2><p className="text-slate-600">{mr ? "* असलेली माहिती आवश्यक आहे." : "Fields marked * are required."}</p></div></div>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field label={`${t("complaints.name", language)} *`} icon={<FiUser />}><input required autoComplete="name" value={form.name} onChange={update("name")} /></Field>
-              <Field label={`${t("complaints.phone", language)} *`}><input required inputMode="numeric" autoComplete="tel" minLength={10} maxLength={15} value={form.phone} onChange={update("phone")} placeholder="10 digit mobile number" /></Field>
-              <Field label={t("complaints.address", language)} wide><input autoComplete="street-address" value={form.address} onChange={update("address")} /></Field>
-            </div>
-
-            <div className="my-8 border-t border-slate-200" />
-            <div className="mb-7 flex items-center gap-3"><span className="step-badge">2</span><div><h2 className="text-2xl font-black">{mr ? "समस्येची माहिती" : "Problem details"}</h2><p className="text-slate-600">{mr ? "अचूक ठिकाण दिल्यास पाठपुरावा करणे सोपे होते." : "An exact location helps the office follow up."}</p></div></div>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field label={`${t("complaints.complaintType", language)} *`}><select required value={form.complaintType} onChange={update("complaintType")}><option value="">{mr ? "प्रकार निवडा" : "Choose problem type"}</option>{types.map(([en, marathi]) => <option key={en} value={en}>{mr ? marathi : en}</option>)}</select></Field>
-              <Field label={`${mr ? "समस्येचे ठिकाण" : "Problem location"} *`} icon={<FiMapPin />}><input required value={form.location} onChange={update("location")} placeholder={mr ? "उदा. इमारत, रस्ता, जवळची खूण" : "Building, road, or nearby landmark"} /></Field>
-              <Field label={`${t("complaints.description", language)} *`} wide><textarea required rows={5} minLength={10} value={form.description} onChange={update("description")} placeholder={mr ? "काय समस्या आहे आणि ती कुठे दिसते ते साध्या शब्दांत लिहा." : "In simple words, tell us what is wrong and where you see it."} /></Field>
-              <div className="hidden" aria-hidden="true"><label>Website<input tabIndex={-1} autoComplete="off" value={form.website} onChange={update("website")} /></label></div>
-            </div>
-
-            <div className="mt-6 rounded-2xl border-2 border-dashed border-slate-300 p-5 text-center">
-              <FiCamera className="mx-auto h-8 w-8 text-orange-600" /><label htmlFor="photo" className="mt-2 block cursor-pointer font-bold text-slate-900">{t("complaints.uploadPhoto", language)}</label><p className="text-sm text-slate-500">JPG, PNG or WEBP · max 1.5 MB</p>
-              <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={choosePhoto} className="mx-auto mt-3 block max-w-full text-sm" />
-              {photoDataUrl && <p className="mt-2 font-bold text-green-700">✓ {mr ? "फोटो जोडला" : "Photo added"}</p>}
-            </div>
-
-            {error && <div role="alert" className="mt-5 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-4 font-medium text-red-800"><FiAlertCircle className="mt-1 shrink-0" />{error}</div>}
-            <button disabled={submitting} className="complaint-cta mt-7 w-full justify-center text-lg disabled:opacity-60"><FiSend />{submitting ? (mr ? "पाठवत आहे..." : "Sending...") : t("complaints.submitComplaint", language)}</button>
-          </div>
-
-          <aside className="space-y-5">
-            <div className="rounded-2xl bg-blue-50 p-6"><h2 className="text-xl font-black text-blue-950">{mr ? "ही सेवा कशासाठी?" : "Use this for"}</h2><ul className="mt-4 space-y-3 text-blue-950">{types.slice(0, 6).map(([en, marathi]) => <li key={en} className="flex gap-2"><FiCheckCircle className="mt-1 shrink-0 text-green-600" />{mr ? marathi : en}</li>)}</ul></div>
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-6"><h2 className="text-xl font-black text-red-900">{mr ? "तातडीची मदत?" : "Emergency?"}</h2><p className="mt-2 text-red-900">{mr ? "जीवितास धोका, गुन्हा, आग किंवा वैद्यकीय आपत्कालीन परिस्थितीसाठी ११२ वर कॉल करा." : "For danger to life, crime, fire, or a medical emergency, call 112."}</p><a href="tel:112" className="mt-4 inline-flex rounded-xl bg-red-700 px-5 py-3 text-xl font-black text-white">Call 112</a></div>
-          </aside>
-        </form>
-      </section>
-
-      <section id="track" className="section-padding scroll-mt-24 bg-white">
-        <div className="mx-auto max-w-2xl text-center"><p className="eyebrow">{mr ? "स्थिती तपासा" : "CHECK PROGRESS"}</p><h2 className="mt-2 text-3xl font-black">{mr ? "आपली तक्रार कुठपर्यंत आली?" : "Track your complaint"}</h2><p className="mt-2 text-slate-600">{mr ? "तक्रार नोंदवल्यानंतर मिळालेला क्रमांक टाका." : "Enter the number you received after submission."}</p>
-          <form onSubmit={track} className="mt-6 flex flex-col gap-3 sm:flex-row"><input required value={trackId} onChange={(e) => setTrackId(e.target.value.toUpperCase())} className="form-control flex-1 uppercase" placeholder="CMP-123456" /><button disabled={tracking} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-blue-700 px-7 font-black text-white"><FiSearch />{tracking ? "..." : (mr ? "तपासा" : "Track")}</button></form>
-          {trackError && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-4 text-red-800">{trackError}</p>}
-          {result && <div className="mt-5 rounded-2xl border border-green-200 bg-green-50 p-5 text-left"><p className="text-sm text-green-800">{mr ? "तक्रार क्रमांक" : "Complaint number"}</p><p className="text-xl font-black">{result.complaintId}</p><p className="mt-4 text-sm text-green-800">{mr ? "सध्याची स्थिती" : "Current status"}</p><p className="text-xl font-black">{result.status}</p><p className="mt-2 text-slate-700">{result.complaintType} · {result.location}</p>{result.comments?.length ? <div className="mt-6 border-t border-green-200 pt-5"><h3 className="font-black text-slate-900">{mr ? "कार्यालयाकडून अपडेट्स" : "Updates from the office"}</h3><ol className="mt-3 space-y-3">{result.comments.map((comment, index) => <li key={`${comment.createdAt}-${index}`} className="rounded-xl bg-white p-4 shadow-sm"><p className="text-xs font-bold text-orange-700">{comment.createdAt ? new Date(comment.createdAt).toLocaleString("en-IN") : ""}</p><p className="mt-1 whitespace-pre-wrap text-slate-700">{comment.text}</p></li>)}</ol></div> : <p className="mt-5 text-sm text-slate-600">{mr ? "कार्यालयाकडून अद्याप कोणतेही अपडेट नाही." : "No office updates have been posted yet."}</p>}</div>}
+    <div className="complaint-service" lang={language}>
+      <header className="complaint-service-intro">
+        <div className="editorial-container">
+          <p className="complaint-ward">{mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"}</p>
+          <h1>{mr ? "नागरी समस्या नोंदवा" : "Report a Civic Issue"}</h1>
+          <p>{mr ? "रस्ता, पाणी, गटार, कचरा, पथदिवे आणि सार्वजनिक जागांमधील समस्या येथे नोंदवा." : "Roads, water, drainage, garbage, streetlights and public-space problems can be reported here."}</p>
         </div>
-      </section>
+      </header>
+
+      <div className="editorial-container">
+        <section id="register" className="complaint-register">
+          {complaintId ? (
+            <div className="complaint-success">
+              <p className="complaint-success-label"><FiCheckCircle aria-hidden="true" />{mr ? "तक्रार नोंदवली आहे" : "Complaint Registered"}</p>
+              <h2 ref={successHeading} tabIndex={-1}>{mr ? "आपला तक्रार क्रमांक" : "Your complaint number"}</h2>
+              <p className="complaint-success-id">{complaintId}</p>
+              <p className="complaint-muted">{mr ? "हा क्रमांक लिहून ठेवा किंवा त्याचा फोटो घ्या." : "Write down this number or take a screenshot."}</p>
+              <div className="complaint-success-actions">
+                <button type="button" onClick={copyComplaintId} className="civic-button civic-button-secondary"><FiCopy aria-hidden="true" />{mr ? "तक्रार क्रमांक कॉपी करा" : "Copy Complaint ID"}</button>
+                <button type="button" onClick={trackThisComplaint} disabled={tracking} className="civic-button">{mr ? "ही तक्रार तपासा" : "Track This Complaint"}</button>
+                <button type="button" onClick={reportAnother} className="civic-text-action">{mr ? "दुसरी तक्रार नोंदवा" : "Report Another Issue"} <span>→</span></button>
+              </div>
+              <p className="complaint-copy-feedback" role="status">{copyState === "copied" ? (mr ? "तक्रार क्रमांक कॉपी केला." : "Complaint ID copied.") : copyState === "failed" ? (mr ? "कॉपी करता आले नाही. वरील क्रमांक निवडून कॉपी करा." : "Could not copy automatically. Select and copy the number above.") : ""}</p>
+              <p className="complaint-followup-note">{mr ? "कार्यालय तक्रार तपासून संबंधित महानगरपालिका विभागाशी पाठपुरावा करेल. हा आपत्कालीन प्रतिसादाचा हमी कालावधी नाही." : "The office will review the complaint and follow up with the relevant municipal department. This is not an emergency response guarantee."}</p>
+            </div>
+          ) : (
+            <div className="complaint-form-surface">
+              <header className="complaint-form-heading">
+                <h2>{mr ? "तक्रार नोंदणी" : "Complaint Form"}</h2>
+                <p>{mr ? "* असलेली माहिती आवश्यक आहे. वॉर्ड आपोआप २४(ड) राहील." : "Fields marked * are required. Ward 24(D) is assigned automatically."}</p>
+              </header>
+              <form onSubmit={submit} aria-busy={submitting}>
+                <fieldset>
+                  <legend>{mr ? "आपली माहिती" : "Your Details"}</legend>
+                  <div className="complaint-fields">
+                    <Field label={`${t("complaints.name", language)} *`}><input id="complaint-name" name="name" required autoComplete="name" value={form.name} onChange={update("name")} /></Field>
+                    <Field label={`${t("complaints.phone", language)} *`}><input name="phone" required inputMode="numeric" autoComplete="tel" minLength={10} maxLength={15} value={form.phone} onChange={update("phone")} placeholder={mr ? "१० अंकी मोबाईल नंबर" : "10 digit mobile number"} /></Field>
+                    <Field label={`${t("complaints.address", language)} (${mr ? "ऐच्छिक" : "optional"})`} wide><input name="address" autoComplete="street-address" value={form.address} onChange={update("address")} /></Field>
+                  </div>
+                </fieldset>
+                <fieldset>
+                  <legend>{mr ? "समस्येची माहिती" : "Issue Details"}</legend>
+                  <p className="complaint-group-help">{mr ? "अचूक ठिकाण दिल्यास पाठपुरावा करणे सोपे होते." : "An exact location helps the office follow up."}</p>
+                  <div className="complaint-fields">
+                    <Field label={`${t("complaints.complaintType", language)} *`}><select name="complaintType" required value={form.complaintType} onChange={update("complaintType")}><option value="">{mr ? "प्रकार निवडा" : "Choose problem type"}</option>{types.map(([en, marathi]) => <option key={en} value={en}>{mr ? marathi : en}</option>)}</select></Field>
+                    <Field label={`${mr ? "समस्येचे ठिकाण" : "Problem location"} *`}><input name="location" required value={form.location} onChange={update("location")} placeholder={mr ? "उदा. इमारत, रस्ता, जवळची खूण" : "Building, road, or nearby landmark"} /></Field>
+                    <Field label={`${t("complaints.description", language)} *`} wide><textarea name="description" required rows={4} minLength={10} value={form.description} onChange={update("description")} placeholder={mr ? "काय समस्या आहे आणि ती कुठे दिसते ते साध्या शब्दांत लिहा." : "In simple words, tell us what is wrong and where you see it."} /></Field>
+                    <div hidden aria-hidden="true"><label>Website<input tabIndex={-1} autoComplete="off" value={form.website} onChange={update("website")} /></label></div>
+                  </div>
+                </fieldset>
+                <div className="complaint-photo-upload">
+                  <label htmlFor="photo">{t("complaints.uploadPhoto", language)}</label>
+                  <p id="photo-help">{mr ? "JPG, PNG किंवा WEBP · कमाल १.५ MB" : "JPG, PNG or WEBP · max 1.5 MB"}</p>
+                  <input ref={photoInput} id="photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={choosePhoto} aria-describedby="photo-help" />
+                  <div role="status">
+                    {readingPhoto && <p>{mr ? "फोटो जोडत आहे..." : "Adding photo..."}</p>}
+                    {photoDataUrl && <p className="complaint-photo-confirmation"><FiCheck aria-hidden="true" />{mr ? "फोटो जोडला" : "Photo added"}: {photoName}<button type="button" onClick={clearPhoto}>{mr ? "काढा" : "Remove"}</button></p>}
+                  </div>
+                </div>
+                {error && <p role="alert" className="complaint-error">{error}</p>}
+                <button type="submit" disabled={submitting || readingPhoto} className="civic-button complaint-submit">{submitting ? (mr ? "पाठवत आहे..." : "Sending...") : (mr ? "तक्रार पाठवा" : "Submit Complaint")}</button>
+              </form>
+            </div>
+          )}
+        </section>
+
+        <section className="complaint-next" aria-labelledby="complaint-next-title">
+          <h2 id="complaint-next-title">{mr ? "पुढे काय होईल?" : "What Happens Next"}</h2>
+          <ol>{nextSteps.map(([en, marathi, detailEn, detailMr], index) => <li key={en}><span>{String(index + 1).padStart(2, "0")}</span><div><h3>{mr ? marathi : en}</h3><p>{mr ? detailMr : detailEn}</p></div></li>)}</ol>
+        </section>
+
+        <section className="complaint-emergency" aria-labelledby="complaint-emergency-title">
+          <div><h2 id="complaint-emergency-title">{mr ? "तातडीची मदत?" : "Emergency?"}</h2><p>{mr ? "जीवितास धोका, गुन्हा, आग किंवा वैद्यकीय आपत्कालीन परिस्थितीसाठी ११२ वर कॉल करा. ही तक्रार सेवा आपत्कालीन सेवा नाही." : "For immediate danger, crime, fire or a medical emergency, call 112. This complaint service is not an emergency service."}</p></div>
+          <a href="tel:112">{mr ? "११२ वर कॉल करा" : "Call 112"} ↗</a>
+        </section>
+
+        <section className="complaint-service-options" aria-label={mr ? "नागरिक सेवा" : "Citizen services"}>
+          <div className="complaint-report-option">
+            <h2>{mr ? "नवीन समस्या नोंदवा" : "Report a New Issue"}</h2>
+            <p>{mr ? "काय घडले, कुठे घडले ते सांगा. शक्य असल्यास फोटो जोडा." : "Tell us what happened, where it happened, and add a photo if available."}</p>
+            <a href="#register" className="civic-text-action">{mr ? "तक्रार सुरू करा" : "Start Complaint"} <span>→</span></a>
+          </div>
+          <div id="track" className="complaint-track-option">
+            <h2>{mr ? "आधीची तक्रार तपासा" : "Track Existing Complaint"}</h2>
+            <p>{mr ? "तक्रार नोंदवल्यानंतर मिळालेला क्रमांक टाका." : "Enter the number you received after submission."}</p>
+            <form onSubmit={track} className="complaint-track-form" aria-busy={tracking}>
+              <label htmlFor="tracking-id">{mr ? "तक्रार क्रमांक" : "Complaint ID"}</label>
+              <div>
+                <input ref={trackInput} id="tracking-id" required value={trackId} onChange={event => setTrackId(event.target.value.toUpperCase())} placeholder="CMP-123456" autoCapitalize="characters" spellCheck={false} aria-invalid={Boolean(trackError)} aria-describedby={trackError ? "tracking-error" : undefined} />
+                <button type="submit" disabled={tracking} className="civic-button"><FiSearch aria-hidden="true" />{tracking ? (mr ? "तपासत आहे..." : "Tracking...") : (mr ? "तक्रार तपासा" : "Track Complaint")}</button>
+              </div>
+            </form>
+            {trackError && <p id="tracking-error" role="alert" className="complaint-error">{trackError}</p>}
+          </div>
+        </section>
+
+        {result && <TrackingResult result={result} mr={mr} />}
+      </div>
     </div>
   );
 }
 
-function Field({ label, icon, wide = false, children }) {
-  return <label className={`block ${wide ? "sm:col-span-2" : ""}`}><span className="mb-2 flex items-center gap-2 font-bold text-slate-800">{icon}{label}</span><span className="field-wrap">{children}</span></label>;
+function Field({ label, wide = false, children }) {
+  return <label className={`complaint-field ${wide ? "complaint-field-wide" : ""}`}><span>{label}</span>{children}</label>;
+}
+
+function TrackingResult({ result, mr }) {
+  const activeStep = progressSteps.findIndex(([status]) => status === result.status);
+  const rejected = result.status === "Rejected";
+  const issueType = types.find(([en]) => en === result.complaintType);
+  const updated = dateText(result.updatedAt, mr);
+
+  return (
+    <section className="complaint-tracking-result" aria-labelledby="tracking-result-title" aria-live="polite">
+      <header>
+        <div><p className="complaint-muted">{mr ? "तक्रार क्रमांक" : "Complaint number"}</p><h2 id="tracking-result-title">{result.complaintId}</h2></div>
+        <div><p className="complaint-muted">{mr ? "सध्याची स्थिती" : "Current status"}</p><p className={`complaint-current-status ${rejected ? "complaint-rejected-status" : ""}`}>{mr ? statusLabels[result.status] || result.status : result.status}</p></div>
+      </header>
+      {activeStep >= 0 && <ol className="complaint-progress" aria-label={mr ? "तक्रारीची प्रगती" : "Complaint progress"}>
+        {progressSteps.map(([en, marathi], index) => <li key={en} className={index < activeStep ? "is-complete" : index === activeStep ? "is-current" : ""} aria-current={index === activeStep ? "step" : undefined}><span className="complaint-progress-marker" aria-hidden="true">{index < activeStep ? <FiCheck /> : ""}</span><span>{mr ? marathi : en}</span></li>)}
+      </ol>}
+      {rejected && <p className="complaint-rejected-note">{mr ? "ही तक्रार नाकारण्यात आली आहे. उपलब्ध कारण किंवा अधिक माहितीसाठी खालील कार्यालयाचे अपडेट्स पहा." : "This complaint has been rejected. See the office updates below for any reason or further information."}</p>}
+      <dl className="complaint-result-facts">
+        <div><dt>{mr ? "समस्येचा प्रकार" : "Issue type"}</dt><dd>{mr ? issueType?.[1] || result.complaintType : result.complaintType}</dd></div>
+        <div><dt>{mr ? "ठिकाण" : "Location"}</dt><dd>{result.location}</dd></div>
+        {updated && <div><dt>{mr ? "शेवटचे अपडेट" : "Last updated"}</dt><dd><time dateTime={new Date(result.updatedAt).toISOString()}>{updated}</time></dd></div>}
+      </dl>
+      <section className="complaint-office-updates" aria-labelledby="office-updates-title">
+        <h3 id="office-updates-title">{mr ? "कार्यालयाकडून अपडेट्स" : "Office Updates"}</h3>
+        {result.comments?.length ? <ol>{result.comments.map((comment, index) => {
+          const date = dateText(comment.createdAt, mr);
+          return <li key={`${comment.createdAt}-${index}`}>{date && <time dateTime={new Date(comment.createdAt).toISOString()}>{date}</time>}<p>{comment.text}</p></li>;
+        })}</ol> : <p className="complaint-muted">{mr ? "कार्यालयाकडून अद्याप कोणतेही अपडेट नाही." : "No office updates have been posted yet."}</p>}
+      </section>
+    </section>
+  );
 }

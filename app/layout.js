@@ -4,9 +4,7 @@ import { Inter } from 'next/font/google'
 import { LanguageProvider } from '../contexts/LanguageContext'
 import Navbar from '../components/Layout/Navbar'
 import Footer from '../components/Layout/Footer'
-import AnnouncementBar from '../components/Layout/AnnouncementBar'
 import WhatsAppFloat from '../components/Common/WhatsAppFloat'
-import SachinPreloader from '../components/Common/SachinPreloader'
 
 const inter = Inter({ subsets: ['latin'] })
 const siteUrl = 'https://www.sachinlavatenagarsevak.com'
@@ -114,19 +112,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="mr" className="sachin-preload-active">
+    <html lang="mr">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="preload" as="fetch" href="/sachin-logo.svg" crossOrigin="anonymous" />
-        <style>{`
-          html.sachin-preload-active,
-          html.sachin-preload-active body {
-            overflow: hidden;
-            background: #f7941d;
-          }
-          html.sachin-preload-active #sachin-site { visibility: hidden; }
-          html.sachin-preload-done #sachin-site { visibility: visible; }
-        `}</style>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -138,9 +126,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={inter.className}>
         <LanguageProvider>
-          <SachinPreloader />
           <div id="sachin-site" className="min-h-screen bg-gray-50">
-            <AnnouncementBar />
             <Navbar />
             <main>
               {children}

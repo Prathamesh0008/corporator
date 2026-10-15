@@ -1,18 +1,10 @@
-﻿"use client";
-
-import { useEffect, useState } from "react";
+"use client";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import Link from "next/link";
-import { FiArrowRight, FiCamera, FiCheckCircle, FiClock, FiMapPin, FiSearch } from "react-icons/fi";
-import { GiRoad, GiStreetLight, GiWaterTank } from "react-icons/gi";
-import { MdCleaningServices } from "react-icons/md";
 import { useLanguage } from "../contexts/LanguageContext";
 import HeroSection from "../components/home/HeroSection";
 import HomepageSections from "../components/home/HomepageSections";
-import PoliticalIdentitySections from "../components/home/PoliticalIdentitySections";
-import HomeFaqSection from "../components/home/HomeFaqSection";
-
 const LeafletMap = dynamic(() => import("../components/LeafletMap"), { ssr: false });
 const wardBoundary = [
   [19.03687319007652, 73.01730963706083], [19.03724752853904, 73.01464766140126],
@@ -36,127 +28,63 @@ const wardBoundary = [
   [19.036886493553524, 73.01702469218523], [19.03687319007652, 73.01730963706083],
 ];
 
+
 export default function HomePageClient() {
   const { language } = useLanguage();
   const mr = language === "mr";
   const [showMap, setShowMap] = useState(false);
-  const [homeBanner, setHomeBanner] = useState("/main.png");
-
-  useEffect(() => { fetch("/api/site-content").then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { if (data.content?.homeBanner) setHomeBanner(data.content.homeBanner); }).catch(() => {}); }, []);
-
+  const [homeBanner, setHomeBanner] = useState("/photo.jpeg");
+  const mapButton = useRef(null);
+  const closeButton = useRef(null);
   useEffect(() => {
-    if (!showMap) return undefined;
-    const close = (event) => event.key === "Escape" && setShowMap(false);
+    const controller = new AbortController();
+    fetch("/api/site-content", { signal: controller.signal }).then(r => r.ok ? r.json() : Promise.reject()).then(data => {
+      if (data.content?.homeBanner) setHomeBanner(data.content.homeBanner);
+    }).catch(() => {});
+    return () => controller.abort();
+  }, []);
+  useEffect(() => {
+    if (!showMap) return;
+    const previousOverflow = document.body.style.overflow;
+    const trigger = mapButton.current;
+    closeButton.current?.focus();
+    const close = event => {
+      if (event.key === "Escape") setShowMap(false);
+      if (event.key === "Tab") {
+        const controls = [...document.getElementById("ward-map-dialog").querySelectorAll('button, a[href], input, [tabindex="0"]')].filter(el => el.getClientRects().length);
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
     document.addEventListener("keydown", close);
     document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", close); document.body.style.overflow = ""; };
+    return () => { document.removeEventListener("keydown", close); document.body.style.overflow = previousOverflow; trigger?.focus(); };
   }, [showMap]);
-
-  const issues = [
-    { icon: <GiRoad />, en: "Potholes & footpaths", mr: "खड्डे व पदपथ" },
-    { icon: <GiWaterTank />, en: "Water supply", mr: "पाणीपुरवठा" },
-    { icon: <GiStreetLight />, en: "Street lights", mr: "पथदिवे" },
-    { icon: <MdCleaningServices />, en: "Garbage & drains", mr: "कचरा व गटारे" },
-  ];
-
-  const steps = [
-    { icon: <FiCamera />, en: "Tell us the problem", mr: "समस्या सांगा", detailEn: "Add the location and a photo if possible.", detailMr: "ठिकाण आणि शक्य असल्यास फोटो जोडा." },
-    { icon: <FiCheckCircle />, en: "Get a complaint number", mr: "तक्रार क्रमांक मिळवा", detailEn: "Save it to check your complaint later.", detailMr: "पुढे स्थिती पाहण्यासाठी तो जतन करा." },
-    { icon: <FiClock />, en: "Office follows up", mr: "कार्यालय पाठपुरावा करेल", detailEn: "The ward office reviews and coordinates the issue.", detailMr: "वॉर्ड कार्यालय तक्रार पाहून संबंधित विभागाशी समन्वय करेल." },
-    { icon: <FiSearch />, en: "Track the status", mr: "स्थिती तपासा", detailEn: "Use your complaint number on this website.", detailMr: "या संकेतस्थळावर तक्रार क्रमांक वापरा." },
-  ];
-
-  return (
-    <div className="home-ui overflow-hidden bg-white">
-      <section className="overflow-hidden" aria-label={mr ? "मुख्य बॅनर" : "Main banner"}>
-        <Image
-          src={homeBanner}
-          alt={mr ? "सचिन देवप्पा लवटे मुख्य बॅनर" : "Sachin Devappa Lavate main banner"}
-          width={1672}
-          height={941}
-          priority
-          unoptimized={homeBanner.startsWith("http")}
-          className="block h-[240px] w-full object-cover object-center sm:h-[360px] lg:h-[520px] 2xl:h-[600px]"
-          sizes="100vw"
-        />
-      </section>
-
-      <section className="section-padding bg-white" aria-labelledby="issues-title">
-        <div className="container-responsive">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="eyebrow">{mr ? "आम्ही कशासाठी पाठपुरावा करतो" : "WHAT WE FOLLOW UP"}</p>
-            <h2 id="issues-title" className="mt-2 text-3xl font-black sm:text-4xl">{mr ? "आपल्या परिसरातील रोजच्या समस्या" : "Everyday civic issues in your area"}</h2>
-          </div>
-          <div className="mt-9 grid grid-cols-2 gap-6 md:grid-cols-4">
-            {issues.map((issue, index) => (
-              <Link key={issue.en} href="/complaints#register" className="group p-5 text-center transition hover:bg-orange-50" style={{ animationDelay: `${index * 80}ms` }}>
-                <span className="mx-auto flex h-14 w-14 items-center justify-center text-3xl text-orange-600 transition group-hover:scale-110">{issue.icon}</span>
-                <span className="mt-3 block font-bold text-slate-800">{mr ? issue.mr : issue.en}</span>
-              </Link>
-            ))}
-          </div>
-          <p className="mx-auto mt-6 max-w-3xl border-l-4 border-blue-700 bg-blue-50 px-4 py-3 text-sm text-blue-900">
-            {mr ? "पोलीस, रुग्णवाहिका किंवा अग्निशमन आपत्कालीन मदतीसाठी कृपया ११२ वर कॉल करा. या संकेतस्थळावरील तक्रार सेवा आपत्कालीन सेवा नाही." : "For police, ambulance, or fire emergencies, call 112. This complaint service is not an emergency service."}
-          </p>
-        </div>
-      </section>
-
-      <section className="section-padding bg-slate-50">
-        <div className="container-responsive">
-          <div className="grid items-center gap-10 lg:grid-cols-[.8fr_1.2fr]">
-            <div>
-              <p className="eyebrow">{mr ? "अगदी सोपी पद्धत" : "A SIMPLE PROCESS"}</p>
-              <h2 className="mt-2 text-3xl font-black sm:text-4xl">{mr ? "चार सोप्या टप्प्यांत तक्रार" : "Complaint help in four clear steps"}</h2>
-              <p className="mt-4 text-lg leading-8 text-slate-600">{mr ? "फॉर्म वाचायला आणि भरायला सोपा ठेवला आहे. आवश्यक ठिकाणी घरातील व्यक्तीची मदत घेऊ शकता." : "The form uses large labels and simple words. A family member can also help you submit it."}</p>
-              <Link href="/complaints#register" className="complaint-cta mt-6">{mr ? "तक्रार सुरू करा" : "Start Your Complaint"} <FiArrowRight /></Link>
-            </div>
-            <ol className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-              {steps.map((step, index) => (
-                <li key={step.en} className="p-5">
-                  <div className="flex items-start gap-4">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0b6e4f] text-xl font-black text-white">{index + 1}</span>
-                    <div><h3 className="text-lg font-bold">{mr ? step.mr : step.en}</h3><p className="mt-1 leading-6 text-slate-600">{mr ? step.detailMr : step.detailEn}</p></div>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
-         
-      </section>
-       
-
-      <section className="section-padding ">
-        <div className="container-responsive space-y-8">
-         
-          <HomepageSections />
-        </div>
-      </section>
-
-      <PoliticalIdentitySections />
-
-
-      <section className="section-padding bg-white" aria-labelledby="ward-map-title">
-        <div className="container-responsive">
-          <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div><p className="eyebrow">{mr ? "आपले सेवा क्षेत्र" : "OUR SERVICE AREA"}</p><h2 id="ward-map-title" className="mt-2 text-3xl font-black">{mr ? "वॉर्ड २४(ड), नेरूळ नकाशा" : "Ward 24(D), Nerul Map"}</h2><p className="mt-2 text-slate-600">{mr ? "नकाशावरील सीमा संदर्भासाठी दाखवली आहे." : "The ward boundary is shown for reference."}</p></div>
-            <button type="button" onClick={() => setShowMap(true)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-blue-700 px-5 font-black text-blue-700 transition hover:bg-blue-700 hover:text-white"><FiMapPin />{mr ? "मोठा नकाशा उघडा" : "Open Large Map"}</button>
-          </div>
-          <div className="h-80 overflow-hidden md:h-[430px]"><LeafletMap center={[19.0285, 73.012]} zoom={13} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div>
-        </div>
-      </section>
-      <HomeFaqSection />
-      
-      <section className="section-padding bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-        <div className="container-responsive flex flex-col items-center justify-between gap-6 text-center lg:flex-row lg:text-left">
-          <div><h2 className="text-3xl font-black text-white">{mr ? "वॉर्ड २४(ड) अधिक स्वच्छ, सुरक्षित आणि सुविधायुक्त बनवूया" : "Let’s make Ward 24(D) cleaner, safer, and better maintained"}</h2><p className="mt-2 text-orange-50">{mr ? "समस्या दिसली? आम्हाला ठिकाणासह कळवा." : "See a civic problem? Report it with the exact location."}</p></div>
-          <Link href="/complaints#register" className="inline-flex min-h-14 shrink-0 items-center gap-2 rounded-xl bg-white px-7 text-lg font-black text-orange-700 shadow-lg transition hover:-translate-y-1 hover:shadow-xl">{mr ? "तक्रार नोंदवा" : "Register Complaint"} <FiArrowRight /></Link>
-        </div>
-      </section>
-
-      
-
-      {showMap && <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 p-3 sm:p-6" onMouseDown={(event) => event.target === event.currentTarget && setShowMap(false)} role="dialog" aria-modal="true" aria-labelledby="large-map-title"><div className="w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-2xl"><div className="flex items-center justify-between border-b px-5 py-4"><h2 id="large-map-title" className="text-xl font-black">{mr ? "वॉर्ड २४(ड), नेरूळ नकाशा" : "Ward 24(D), Nerul Map"}</h2><button type="button" onClick={() => setShowMap(false)} className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-2xl font-bold hover:bg-slate-200" aria-label={mr ? "नकाशा बंद करा" : "Close map"}>×</button></div><div className="h-[72vh] p-3"><div className="h-full overflow-hidden rounded-xl"><LeafletMap center={[19.0285, 73.012]} zoom={14} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div></div></div></div>}
-    </div>
-  );
+  return <div className="home-ui" lang={language}>
+    <HeroSection image={homeBanner} />
+    <section className="home-citizen-actions" aria-label={mr ? "नागरिक सेवा" : "Citizen services"}>
+      <ol className="editorial-container">
+        {[
+          ["Report Issue", "समस्या नोंदवा", "/complaints#register"],
+          ["Track Complaint", "तक्रार तपासा", "/complaints#track"],
+          ["Resolved Works", "पूर्ण झालेली कामे", "/works"],
+          ["Contact Office", "कार्यालयाशी संपर्क", "/contact"],
+        ].map(([en, marathi, href], index) => <li key={href}>
+          <Link href={href}><span className="home-action-number">{String(index + 1).padStart(2, "0")}</span><span>{mr ? marathi : en}</span><span className="home-action-arrow" aria-hidden="true">→</span></Link>
+        </li>)}
+      </ol>
+    </section>
+    <section className="civic-section civic-statement"><div className="editorial-container">
+      <p className="civic-muted">{mr ? "सेवेचा विचार" : "A commitment to service"}</p>
+      <h2>{mr ? "पदापेक्षा सेवा मोठी, आणि स्वतःपेक्षा जनता प्रथम." : "Service above position. People before self."}</h2>
+    </div></section>
+    <HomepageSections />
+    <section className="civic-section"><div className="editorial-container ward-layout">
+      <div><p className="ward-number">24(D)</p><h2 className="civic-title">{mr ? "आपला वॉर्ड" : "Our ward"}</h2><p>{mr ? "नेरूळ • नवी मुंबई" : "Nerul • Navi Mumbai"}</p><p className="civic-muted">{mr ? "नकाशावरील सीमा संदर्भासाठी दाखवली आहे." : "The ward boundary is shown for reference."}</p><button ref={mapButton} onClick={() => setShowMap(true)} className="civic-button civic-button-secondary">{mr ? "मोठा नकाशा उघडा" : "Open large map"} →</button></div>
+      <div className="ward-map"><LeafletMap center={[19.0285, 73.012]} zoom={13} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div>
+    </div></section>
+    <section className="citizen-cta"><div className="editorial-container"><div><h2>{mr ? "आपल्या परिसरात काही समस्या आहे?" : "Is there a problem in your neighbourhood?"}</h2><p>{mr ? "रस्ता • पाणी • स्वच्छता • पथदिवे" : "Roads • Water • Sanitation • Street lights"}</p></div><Link href="/complaints#register" className="civic-button">{mr ? "समस्या नोंदवा" : "Report an issue"} →</Link></div></section>
+    {showMap && <div className="map-backdrop" onMouseDown={e => e.target === e.currentTarget && setShowMap(false)}><div id="ward-map-dialog" className="map-dialog" role="dialog" aria-modal="true" aria-labelledby="large-map-title"><header><h2 id="large-map-title">{mr ? "वॉर्ड २४(ड), नेरूळ नकाशा" : "Ward 24(D), Nerul map"}</h2><button ref={closeButton} onClick={() => setShowMap(false)} aria-label={mr ? "नकाशा बंद करा" : "Close map"}>×</button></header><div className="large-map"><LeafletMap center={[19.0285, 73.012]} zoom={14} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div></div></div>}
+  </div>;
 }

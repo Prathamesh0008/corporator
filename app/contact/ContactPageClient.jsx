@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { FiAlertCircle, FiCheckCircle, FiMapPin, FiSend } from "react-icons/fi";
 import { useLanguage } from "../../contexts/LanguageContext";
-import LeafletMap from "../../components/LeafletMap";
+import dynamic from "next/dynamic";
+
+const LeafletMap = dynamic(() => import("../../components/LeafletMap"), { ssr: false });
 
 export default function ContactPageClient() {
   const { language } = useLanguage(); const mr = language === "mr";
