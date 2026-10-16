@@ -98,14 +98,14 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
-      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
-      { url: '/android-chrome-192x192.png', type: 'image/png', sizes: '192x192' },
-      { url: '/android-chrome-512x512.png', type: 'image/png', sizes: '512x512' },
+      { url: '/favicon.ico?v=bjp-lotus', sizes: 'any' },
+      { url: '/favicon-32x32.png?v=bjp-lotus', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-16x16.png?v=bjp-lotus', type: 'image/png', sizes: '16x16' },
+      { url: '/android-chrome-192x192.png?v=bjp-lotus', type: 'image/png', sizes: '192x192' },
+      { url: '/android-chrome-512x512.png?v=bjp-lotus', type: 'image/png', sizes: '512x512' },
     ],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
-    shortcut: ['/favicon.ico'],
+    apple: [{ url: '/apple-touch-icon.png?v=bjp-lotus', sizes: '180x180', type: 'image/png' }],
+    shortcut: ['/favicon.ico?v=bjp-lotus'],
   },
   manifest: '/site.webmanifest',
 }

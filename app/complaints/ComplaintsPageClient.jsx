@@ -186,13 +186,7 @@ export default function ComplaintsPageClient() {
 
   return (
     <div className="complaint-service" lang={language}>
-      <header className="complaint-service-intro">
-        <div className="editorial-container">
-          <p className="complaint-ward">{mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"}</p>
-          <h1>{mr ? "नागरी समस्या नोंदवा" : "Report a Civic Issue"}</h1>
-          <p>{mr ? "रस्ता, पाणी, गटार, कचरा, पथदिवे आणि सार्वजनिक जागांमधील समस्या येथे नोंदवा." : "Roads, water, drainage, garbage, streetlights and public-space problems can be reported here."}</p>
-        </div>
-      </header>
+      <h1 className="sr-only">{mr ? "नागरी समस्या नोंदवा" : "Report a Civic Issue"}</h1>
 
       <div className="editorial-container">
         <section id="register" className="complaint-register">

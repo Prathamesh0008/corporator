@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
+import { FiAlertCircle, FiCheckCircle, FiPhone, FiSearch } from "react-icons/fi";
 import { useLanguage } from "../contexts/LanguageContext";
 import HeroSection from "../components/home/HeroSection";
 import HomepageSections from "../components/home/HomepageSections";
@@ -64,21 +66,28 @@ export default function HomePageClient() {
   return <div className="home-ui" lang={language}>
     <HeroSection image={homeBanner} />
     <section className="home-citizen-actions" aria-label={mr ? "नागरिक सेवा" : "Citizen services"}>
-      <ol className="editorial-container">
+      <ul className="editorial-container home-action-list">
         {[
-          ["Report Issue", "समस्या नोंदवा", "/complaints#register"],
-          ["Track Complaint", "तक्रार तपासा", "/complaints#track"],
-          ["Resolved Works", "पूर्ण झालेली कामे", "/works"],
-          ["Contact Office", "कार्यालयाशी संपर्क", "/contact"],
-        ].map(([en, marathi, href], index) => <li key={href}>
-          <Link href={href}><span className="home-action-number">{String(index + 1).padStart(2, "0")}</span><span>{mr ? marathi : en}</span><span className="home-action-arrow" aria-hidden="true">→</span></Link>
+          ["Report Issue", "समस्या नोंदवा", "/complaints#register", FiAlertCircle],
+          ["Track Complaint", "तक्रार तपासा", "/complaints#track", FiSearch],
+          ["Resolved Works", "पूर्ण झालेली कामे", "/works", FiCheckCircle],
+          ["Contact Office", "कार्यालयाशी संपर्क", "/contact", FiPhone],
+        ].map(([en, marathi, href, Icon]) => <li key={href}>
+          <Link href={href}><Icon className="home-action-icon" aria-hidden="true" /><span>{mr ? marathi : en}</span><span className="home-action-arrow" aria-hidden="true">→</span></Link>
         </li>)}
-      </ol>
+      </ul>
     </section>
     <section className="civic-section civic-statement"><div className="editorial-container">
       <p className="civic-muted">{mr ? "सेवेचा विचार" : "A commitment to service"}</p>
       <h2>{mr ? "पदापेक्षा सेवा मोठी, आणि स्वतःपेक्षा जनता प्रथम." : "Service above position. People before self."}</h2>
     </div></section>
+    <section className="home-party-identity" aria-labelledby="party-identity-title">
+      <div className="editorial-container">
+        <Image src="/lotus.webp" alt="" width={200} height={200} sizes="200px" className="party-watermark" aria-hidden="true" />
+        <div className="party-identity-label"><Image src="/lotus.webp" alt="BJP Lotus" width={40} height={40} sizes="40px" /><h2 id="party-identity-title">{mr ? "भारतीय जनता पार्टी" : "Bharatiya Janata Party"}</h2></div>
+        <div className="party-identity-person"><p>{mr ? "सचिन देवप्पा लवटे" : "Sachin Devappa Lavate"}</p><p>{mr ? "नगरसेवक • वॉर्ड २४(ड), नेरूळ" : "Corporator • Ward 24(D), Nerul"}</p></div>
+      </div>
+    </section>
     <HomepageSections />
     <section className="civic-section"><div className="editorial-container ward-layout">
       <div><p className="ward-number">24(D)</p><h2 className="civic-title">{mr ? "आपला वॉर्ड" : "Our ward"}</h2><p>{mr ? "नेरूळ • नवी मुंबई" : "Nerul • Navi Mumbai"}</p><p className="civic-muted">{mr ? "नकाशावरील सीमा संदर्भासाठी दाखवली आहे." : "The ward boundary is shown for reference."}</p><button ref={mapButton} onClick={() => setShowMap(true)} className="civic-button civic-button-secondary">{mr ? "मोठा नकाशा उघडा" : "Open large map"} →</button></div>

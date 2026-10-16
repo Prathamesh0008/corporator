@@ -45,18 +45,23 @@ export default function BeforeAfterShowcase({ mr = false }) {
 
   return (
     <>
-      <header className="archive-intro">
-        <div className="editorial-container">
-          <p className="archive-location">{mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"}</p>
-          <h1>{mr ? "वॉर्डातील विकासकामे" : "Ward Development Works"}</h1>
-          <p className="archive-description">
-            {mr ? "वॉर्डातील पूर्ण झालेल्या आणि सुरू असलेल्या विकासकामांची पारदर्शक नोंद." : "A transparent record of completed and ongoing development projects across the ward."}
-          </p>
-        </div>
-      </header>
+      <h1 className="sr-only">{mr ? "वॉर्डातील विकासकामे" : "Ward Development Works"}</h1>
 
       <div className="editorial-container">
         <section className="archive-controls" aria-label={mr ? "काम शोधा आणि निवडा" : "Search and filter works"}>
+
+
+          <div className="archive-filters">
+            <FilterButton active={category === "all"} onClick={() => { setCategory("all"); setVisibleCount(PAGE_SIZE); }}>
+              {mr ? "सर्व कामे" : "All works"} <span>{visibleWorks.length}</span>
+            </FilterButton>
+            {categories.map(([value, label]) => (
+              <FilterButton key={value} active={category === value} onClick={() => { setCategory(value); setVisibleCount(PAGE_SIZE); }}>
+                {label}
+              </FilterButton>
+            ))}
+          </div>
+
           <label className="archive-search">
             <span>{mr ? "काम शोधा" : "Search works"}</span>
             <span className="archive-search-field">
@@ -70,21 +75,7 @@ export default function BeforeAfterShowcase({ mr = false }) {
             </span>
           </label>
 
-          <div className="archive-filters">
-            <FilterButton active={category === "all"} onClick={() => { setCategory("all"); setVisibleCount(PAGE_SIZE); }}>
-              {mr ? "सर्व कामे" : "All works"} <span>{visibleWorks.length}</span>
-            </FilterButton>
-            {categories.map(([value, label]) => (
-              <FilterButton key={value} active={category === value} onClick={() => { setCategory(value); setVisibleCount(PAGE_SIZE); }}>
-                {label}
-              </FilterButton>
-            ))}
-          </div>
 
-          <div className="archive-results" role="status">
-            <p>{mr ? `${filteredWorks.length} कामे` : `${filteredWorks.length} ${filteredWorks.length === 1 ? "work" : "works"}`}</p>
-            <p>{mr ? "नवीन कामे प्रथम" : "Newest first"}</p>
-          </div>
         </section>
 
         {filteredWorks.length ? (
@@ -135,7 +126,6 @@ function WorkArchiveEntry({ work, index, mr, onSelect }) {
   return (
     <article className={`archive-project ${index === 0 ? "archive-project-featured" : ""}`}>
       <header className="archive-project-heading">
-        <span className="archive-project-number">{String(index + 1).padStart(2, "0")}</span>
         <div>
           <p className="archive-category">{workText(work, "category", mr)}</p>
           <h2>{title}</h2>

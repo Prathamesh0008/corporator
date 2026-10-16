@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
 import { FiArrowRight, FiUsers } from "react-icons/fi";
 import { useLanguage } from "../../contexts/LanguageContext";
 
@@ -24,6 +25,11 @@ function StoryMilestone({ item, index, mr }) {
 export default function AboutPageClient() {
   const { language } = useLanguage();
   const mr = language === "mr";
+  useEffect(() => {
+    if (window.location.hash) return;
+    const frame = requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "instant" }));
+    return () => cancelAnimationFrame(frame);
+  }, []);
   return <main className="about-biography" lang={language}>
     <section className="about-full-hero about-biography-hero">
       <div className="relative mx-auto grid max-w-6xl items-end gap-8 lg:grid-cols-[1fr_.8fr]">
