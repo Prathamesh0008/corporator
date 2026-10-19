@@ -42,5 +42,11 @@
   "privateFieldsAbsent": true,
   "autoReplyPathPresent": false,
   "emailAttachmentsPathPresent": false,
-  "completedAt": "2026-10-19T12:56:46.033Z"
+  "completedAt": "2026-10-19T12:56:46.033Z",
+  "adminBrowser": {
+    "complaintVisible": true,
+    "detailNotificationLabel": "Sent (provider accepted)",
+    "initialCheck": "Label selector timed out; verified using select control",
+    "mutationsBlocked": true
+  }
 }

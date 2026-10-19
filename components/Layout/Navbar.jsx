@@ -8,7 +8,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [activeHash, setActiveHash] = useState("");
   const pathname = usePathname();
-  const { language, toggleLanguage } = useLanguage();
+  const { language } = useLanguage();
   const mr = language === "mr";
   const menuButton = useRef(null);
   const links = [
@@ -54,7 +54,7 @@ export default function Navbar() {
       </span>
     </Link>
     <div className="desktop-navigation">{navigation}</div>
-    <div className="nav-controls"><button className="language-control" onClick={toggleLanguage} aria-label={mr ? "Switch to English" : "मराठीत बदला"}><span lang="mr" className={mr ? "selected" : ""}>मराठी</span><span lang="en" className={!mr ? "selected" : ""}>EN</span></button><button ref={menuButton} className="menu-control" onClick={() => setOpen(value => !value)} aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? (mr ? "मेनू बंद करा" : "Close menu") : (mr ? "मेनू उघडा" : "Open menu")}>{open ? "×" : "☰"}</button></div>
+    <div className="nav-controls"><button ref={menuButton} className="menu-control" onClick={() => setOpen(value => !value)} aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? (mr ? "मेनू बंद करा" : "Close menu") : (mr ? "मेनू उघडा" : "Open menu")}>{open ? "×" : "☰"}</button></div>
     <div id="mobile-navigation" className="mobile-navigation" hidden={!open}>{navigation}</div>
   </div></nav>;
 }

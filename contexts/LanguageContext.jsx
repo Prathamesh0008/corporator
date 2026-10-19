@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const LanguageContext = createContext(undefined);
 
@@ -14,13 +14,14 @@ export function PreviewLanguageProvider({ language, children }) {
 }
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState(() => {
-    if (typeof window === "undefined") {
-      return "mr";
-    }
+  // Match the server's initial render, then restore the existing saved preference.
+  const [language, setLanguage] = useState("mr");
+  useEffect(() => {
     const savedLang = localStorage.getItem("site-language");
-    return savedLang === "mr" || savedLang === "en" ? savedLang : "mr";
-  });
+    if (savedLang === "mr" || savedLang === "en") {
+      queueMicrotask(() => setLanguage(savedLang));
+    }
+  }, []);
 
   const toggleLanguage = () => {
     const newLang = language === "en" ? "mr" : "en";

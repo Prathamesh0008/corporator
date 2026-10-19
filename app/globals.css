@@ -237,7 +237,7 @@ html { scroll-behavior: smooth; }
 .home-ui, .civic-nav, .civic-footer { color: var(--ink); line-height: 1.7; }
 .home-ui { background: var(--paper); font-size: 16px; }
 .home-ui :is(h1,h2,h3), .civic-footer :is(h2,h3) { color: inherit; font-weight: 700; overflow-wrap: normal; }
-.home-ui :is(a,button,input):focus-visible, .civic-nav :is(a,button):focus-visible, .civic-footer a:focus-visible { outline: 2px solid var(--clay); outline-offset: 5px; }
+.home-ui :is(a,button,input):focus-visible, .civic-nav :is(a,button):focus-visible, .civic-footer :is(a,button):focus-visible { outline: 2px solid var(--clay); outline-offset: 5px; }
 .civic-section { padding-block: clamp(70px, 5.5vw, 80px); }
 .civic-title { font-size: clamp(28px, 2.5vw, 34px); line-height: 1.5; }
 .civic-muted { color: var(--muted); }
@@ -346,13 +346,20 @@ html { scroll-behavior: smooth; }
 .civic-footer a:hover { text-decoration: underline; text-underline-offset: 5px; }
 .footer-bottom { border-top: 1px solid var(--muted); padding-top: 24px; display: flex; justify-content: space-between; gap: 24px; font-size: 13px; color: var(--stone); }
 .footer-bottom > div { display: flex; gap: 24px; }
+.footer-bottom > .footer-language-control { align-items: center; gap: 8px; flex-shrink: 0; }
+.footer-language-control button { background: none; border: 0; padding: 4px; min-height: 44px; color: var(--stone); cursor: pointer; font: inherit; }
+.footer-language-control button[aria-pressed="true"] { color: var(--paper); font-weight: 600; text-decoration: underline; text-underline-offset: 5px; }
+.footer-language-control button:hover { color: var(--paper); }
 @media (max-width: 1199px) {
   .desktop-navigation { display: none; }
   .menu-control { display: block; }
   .hero-photo { min-height: 440px; }
   .footer-layout { gap: 32px; }
 }
-@media (min-width: 1200px) { .mobile-navigation { display: none; } }
+@media (min-width: 1200px) {
+  .desktop-navigation { margin-left: auto; }
+  .nav-controls, .mobile-navigation { display: none; }
+}
 @media (max-width: 1023px) {
   .editorial-container { width: calc(100% - 64px); }
   .hero-layout { column-gap: 4%; }
