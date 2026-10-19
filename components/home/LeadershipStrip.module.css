@@ -1,0 +1,30 @@
+.strip {
+  background: #f2eee5;
+  color: #171714;
+  border-block: 1px solid var(--stone);
+}
+
+.layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 7%; align-items: center; }
+.content { padding-block: 42px; }
+.label { color: #1c6f3e; font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.strip h2 { font-size: clamp(26px, 2.5vw, 34px); font-weight: 600; line-height: 1.5; max-width: 540px; }
+.name { margin-top: 30px; font-size: 22px; font-weight: 600; line-height: 1.5; }
+.role { margin-top: 6px; font-size: 16px; line-height: 1.7; }
+.photograph { position: relative; height: 350px; overflow: hidden; }
+.photograph img { object-fit: contain; object-position: center bottom; }
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .layout { gap: 4%; }
+  .photograph { height: 330px; }
+  .strip h2 { font-size: 28px; }
+}
+
+@media (max-width: 767px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .content { padding-block: 28px; }
+  .label { font-size: 13px; margin-bottom: 10px; }
+  .strip h2 { font-size: 26px; }
+  .name { font-size: 21px; margin-top: 20px; }
+  .role { font-size: 15px; }
+  .photograph { height: 260px; }
+}

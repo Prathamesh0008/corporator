@@ -1,0 +1,21 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.grid > a { position: relative; overflow: hidden; min-width: 0; grid-column: span 3; aspect-ratio: 4 / 3; }
+.grid[data-count="7"] > a:nth-child(n + 5) { grid-column: span 4; }
+.grid img { object-position: center 20%; }
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .grid > a, .grid[data-count="7"] > a:nth-child(n + 5) { grid-column: auto; }
+  .grid[data-count="7"] > a:last-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+}
+
+@media (max-width: 767px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .grid > a, .grid[data-count="7"] > a:nth-child(n + 5) { grid-column: auto; }
+  .grid[data-count="7"] > a:last-child { grid-column: 1 / -1; aspect-ratio: 3 / 2; }
+}

@@ -83,7 +83,6 @@ export default function HomePageClient() {
     </div></section>
     <section className="home-party-identity" aria-labelledby="party-identity-title">
       <div className="editorial-container">
-        <Image src="/lotus.webp" alt="" width={200} height={200} sizes="200px" className="party-watermark" aria-hidden="true" />
         <div className="party-identity-label"><Image src="/lotus.webp" alt="BJP Lotus" width={40} height={40} sizes="40px" /><h2 id="party-identity-title">{mr ? "भारतीय जनता पार्टी" : "Bharatiya Janata Party"}</h2></div>
         <div className="party-identity-person"><p>{mr ? "सचिन देवप्पा लवटे" : "Sachin Devappa Lavate"}</p><p>{mr ? "नगरसेवक • वॉर्ड २४(ड), नेरूळ" : "Corporator • Ward 24(D), Nerul"}</p></div>
       </div>

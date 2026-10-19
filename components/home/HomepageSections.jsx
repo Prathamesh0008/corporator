@@ -6,6 +6,8 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { workItems } from "../workData";
 import { newsData } from "../../data/siteContent";
 import { approvedStatic, publicItems } from "../../lib/publicContent";
+import LeadershipStrip from "./LeadershipStrip";
+import galleryStyles from "./HomepageGallery.module.css";
 
 function Photo({ src, alt, sizes = "(max-width: 767px) 100vw, 55vw" }) {
   if (!src) return null;
@@ -90,7 +92,7 @@ export default function HomepageSections({ previewItems }) {
   const gallery = [
     ...publicItems(published.gallery).filter((item) => item.type === "photo"),
     ...approvedStatic(galleryFallback, "galleryPreview"),
-  ].slice(0, 3);
+  ].slice(0, 7);
   const heading = (id, title, href, action) => (
     <header className="editorial-section-head">
       <h2 id={id} className="civic-title">
@@ -165,6 +167,7 @@ export default function HomepageSections({ previewItems }) {
           </div>
         </div>
       </section>
+      {!previewItems && <LeadershipStrip />}
       <section
         className="civic-section citizen-help"
         aria-labelledby="help-title"
@@ -294,7 +297,7 @@ export default function HomepageSections({ previewItems }) {
                 : "No gallery photographs have been published yet."}
             </p>
           )}
-          <div className={gallery.length ? "editorial-gallery" : undefined}>
+          <div className={gallery.length ? galleryStyles.grid : undefined} data-home-gallery data-count={gallery.length}>
             {gallery.map((item) => (
               <Link
                 href="/gallery"
@@ -304,7 +307,7 @@ export default function HomepageSections({ previewItems }) {
                 <Photo
                   src={item.image}
                   alt={text(item, "title")}
-                  sizes="(max-width: 767px) 100vw, 60vw"
+                  sizes="(max-width: 1023px) 100vw, 33vw"
                 />
               </Link>
             ))}

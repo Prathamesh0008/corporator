@@ -258,7 +258,7 @@ html { scroll-behavior: smooth; }
 .civic-brand-copy { display: block; }
 .civic-brand strong { display: block; font-size: 18px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
 .civic-brand-short-name { display: none; }
-.civic-brand-subtitle { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.4; white-space: nowrap; }
+.civic-brand-subtitle { display: block; margin-top: 3px; color: #1c6f3e; font-size: 12px; line-height: 1.4; white-space: nowrap; }
 .desktop-navigation { display: flex; align-self: stretch; gap: 22px; }
 .desktop-navigation > a { display: flex; align-items: center; font-size: 14px; border-bottom: 2px solid transparent; padding-top: 2px; }
 .civic-nav a:hover, .civic-nav a[aria-current] { color: var(--maroon); }
@@ -317,9 +317,6 @@ html { scroll-behavior: smooth; }
 .news-feature h3 { font-size: clamp(22px, 2vw, 26px); }
 .news-brief { border-top: 1px solid var(--stone); padding-block: 18px; }
 .news-feature + .news-brief { padding-top: 0; }
-.editorial-gallery { display: grid; grid-template-columns: 1.6fr 1fr; grid-template-rows: repeat(2, 200px); gap: 14px; }
-.editorial-gallery a { position: relative; overflow: hidden; }
-.editorial-gallery a:first-child { grid-row: span 2; }
 .ward-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 8%; align-items: center; border-top: 1px solid var(--stone); padding-top: 40px; }
 .ward-number { color: var(--maroon); font-size: clamp(56px, 5vw, 72px); line-height: 1.2; margin-bottom: 20px; }
 .ward-layout .civic-muted { margin-block: 20px; }
@@ -336,20 +333,24 @@ html { scroll-behavior: smooth; }
 .map-dialog h2 { font-size: 20px; }
 .map-dialog button { height: 44px; width: 44px; font-size: 28px; }
 .large-map { height: 72dvh; }
-.civic-footer { background: var(--ink); color: var(--paper); padding-block: 64px 24px; }
+.civic-footer { background: #f2eee5; color: var(--ink); padding-block: 64px 24px; }
 .footer-layout { display: grid; grid-template-columns: 1.4fr 1fr .7fr; gap: 64px; padding-bottom: 56px; }
-.footer-name { display: inline-block; font-size: 28px; font-weight: 600; margin-bottom: 12px; }
-.footer-layout p { color: var(--stone); }
-.footer-instagram { display: inline-flex; align-items: center; gap: 10px; margin-top: 24px; min-height: 44px; }
+.footer-layout > div:first-child { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.footer-name { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.footer-name > img { width: 40px; height: 40px; object-fit: contain; flex-shrink: 0; }
+.footer-name strong { display: block; font-size: 18px; font-weight: 600; line-height: 1.4; }
+.footer-brand-subtitle { display: block; margin-top: 3px; color: #1c6f3e; font-size: 12px; line-height: 1.5; }
+.footer-layout p { color: var(--muted); }
+.footer-instagram { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; min-height: 44px; }
 .footer-layout nav { display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: 14px 28px; }
 .footer-more { display: flex; flex-direction: column; gap: 14px; }
 .civic-footer a:hover { text-decoration: underline; text-underline-offset: 5px; }
-.footer-bottom { border-top: 1px solid var(--muted); padding-top: 24px; display: flex; justify-content: space-between; gap: 24px; font-size: 13px; color: var(--stone); }
+.footer-bottom { border-top: 1px solid var(--stone); padding-top: 24px; display: flex; justify-content: space-between; gap: 24px; font-size: 13px; color: var(--muted); }
 .footer-bottom > div { display: flex; gap: 24px; }
 .footer-bottom > .footer-language-control { align-items: center; gap: 8px; flex-shrink: 0; }
-.footer-language-control button { background: none; border: 0; padding: 4px; min-height: 44px; color: var(--stone); cursor: pointer; font: inherit; }
-.footer-language-control button[aria-pressed="true"] { color: var(--paper); font-weight: 600; text-decoration: underline; text-underline-offset: 5px; }
-.footer-language-control button:hover { color: var(--paper); }
+.footer-language-control button { background: none; border: 0; padding: 4px; min-height: 44px; color: var(--muted); cursor: pointer; font: inherit; }
+.footer-language-control button[aria-pressed="true"] { color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 5px; }
+.footer-language-control button:hover { color: var(--ink); }
 @media (max-width: 1199px) {
   .desktop-navigation { display: none; }
   .menu-control { display: block; }
@@ -365,7 +366,6 @@ html { scroll-behavior: smooth; }
   .hero-layout { column-gap: 4%; }
   .hero-name { font-size: 48px; }
   .hero-actions { gap: 8px; padding-bottom: 40px; }
-  .editorial-gallery { grid-template-rows: repeat(2, 180px); }
   .help-layout { gap: 6%; }
   .ward-map { height: 380px; }
   .footer-layout { grid-template-columns: 1fr 1fr; }
@@ -409,8 +409,6 @@ html { scroll-behavior: smooth; }
   .news-feature { margin-bottom: 22px; }
   .news-brief { padding-block: 18px; }
   .news-brief h3 { font-size: 20px; }
-  .editorial-gallery { grid-template-columns: 1fr 1fr; grid-template-rows: 260px 140px; gap: 12px; }
-  .editorial-gallery a:first-child { grid-row: auto; grid-column: 1 / -1; }
   .ward-layout { grid-template-columns: 1fr; gap: 32px; padding-top: 40px; }
   .ward-number { font-size: 64px; }
   .ward-map { height: 330px; }
@@ -421,7 +419,6 @@ html { scroll-behavior: smooth; }
   .map-dialog h2 { font-size: 17px; }
   .civic-footer { padding-top: 48px; }
   .footer-layout { grid-template-columns: 1fr; gap: 32px; padding-bottom: 36px; }
-  .footer-name { font-size: 26px; }
   .footer-more { grid-column: auto; font-size: 14px; }
   .footer-bottom { flex-direction: column; gap: 16px; }
 }
@@ -745,7 +742,6 @@ html { scroll-behavior: smooth; }
 .party-identity-person { padding-right: 100px; }
 .party-identity-person p:first-child { font-size: 18px; font-weight: 500; }
 .party-identity-person p + p { color: var(--muted); font-size: 14px; margin-top: 4px; }
-.party-watermark { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 180px; height: 180px; object-fit: contain; opacity: .05; pointer-events: none; z-index: -1; }
 .footer-party-affiliation { display: flex; align-items: center; gap: 12px; padding-block: 18px; border-top: 1px solid var(--muted); color: var(--stone); font-size: 13px; line-height: 1.6; }
 .footer-party-affiliation > img { width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; }
 .footer-party-affiliation p + p { font-size: 12px; }
@@ -756,7 +752,6 @@ html { scroll-behavior: smooth; }
   .home-party-identity h2 { font-size: 18px; }
   .party-identity-person { padding-right: 32px; }
   .party-identity-person p:first-child { font-size: 17px; }
-  .party-watermark { width: 150px; height: 150px; }
 }
 
 /* Contact page: flat office details and a general-message form. */

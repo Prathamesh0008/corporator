@@ -1,0 +1,60 @@
+.hero { position: relative; isolation: isolate; overflow: hidden; background: #fff8e9; color: #171714; }
+.background { z-index: -2; object-fit: cover; object-position: center; }
+.layout { position: relative; display: flex; align-items: center; min-height: 560px; padding-block: 64px 84px; }
+.copy { position: relative; z-index: 1; width: 57%; max-width: 680px; }
+.hero:not(.uploaded) .copy { margin-left: auto; }
+.context { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; line-height: 1.7; margin-bottom: 22px; }
+.context::before { content: ""; width: 28px; height: 3px; flex-shrink: 0; background: #b66543; }
+.hero .name { color: #692d35; font-size: clamp(42px, 4.3vw, 62px); font-weight: 700; line-height: 1.35; letter-spacing: -.025em; text-wrap: balance; }
+.promise { margin-top: 18px; font-size: 18px; line-height: 1.8; max-width: 450px; }
+.party { display: flex; align-items: center; gap: 12px; margin-top: 20px; font-size: 13px; line-height: 1.7; color: #692d35; }
+.party img { width: 38px; height: 38px; object-fit: contain; flex-shrink: 0; }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; margin-top: 26px; }
+.actions .primary { background: #ff9933; color: #171714; border-color: #ff9933; font-size: 16px; }
+.actions .primary:hover { background: #f58220; border-color: #f58220; }
+.actions .secondary { color: #692d35; font-size: 16px; border-bottom: 1px solid #692d35; }
+.actions .secondary:hover { text-decoration: none; border-color: #171714; color: #171714; }
+.actions a:focus-visible { outline: 2px solid #692d35; outline-offset: 5px; }
+.portrait { position: absolute; left: 0; bottom: -30px; width: 43%; height: calc(100% - 45px); }
+.portrait img { object-fit: contain; object-position: left bottom; mask-image: url('/images/sachin-hero-mask.png'); mask-mode: luminance; mask-size: contain; mask-repeat: no-repeat; mask-position: left bottom; }
+.uploaded { color: #fffdf8; background: #171714; }
+.uploaded::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(23,23,20,.95), rgba(23,23,20,.8) 40%, rgba(23,23,20,.12) 80%); }
+.uploaded .name, .uploaded .party, .uploaded .secondary { color: #fffdf8; }
+.uploaded .secondary { border-color: #fffdf8; }
+.uploaded .context::before { background: #ff9933; }
+.uploaded .primary { background: #ff9933; color: #171714; border-color: #ff9933; }
+.uploaded .primary:hover { background: #f58220; border-color: #f58220; }
+.uploaded .actions a:focus-visible { outline-color: #fffdf8; }
+@media (min-width: 1600px) { .layout { min-height: 600px; } }
+@media (min-width: 768px) and (max-width: 1023px) {
+  .layout { min-height: 500px; padding-block: 44px 65px; }
+  .copy { width: 58%; }
+  .hero .name { font-size: 42px; }
+  .promise { font-size: 16px; max-width: 330px; }
+  .context { font-size: 13px; gap: 10px; }
+  .party { font-size: 12px; gap: 8px; }
+  .portrait { left: -14px; width: 44%; bottom: -16px; height: calc(100% - 72px); }
+  .actions { gap: 10px 18px; }
+  .actions .primary { font-size: 15px; padding-inline: 16px; }
+  .actions .secondary { font-size: 15px; }
+}
+@media (max-width: 767px) {
+  .background { object-position: 82% center; }
+  .layout { min-height: 640px; padding-block: 30px 325px; align-items: flex-start; }
+  .copy { width: 100%; max-width: none; }
+  .context { font-size: 12px; gap: 10px; margin-bottom: 14px; }
+  .context::before { width: 22px; }
+  .hero .name { font-size: clamp(34px, 8.7vw, 42px); line-height: 1.4; text-wrap: pretty; }
+  .promise { margin-top: 12px; font-size: 16px; }
+  .party { margin-top: 14px; font-size: 12px; gap: 10px; }
+  .party img { width: 32px; height: 32px; }
+  .actions { margin-top: 20px; gap: 10px 18px; }
+  .actions .primary { font-size: 14px; padding: 10px 14px; }
+  .actions .secondary { font-size: 14px; }
+  .portrait { width: 80%; height: 310px; left: auto; right: 10%; bottom: -16px; }
+  .portrait img { object-position: center bottom; mask-position: center bottom; }
+  .uploaded .layout { padding-block: 300px 32px; align-items: flex-end; }
+  .uploaded .background { object-position: 77% top; }
+  .uploaded::before { background: linear-gradient(0deg, #171714, rgba(23,23,20,.95) 32%, rgba(23,23,20,.7) 52%, rgba(23,23,20,.1) 80%); }
+}
+@media (prefers-reduced-motion: reduce) { .actions a, .actions a span { transition: none; } }
