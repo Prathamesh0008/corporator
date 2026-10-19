@@ -1,0 +1,37 @@
+{
+  "note": "Real localhost pages; database unavailable. No mutation tests against live storage.",
+  "results": [
+    {
+      "name": "Browser login/logout and key removal",
+      "status": "passed"
+    },
+    {
+      "name": "/",
+      "status": 200
+    },
+    {
+      "name": "/about",
+      "status": 200
+    },
+    {
+      "name": "/works",
+      "status": 200
+    },
+    {
+      "name": "/complaints",
+      "status": 200
+    },
+    {
+      "name": "/contact",
+      "status": 200
+    },
+    {
+      "name": "/gallery",
+      "status": 200
+    },
+    {
+      "name": "/news",
+      "status": 200
+    }
+  ]
+}

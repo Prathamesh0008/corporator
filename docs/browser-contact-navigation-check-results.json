@@ -1,0 +1,9 @@
+{
+  "environment": "Real browser; contact POST intercepted, no real email or DB write",
+  "contactSuccess": true,
+  "contactPayload": true,
+  "leafletRenderedAndZoomClicked": true,
+  "languageSwitchedToEnglish": true,
+  "mobileTrackLink": true,
+  "mobileMenuClosesOnNavigation": true
+}

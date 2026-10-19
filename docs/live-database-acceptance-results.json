@@ -1,0 +1,87 @@
+{
+  "verifiedAt": "2026-10-19T09:47:53.769Z",
+  "backupDirectory": "backups\\2026-10-19T09-47-28-690Z",
+  "backup": [
+    {
+      "collection": "works",
+      "records": 0,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "collection": "news",
+      "records": 0,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "collection": "gallery",
+      "records": 0,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "collection": "siteContent",
+      "records": 0,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "collection": "complaints",
+      "records": 0,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "collection": "contact_messages",
+      "records": 0,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  ],
+  "counts": [
+    {
+      "collection": "works",
+      "total": 0,
+      "published": 0,
+      "hidden": 0,
+      "publicationUnspecified": 0,
+      "knownDemo": 0
+    },
+    {
+      "collection": "news",
+      "total": 0,
+      "published": 0,
+      "hidden": 0,
+      "publicationUnspecified": 0,
+      "knownDemo": 0
+    },
+    {
+      "collection": "gallery",
+      "total": 0,
+      "published": 0,
+      "hidden": 0,
+      "publicationUnspecified": 0,
+      "knownDemo": 0
+    },
+    {
+      "collection": "siteContent",
+      "total": 0,
+      "published": 0,
+      "hidden": 0,
+      "publicationUnspecified": 0,
+      "knownDemo": 0
+    },
+    {
+      "collection": "complaints",
+      "total": 0,
+      "published": 0,
+      "hidden": 0,
+      "publicationUnspecified": 0,
+      "knownDemo": 0
+    },
+    {
+      "collection": "contact_messages",
+      "total": 0,
+      "published": 0,
+      "hidden": 0,
+      "publicationUnspecified": 0,
+      "knownDemo": 0
+    }
+  ],
+  "notes": "Read-only inventory before acceptance-test records. No content altered."
+}

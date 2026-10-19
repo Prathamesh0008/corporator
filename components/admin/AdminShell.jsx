@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import AdminSidebar from "./AdminSidebar";
@@ -22,9 +21,11 @@ export default function AdminShell({ children }) {
   const [adminKey, setAdminKey] = useState("");
   const [initialized, setInitialized] = useState(false);
   const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const storedKey = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : "";
+    const storedKey =
+      typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : "";
     if (!storedKey) {
       queueMicrotask(() => setInitialized(true));
       return;
@@ -40,6 +41,9 @@ export default function AdminShell({ children }) {
         } else {
           sessionStorage.removeItem(STORAGE_KEY);
         }
+      })
+      .catch(() => {
+        sessionStorage.removeItem(STORAGE_KEY);
       })
       .finally(() => setInitialized(true));
   }, []);
@@ -63,10 +67,15 @@ export default function AdminShell({ children }) {
       <div className="min-h-screen bg-white px-5 py-14 sm:py-20">
         <main className="mx-auto max-w-xl">
           <div className="text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#b96820]">Administrator Access</p>
-            <h1 className="mt-4 text-3xl font-black text-[#163247]">Admin Dashboard Login</h1>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#b96820]">
+              Administrator Access
+            </p>
+            <h1 className="mt-4 text-3xl font-black text-[#163247]">
+              Admin Dashboard Login
+            </h1>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Enter your admin dashboard key to access complaints, contact messages, and civic works management.
+              Enter your admin dashboard key to access complaints, contact
+              messages, and civic works management.
             </p>
           </div>
 
@@ -81,13 +90,22 @@ export default function AdminShell({ children }) {
   }
 
   return (
-    <AdminAuthContext.Provider value={{ adminKey, saveAdminKey, clearAdminKey, pathname }}>
-      <div className="admin-ui min-h-screen bg-[#eef2f6]">
-        <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col xl:flex-row">
+    <AdminAuthContext.Provider
+      value={{
+        adminKey,
+        saveAdminKey,
+        clearAdminKey,
+        pathname,
+        sidebarOpen,
+        setSidebarOpen,
+      }}
+    >
+      <div className="admin-ui">
+        <div className="admin-workspace">
           <AdminSidebar />
-          <div className="min-w-0 flex-1 bg-white">
+          <div className="admin-main">
             <AdminHeader />
-            <main className="px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+            <main className="admin-content">{children}</main>
           </div>
         </div>
       </div>
@@ -121,7 +139,9 @@ function AdminKeyForm({ onSave }) {
       }
       onSave(value.trim());
     } catch {
-      setError("Unable to verify the key. Check your connection and try again.");
+      setError(
+        "Unable to verify the key. Check your connection and try again.",
+      );
     } finally {
       setChecking(false);
     }
@@ -130,8 +150,14 @@ function AdminKeyForm({ onSave }) {
   return (
     <form onSubmit={submit} className="mt-10 space-y-5">
       <div>
-        <label className="block text-sm font-semibold text-slate-700">Admin dashboard key</label>
+        <label
+          htmlFor="admin-dashboard-key"
+          className="block text-sm font-semibold text-slate-700"
+        >
+          Admin dashboard key
+        </label>
         <input
+          id="admin-dashboard-key"
           type="password"
           value={value}
           onChange={(event) => {
@@ -143,7 +169,11 @@ function AdminKeyForm({ onSave }) {
         />
       </div>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <button disabled={checking} type="submit" className="inline-flex min-h-13 w-full items-center justify-center bg-[#1f5a7a] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#163247] disabled:cursor-not-allowed disabled:opacity-60">
+      <button
+        disabled={checking}
+        type="submit"
+        className="inline-flex min-h-13 w-full items-center justify-center bg-[#1f5a7a] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#163247] disabled:cursor-not-allowed disabled:opacity-60"
+      >
         {checking ? "Checking..." : "Continue"}
       </button>
     </form>

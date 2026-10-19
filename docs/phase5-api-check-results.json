@@ -1,0 +1,13 @@
+{
+  "environment": "Isolated real route modules, in-memory database, stubbed Cloudinary, no live writes or email tests",
+  "checks": [
+    "preview gate requires server authorization and returns no draft data",
+    "works: authorization, incomplete drafts stay private, live revisions retained, image replacement, bilingual publish, hide, image preservation, delete",
+    "news: authorization, incomplete drafts stay private, live revisions retained, image replacement, bilingual publish, hide, image preservation, delete",
+    "gallery: authorization, incomplete drafts stay private, live revisions retained, image replacement, bilingual publish, hide, image preservation, delete",
+    "site settings: private draft, server authorization, saved banner promotion, bilingual persistence",
+    "dashboard: actual counts across collections, tests excluded, database failure is an error",
+    "complaints/contact inbox: authorized filtering, dates, search, pagination, test separation and all status updates",
+    "public tracking excludes private citizen details"
+  ]
+}

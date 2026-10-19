@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-10-19T10:49:10.746Z",
+  "sources": [
+    "public/favicon-32x32.png",
+    "public/android-chrome-192x192.png"
+  ],
+  "title": "ADMIN TEST — Development Work (Not Real)",
+  "titleMr": "प्रशासकीय चाचणी — विकासकाम (वास्तविक नाही)",
+  "publicationApproved": false,
+  "checks": [
+    "Actual overview loads in browser after server restart",
+    "Reused existing matching unpublished test record; no new upload",
+    "Both stored image URLs use the updated Cloudinary account and serve valid images",
+    "Draft appears under test records and both saved images decode in admin editor",
+    "Protected homepage preview renders expected uploaded images",
+    "Protected listing preview renders expected uploaded images",
+    "Protected detail preview renders expected uploaded images",
+    "Saved draft preview supports Marathi and mobile width",
+    "Draft remains absent from homepage, Works listing, detail URL and public API"
+  ],
+  "originalCreation": {
+    "recordId": "6ad5f56673ba598f8e773335",
+    "beforeCount": 1,
+    "afterCount": 2,
+    "checks": [
+      "Exactly one Save Draft submitted through actual Works editor",
+      "Both stored image URLs use the updated Cloudinary account and serve valid images"
+    ]
+  },
+  "recordId": "6ad5f56673ba598f8e773335",
+  "slug": "admin-test-development-work-not-real-efdfd7",
+  "published": false,
+  "beforeCount": 2,
+  "afterCount": 2,
+  "controls": {
+    "Save Draft": true,
+    "Preview": true,
+    "Publish": true,
+    "viewLiveCorrectlyHiddenForDraft": true,
+    "deleteWithConfirmationAvailable": true,
+    "publishReviewAvailable": true
+  },
+  "completed": true,
+  "creates": 0
+}

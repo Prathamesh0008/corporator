@@ -1,0 +1,10 @@
+{
+  "executedAt": "2026-10-19T09:50:35.738Z",
+  "environment": "Actual built contact route in separate production server with EmailJS public/private keys explicitly empty; real MongoDB",
+  "httpStatus": 201,
+  "persisted": true,
+  "adminVisible": true,
+  "id": "6ad5e7eb02f235c784430f4c",
+  "providerDelivery": "NOT TESTED - email disabled at process level to respect owner instruction",
+  "retained": true
+}

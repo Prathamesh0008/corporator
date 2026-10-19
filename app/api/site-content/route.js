@@ -1,9 +1,101 @@
-import { randomBytes, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
 import { getDatabase } from "../../../lib/mongodb";
-function isAdmin(request) { const configured = process.env.ADMIN_DASHBOARD_KEY || ""; const supplied = request.headers.get("x-admin-key") || ""; const a = Buffer.from(configured); const b = Buffer.from(supplied); return Boolean(configured) && a.length === b.length && timingSafeEqual(a, b); }
-const clean = (value, max = 1000) => String(value || "").trim().slice(0, max);
-async function upload(dataUrl) { const { CLOUDINARY_CLOUD_NAME: cloud_name, CLOUDINARY_API_KEY: api_key, CLOUDINARY_API_SECRET: api_secret } = process.env; cloudinary.config({ cloud_name, api_key, api_secret }); const result = await cloudinary.uploader.upload(dataUrl, { folder: "site-content", public_id: `homepage-banner-${Date.now()}-${randomBytes(2).toString("hex")}`, transformation: [{ width: 2200, crop: "limit", quality: "auto", fetch_format: "auto" }] }); return result.secure_url; }
-export async function GET() { try { const db = await getDatabase(); const content = await db.collection("siteContent").findOne({ _id: "global" }); return NextResponse.json({ success: true, content: content || {} }); } catch { return NextResponse.json({ success: true, content: {} }); } }
-export async function PATCH(request) { try { if (!isAdmin(request)) return NextResponse.json({ error: "Unauthorized." }, { status: 401 }); const body = await request.json(); const update = { announcementEnabled: Boolean(body.announcementEnabled), announcementEn: clean(body.announcementEn, 500), announcementMr: clean(body.announcementMr, 500), updatedAt: new Date() }; if (String(body.bannerImage || "").startsWith("data:image/")) { if (body.bannerImage.length > 7_000_000) return NextResponse.json({ error: "Banner must be 5 MB or smaller." }, { status: 400 }); update.homeBanner = await upload(body.bannerImage); } const db = await getDatabase(); await db.collection("siteContent").updateOne({ _id: "global" }, { $set: update }, { upsert: true }); return NextResponse.json({ success: true, content: update }); } catch (error) { return NextResponse.json({ error: error.message || "Content could not be saved." }, { status: 500 }); } }
+import { isAdmin } from "../../../lib/adminContent";
+import {
+  uploadContentImage,
+  validateContentImage,
+} from "../../../lib/contentImages";
+
+export async function GET(request) {
+  const adminView =
+    request && new URL(request.url).searchParams.get("admin") === "1";
+  if (adminView && !isAdmin(request))
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  try {
+    const db = await getDatabase();
+    const content = await db
+      .collection("siteContent")
+      .findOne(
+        { _id: "global" },
+        {
+          projection: {
+            homeBanner: 1,
+            announcementEnabled: 1,
+            announcementEn: 1,
+            announcementMr: 1,
+            updatedAt: 1,
+            _id: 0,
+          },
+        },
+      );
+    const draft = adminView
+      ? await db
+          .collection("siteContent")
+          .findOne({ _id: "draft" }, { projection: { _id: 0 } })
+      : null;
+    return NextResponse.json({
+      success: true,
+      content: content || {},
+      ...(adminView ? { draft } : {}),
+    });
+  } catch {
+    return NextResponse.json(
+      { error: "Site content is temporarily unavailable.", content: {} },
+      { status: 503 },
+    );
+  }
+}
+
+export async function PATCH(request) {
+  if (!isAdmin(request))
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  try {
+    const body = await request.json();
+    const update = { updatedAt: new Date() };
+    if ("announcementEnabled" in body)
+      update.announcementEnabled = Boolean(body.announcementEnabled);
+    for (const key of ["announcementEn", "announcementMr"])
+      if (key in body)
+        update[key] = String(body[key] || "")
+          .trim()
+          .slice(0, 500);
+    if (body.bannerImage) validateContentImage(body.bannerImage);
+    const db = await getDatabase();
+    if (body.bannerImage)
+      update.homeBanner = await uploadContentImage(
+        body.bannerImage,
+        "site-content",
+      );
+    if (body.action === "publish" && !body.bannerImage && body.homeBanner) {
+      const savedDraft = await db
+        .collection("siteContent")
+        .findOne({ _id: "draft" });
+      if (savedDraft?.homeBanner === body.homeBanner)
+        update.homeBanner = savedDraft.homeBanner;
+    }
+    const target = body.action === "save-draft" ? "draft" : "global";
+    if (target === "draft") update.syncedToLive = false;
+    await db
+      .collection("siteContent")
+      .updateOne({ _id: target }, { $set: update }, { upsert: true });
+    if (target === "global" && body.action === "publish")
+      await db
+        .collection("siteContent")
+        .updateOne(
+          { _id: "draft" },
+          { $set: { ...update, syncedToLive: true } },
+        );
+    return NextResponse.json({ success: true, content: update });
+  } catch (error) {
+    const invalid =
+      error instanceof SyntaxError || /Select a|Image must/.test(error.message);
+    return NextResponse.json(
+      {
+        error: invalid
+          ? error.message
+          : "Content could not be saved. Please try again.",
+      },
+      { status: invalid ? 400 : 500 },
+    );
+  }
+}

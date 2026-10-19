@@ -1,0 +1,71 @@
+{
+  "checkedAt": "2026-10-19T10:49:42.443Z",
+  "beforeRestart": {
+    "port": 3000,
+    "authorizedStatus": 503,
+    "unauthorizedStatus": 401,
+    "response": {
+      "error": "Dashboard could not be loaded. Retry to fetch current database counts."
+    },
+    "serverLogErrorTokens": [
+      "querySrv",
+      "ENOTFOUND"
+    ],
+    "oldProcessStartedLocal": "2026-10-19 14:54:19 Asia/Calcutta",
+    "environmentLastUpdatedLocal": "2026-10-19 16:06:59 Asia/Calcutta"
+  },
+  "afterRestart": [
+    {
+      "path": "/api/admin/overview",
+      "status": 200,
+      "counts": {
+        "complaints": 0,
+        "hiddenWorks": 0,
+        "Rejected": 0,
+        "contacts": 0,
+        "news": 0,
+        "Under Review": 0,
+        "In Progress": 0,
+        "gallery": 0,
+        "publishedWorks": 0,
+        "Resolved": 0
+      },
+      "excluded": {
+        "news": 0,
+        "complaints": 1,
+        "works": 2,
+        "contact_messages": 1,
+        "gallery": 1
+      }
+    },
+    {
+      "path": "/api/works?admin=1",
+      "status": 200,
+      "records": 2
+    },
+    {
+      "path": "/api/gallery?admin=1",
+      "status": 200,
+      "records": 1
+    },
+    {
+      "path": "/api/news?admin=1",
+      "status": 200,
+      "records": 0
+    },
+    {
+      "path": "/api/admin/submissions?view=complaints&records=all",
+      "status": 200,
+      "records": 1
+    },
+    {
+      "path": "/api/admin/submissions?view=contacts&records=all",
+      "status": 200,
+      "records": 1
+    },
+    {
+      "path": "/api/site-content?admin=1",
+      "status": 200
+    }
+  ]
+}

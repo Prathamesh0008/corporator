@@ -1,0 +1,17 @@
+{
+  "environment": "Real contact route/helper with in-memory MongoDB and fake official SDK; no .env, network, real sends or production writes",
+  "checks": [
+    "Validation, malformed JSON, invalid idempotency key, rate limit and honeypot prevent writes/sends",
+    "Persist first; one office notification, safe result recorded, Reply-To, no citizen email; repeated requests do not duplicate",
+    "Notification-only retries reuse stored record and do not resend accepted notifications",
+    "Known provider rejection preserves success; notification retry uses identical payload/key and creates no new record",
+    "Ambiguous provider/network outcomes are retained for review and not blindly resent",
+    "Saved contact remains visible through the unchanged authorized admin inbox when notification fails",
+    "Missing key/from/to and invalid sender/recipient configuration give fixed diagnostics with durable success",
+    "Configuration repair retries existing notification; HTML escapes user fields and plain text retains readable message",
+    "Optional email and legacy header-free request contract remain supported",
+    "DB insertion failure never sends; post-save claim/result-write failure never loses the saved submission",
+    "Concurrent duplicate submission claims exactly one notification and stores exactly one message",
+    "Provider failures, credentials and citizen content never appear in public errors or diagnostic logs"
+  ]
+}

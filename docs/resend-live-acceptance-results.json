@@ -1,0 +1,32 @@
+{
+  "startedAt": "2026-10-19T12:32:05.460Z",
+  "requestCount": 1,
+  "beforeCount": 1,
+  "recordId": "aad7e512109a3aea3c74e120",
+  "autoReplyRequested": false,
+  "httpStatus": 201,
+  "httpBody": {
+    "success": true,
+    "email": {
+      "contact": {
+        "sent": true
+      }
+    }
+  },
+  "afterCount": 2,
+  "countIncrease": 1,
+  "matchingNameCount": 1,
+  "recordExists": true,
+  "notification": {
+    "provider": "resend",
+    "status": "sent",
+    "providerId": "01a15425-cb38-7c16-b21f-a8c327127498",
+    "attemptedAt": "2026-10-19T12:32:06.411Z"
+  },
+  "payloadMatches": true,
+  "adminInboxHttp": 200,
+  "adminInboxMatches": 1,
+  "providerReadHttp": 401,
+  "providerReadError": "restricted_api_key",
+  "completedAt": "2026-10-19T12:32:06.820Z"
+}

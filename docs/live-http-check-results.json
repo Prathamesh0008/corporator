@@ -1,0 +1,73 @@
+{
+  "note": "Real localhost HTTP endpoints; MongoDB SRV resolution unavailable. Unauthorized mutation checks exit before storage. No records changed.",
+  "results": [
+    {
+      "name": "GET /api/works?admin=1",
+      "status": 401
+    },
+    {
+      "name": "POST /api/works",
+      "status": 401
+    },
+    {
+      "name": "PATCH /api/works/000000000000000000000001",
+      "status": 401
+    },
+    {
+      "name": "DELETE /api/works/000000000000000000000001",
+      "status": 401
+    },
+    {
+      "name": "GET /api/news?admin=1",
+      "status": 401
+    },
+    {
+      "name": "POST /api/news",
+      "status": 401
+    },
+    {
+      "name": "PATCH /api/news/000000000000000000000001",
+      "status": 401
+    },
+    {
+      "name": "DELETE /api/news/000000000000000000000001",
+      "status": 401
+    },
+    {
+      "name": "GET /api/gallery?admin=1",
+      "status": 401
+    },
+    {
+      "name": "POST /api/gallery",
+      "status": 401
+    },
+    {
+      "name": "PATCH /api/gallery/000000000000000000000001",
+      "status": 401
+    },
+    {
+      "name": "DELETE /api/gallery/000000000000000000000001",
+      "status": 401
+    },
+    {
+      "name": "/api/works",
+      "status": 500,
+      "cacheControl": "no-store, private"
+    },
+    {
+      "name": "/api/news",
+      "status": 500,
+      "cacheControl": "no-store, private"
+    },
+    {
+      "name": "/api/gallery",
+      "status": 500,
+      "cacheControl": "no-store, private"
+    },
+    {
+      "name": "/api/site-content",
+      "status": 503,
+      "cacheControl": "no-store, private"
+    }
+  ]
+}

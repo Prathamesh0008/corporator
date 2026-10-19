@@ -1,0 +1,11 @@
+{
+  "environment": "Real browser with every API intercepted; no real sends or DB writes",
+  "checks": [
+    "Network-error retry reuses submission key",
+    "Changed form receives a new submission key",
+    "Saved submission shows existing success UI even when email fails",
+    "Success clears form and resets key",
+    "Concurrent form submits make one API call",
+    "430px contact page has no horizontal overflow"
+  ]
+}

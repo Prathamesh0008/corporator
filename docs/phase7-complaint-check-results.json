@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "isolated": true,
+  "liveEmails": 0,
+  "productionWrites": 0,
+  "checks": [
+    "Saved complaint, original ID/status/response, one office email, escaped HTML/plain text, IST, no citizen PII/attachments/auto-reply",
+    "Sequential/concurrent replays keep one record/ID/send per key; changed payload rejected; atomic notification claim",
+    "Rejected/ambiguous/thrown provider failures and missing configuration preserve successful registration; no automatic retries",
+    "Persistence failure sends no email and creates no record",
+    "Complaint ID collision recovery; Cloudinary photo upload/options, replay reuse, upload failures and size/format validation",
+    "All four admin status/comment updates preserved; tracking excludes notification metadata and private fields; updates send no email",
+    "Notification result-save failure keeps registration successful and closes send claim",
+    "Validation, invalid idempotency key and honeypot remain safe"
+  ]
+}

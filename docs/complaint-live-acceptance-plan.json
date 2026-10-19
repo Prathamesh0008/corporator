@@ -1,0 +1,29 @@
+{
+  "state": "ATTEMPT_COMPLETED_NO_RETRY",
+  "submissionExecuted": true,
+  "method": "POST",
+  "url": "http://localhost:3000/api/complaints",
+  "headers": {
+    "Content-Type": "application/json",
+    "Idempotency-Key": "c1561aca-f625-48d5-b642-ec7f3c366b35"
+  },
+  "body": {
+    "name": "ADMIN TEST — Complaint Notification",
+    "phone": "0000000000",
+    "address": "",
+    "complaintType": "Other civic issue",
+    "location": "ADMIN TEST DATA ONLY — No real location",
+    "description": "TEST ONLY — Not a real citizen complaint. No office action required.",
+    "photoDataUrl": "",
+    "website": ""
+  },
+  "expectedRecordId": "ad723147cfe7fd6b080bd8db",
+  "collection": "complaints",
+  "from": "onboarding@resend.dev",
+  "to": "support@sachinlavatenagarsevak.com",
+  "subject": "New Citizen Complaint — [generated complaint ID]",
+  "expectedInitialStatus": "Under Review",
+  "attachment": false,
+  "autoReply": false,
+  "attemptStartedAt": "2026-10-19T12:56:45.165Z"
+}

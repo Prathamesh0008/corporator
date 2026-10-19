@@ -1,9 +1,3 @@
-import { timingSafeEqual } from "node:crypto";
-import { ObjectId } from "mongodb";
-import { NextResponse } from "next/server";
-import { getDatabase } from "../../../../lib/mongodb";
-const clean = (value, max = 1000) => String(value || "").trim().slice(0, max);
-function isAdmin(request) { const configured = process.env.ADMIN_DASHBOARD_KEY || ""; const supplied = request.headers.get("x-admin-key") || ""; const a = Buffer.from(configured); const b = Buffer.from(supplied); return Boolean(configured) && a.length === b.length && timingSafeEqual(a, b); }
-function oid(value) { return ObjectId.isValid(value) ? new ObjectId(value) : null; }
-export async function PATCH(request, { params }) { if (!isAdmin(request)) return NextResponse.json({ error: "Unauthorized." }, { status: 401 }); const { id } = await params; const _id = oid(id); if (!_id) return NextResponse.json({ error: "Invalid ID." }, { status: 400 }); const body = await request.json(); const update = { updatedAt: new Date() }; ["type", "titleEn", "titleMr", "categoryEn", "categoryMr", "date", "href"].forEach((key) => { if (key in body) update[key] = clean(body[key], key === "href" ? 500 : 180); }); if (typeof body.published === "boolean") update.published = body.published; const db = await getDatabase(); const result = await db.collection("gallery").updateOne({ _id }, { $set: update }); return result.matchedCount ? NextResponse.json({ success: true }) : NextResponse.json({ error: "Item not found." }, { status: 404 }); }
-export async function DELETE(request, { params }) { if (!isAdmin(request)) return NextResponse.json({ error: "Unauthorized." }, { status: 401 }); const { id } = await params; const _id = oid(id); if (!_id) return NextResponse.json({ error: "Invalid ID." }, { status: 400 }); const db = await getDatabase(); const result = await db.collection("gallery").deleteOne({ _id }); return result.deletedCount ? NextResponse.json({ success: true }) : NextResponse.json({ error: "Item not found." }, { status: 404 }); }
+import { contentItemHandlers } from "../../../../lib/adminContent";
+
+export const { PATCH, DELETE } = contentItemHandlers("gallery");

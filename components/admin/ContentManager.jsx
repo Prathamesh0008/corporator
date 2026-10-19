@@ -1,77 +1,559 @@
 "use client";
-
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element -- Private previews use validated local data URLs and retain original uploaded images without public optimization. */
 import { useEffect, useState } from "react";
-import { FiEdit2, FiEye, FiEyeOff, FiRefreshCw, FiSave, FiTrash2, FiX } from "react-icons/fi";
+import { readAdminImage } from "../../lib/adminImageFile";
+import { isTestContent } from "../../lib/adminQueries";
 import { useAdminAuth } from "./AdminShell";
-
+import { Modal, Notice, Pager } from "./AdminUI";
+import WebsitePreview from "./WebsitePreview";
 const CONFIG = {
   works: {
-    endpoint: "/api/works", responseKey: "works", title: "Civic Works", imageKey: "afterImage",
-    fields: [["titleEn", "Title (English)"], ["titleMr", "Title (Marathi)"], ["categoryEn", "Category (English)"], ["categoryMr", "Category (Marathi)"], ["locationEn", "Location (English)"], ["locationMr", "Location (Marathi)"], ["descriptionEn", "Description (English)", "textarea"], ["descriptionMr", "Description (Marathi)", "textarea"], ["highlightsEn", "Highlights (English, one per line)", "textarea"], ["highlightsMr", "Highlights (Marathi, one per line)", "textarea"]],
+    key: "works",
+    title: "Development Works",
+    images: ["beforeImage", "afterImage"],
+    fields: [
+      ["titleEn", "Title English"],
+      ["titleMr", "Title Marathi"],
+      ["categoryEn", "Category English"],
+      ["categoryMr", "Category Marathi"],
+      ["locationEn", "Location English"],
+      ["locationMr", "Location Marathi"],
+      ["statusEn", "Work status English"],
+      ["statusMr", "Work status Marathi"],
+      ["descriptionEn", "Description English", "textarea"],
+      ["descriptionMr", "Description Marathi", "textarea"],
+      ["highlightsEn", "Highlights English (one per line)", "textarea"],
+      ["highlightsMr", "Highlights Marathi (one per line)", "textarea"],
+    ],
   },
   news: {
-    endpoint: "/api/news", responseKey: "news", title: "News Articles", imageKey: "image",
-    fields: [["titleEn", "Title (English)"], ["titleMr", "Title (Marathi)"], ["categoryEn", "Category (English)"], ["categoryMr", "Category (Marathi)"], ["date", "Publication date", "date"], ["externalUrl", "External URL"], ["summaryEn", "Summary (English)", "textarea"], ["summaryMr", "Summary (Marathi)", "textarea"], ["contentEn", "Full article (English)", "textarea"], ["contentMr", "Full article (Marathi)", "textarea"]],
+    key: "news",
+    title: "News & Updates",
+    images: ["image"],
+    fields: [
+      ["titleEn", "Title English"],
+      ["titleMr", "Title Marathi"],
+      ["categoryEn", "Category English"],
+      ["categoryMr", "Category Marathi"],
+      ["date", "Publication date", "date"],
+      ["externalUrl", "External article URL", "url"],
+      ["summaryEn", "Summary English", "textarea"],
+      ["summaryMr", "Summary Marathi", "textarea"],
+      ["contentEn", "Full article English", "textarea"],
+      ["contentMr", "Full article Marathi", "textarea"],
+    ],
+  },
+  gallery: {
+    key: "items",
+    title: "Gallery",
+    images: ["image"],
+    fields: [
+      ["titleEn", "Title English"],
+      ["titleMr", "Title Marathi"],
+      ["categoryEn", "Category English"],
+      ["categoryMr", "Category Marathi"],
+      ["date", "Date", "date"],
+    ],
   },
 };
-
 export default function ContentManager({ type }) {
-  const config = CONFIG[type];
+  const config = CONFIG[type],
+    endpoint = "/api/" + type;
   const { adminKey } = useAdminAuth();
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null);
+  const [preview, setPreview] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [reading, setReading] = useState(0);
   const [error, setError] = useState("");
-
+  const [message, setMessage] = useState("");
+  const [search, setSearch] = useState("");
+  const [visibility, setVisibility] = useState("all");
+  const [records, setRecords] = useState("real");
+  const [page, setPage] = useState(1);
+  const fresh = () => ({ published: false, type: "photo" });
   const load = async () => {
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
-      const response = await fetch(`${config.endpoint}?admin=1`, { headers: { "x-admin-key": adminKey } });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Unable to load content.");
-      setItems(data[config.responseKey] || []);
-    } catch (err) { setError(err.message); }
-    finally { setLoading(false); }
+      const r = await fetch(endpoint + "?admin=1", {
+        headers: { "x-admin-key": adminKey },
+      });
+      const json = await r.json();
+      if (!r.ok) throw Error(json.error);
+      setItems(json[config.key] || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  useEffect(() => { const timer = setTimeout(load, 0); return () => clearTimeout(timer); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const mutate = async (item, method, body, success) => {
-    setSaving(true); setError(""); setMessage("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      load();
+      if (new URLSearchParams(window.location.search).get("new") === "1")
+        setEditing(fresh());
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [type, adminKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const open = (item) => {
+    setEditing({
+      ...item,
+      ...item.draft,
+      id: item.id,
+      published: item.published,
+      draft: undefined,
+    });
+    setError("");
+    setMessage("");
+  };
+  const image = (key) => async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setReading((n) => n + 1);
+    setError("");
     try {
-      const response = await fetch(`${config.endpoint}/${item.id}`, { method, headers: { "Content-Type": "application/json", "x-admin-key": adminKey }, body: body ? JSON.stringify(body) : undefined });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Action failed.");
-      setMessage(success); setEditing(null); await load();
-    } catch (err) { setError(err.message); }
-    finally { setSaving(false); }
+      const src = await readAdminImage(file);
+      setEditing((old) => ({ ...old, [key]: src }));
+    } catch (err) {
+      setError(err.message);
+      e.target.value = "";
+    } finally {
+      setReading((n) => n - 1);
+    }
   };
-
-  const saveEdit = () => {
-    const payload = { ...editing };
-    ["highlightsEn", "highlightsMr"].forEach((key) => { if (Array.isArray(payload[key])) payload[key] = payload[key].join("\n"); });
-    mutate(editing, "PATCH", payload, "Changes saved successfully.");
+  const request = async (item, method, payload) => {
+    const r = await fetch(endpoint + (item.id ? "/" + item.id : ""), {
+      method,
+      headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+      ...(payload ? { body: JSON.stringify(payload) } : {}),
+    });
+    const json = await r.json();
+    if (!r.ok) throw Error(json.error || "Action failed.");
+    return json;
   };
-
-  const remove = (item) => {
-    if (!window.confirm(`Permanently delete "${item.titleEn}"? This cannot be undone.`)) return;
-    mutate(item, "DELETE", null, "Content deleted.");
+  const save = async (publish) => {
+    const required = !publish
+      ? ["titleEn"]
+      : type === "works"
+        ? [
+            "titleEn",
+            "locationEn",
+            "descriptionEn",
+            "beforeImage",
+            "afterImage",
+          ]
+        : type === "news"
+          ? ["titleEn", "summaryEn", "image", "date"]
+          : ["titleEn", "image", "date"];
+    if (
+      required.some((key) => !String(editing[key] || "").trim()) ||
+      (publish &&
+        type === "gallery" &&
+        editing.type === "video" &&
+        !editing.href)
+    )
+      return setError(
+        "Complete the required title, details, date (where shown) and images. Video items also need a URL.",
+      );
+    setBusy(true);
+    setError("");
+    try {
+      const payload = {
+        ...editing,
+        published: publish,
+        action: publish ? "publish" : "save-draft",
+      };
+      for (const key of ["highlightsEn", "highlightsMr"])
+        if (Array.isArray(payload[key])) payload[key] = payload[key].join("\n");
+      await request(editing, editing.id ? "PATCH" : "POST", payload);
+      setEditing(null);
+      setMessage(
+        publish
+          ? "Content published."
+          : "Draft saved. Existing published versions remain unchanged.",
+      );
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
   };
-
-  return <div className="space-y-5">
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-2xl font-black text-slate-900">Manage {config.title}</h2><p className="mt-1 text-sm text-slate-600">Edit, publish, hide, or permanently delete content created from the admin dashboard.</p></div><button type="button" onClick={load} className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"><FiRefreshCw /> Refresh</button></div>
-      {message && <p className="mt-4 rounded-xl bg-green-50 p-3 text-sm font-bold text-green-700">{message}</p>}
-      {error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p>}
-    </section>
-
-    {loading ? <div className="rounded-3xl bg-white p-10 text-center font-bold text-slate-500">Loading content...</div> : items.length === 0 ? <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-600">No admin-created {config.title.toLowerCase()} yet.</div> : <div className="grid gap-4 xl:grid-cols-2">{items.map((item) => <article key={item.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="flex gap-4 p-4"><div className="relative h-24 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-100"><Image src={item[config.imageKey]} alt="" fill unoptimized={String(item[config.imageKey]).startsWith("http")} className="object-cover" sizes="112px" /></div><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-black uppercase tracking-wider text-orange-600">{item.categoryEn || "Uncategorized"}</p><h3 className="mt-1 line-clamp-2 font-black text-slate-900">{item.titleEn}</h3></div><span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${item.published ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-500"}`}>{item.published ? "Published" : "Hidden"}</span></div><p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">{item.locationEn || item.summaryEn}</p></div></div><div className="grid grid-cols-3 border-t border-slate-100"><Action icon={<FiEdit2 />} label="Edit" onClick={() => setEditing({ ...item })} /><Action icon={item.published ? <FiEyeOff /> : <FiEye />} label={item.published ? "Hide" : "Publish"} onClick={() => mutate(item, "PATCH", { published: !item.published }, item.published ? "Content hidden." : "Content published.")} /><Action danger icon={<FiTrash2 />} label="Delete" onClick={() => remove(item)} /></div></article>)}</div>}
-
-    {editing && <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-3 sm:p-6" onMouseDown={(event) => event.target === event.currentTarget && setEditing(null)}><div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl"><div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-5 py-4"><h2 className="text-xl font-black">Edit {type === "works" ? "Work" : "News Article"}</h2><button type="button" onClick={() => setEditing(null)} className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100"><FiX /></button></div><div className="grid gap-4 p-5 sm:grid-cols-2">{config.fields.map(([key, label, inputType]) => <label key={key} className={`text-sm font-bold text-slate-700 ${inputType === "textarea" ? "sm:col-span-2" : ""}`}>{label}{inputType === "textarea" ? <textarea rows={key.includes("content") ? 7 : 4} value={Array.isArray(editing[key]) ? editing[key].join("\n") : editing[key] || ""} onChange={(event) => setEditing((old) => ({ ...old, [key]: event.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" /> : <input type={inputType || "text"} value={editing[key] || ""} onChange={(event) => setEditing((old) => ({ ...old, [key]: event.target.value }))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-orange-500" />}</label>)}</div><div className="sticky bottom-0 flex justify-end gap-3 border-t bg-white p-4"><button type="button" onClick={() => setEditing(null)} className="rounded-xl border border-slate-200 px-5 py-2.5 font-bold">Cancel</button><button type="button" disabled={saving} onClick={saveEdit} className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-5 py-2.5 font-bold text-white disabled:opacity-60"><FiSave />{saving ? "Saving..." : "Save Changes"}</button></div></div></div>}
-  </div>;
+  const action = async (item, name) => {
+    if (
+      name === "delete" &&
+      !window.confirm(
+        `Permanently delete “${item.titleEn}”? Uploaded originals will be retained.`,
+      )
+    )
+      return;
+    setBusy(true);
+    setError("");
+    try {
+      await request(
+        item,
+        name === "delete" ? "DELETE" : "PATCH",
+        name === "delete" ? null : { published: false },
+      );
+      setMessage(name === "delete" ? "Record deleted." : "Content hidden.");
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const live = (item) =>
+    type === "news"
+      ? item.slug
+        ? "/news/" + encodeURIComponent(item.slug)
+        : "/news"
+      : type === "works"
+        ? item.slug || item.id
+          ? "/works/" + encodeURIComponent(item.slug || item.id)
+          : "/works#completed-works"
+        : "/gallery";
+  const filtered = items.filter(
+    (item) =>
+      (records === "all" || (records === "tests") === isTestContent(item)) &&
+      (visibility === "all" ||
+        (visibility === "published") === Boolean(item.published)) &&
+      (!search ||
+        [item.titleEn, item.titleMr, item.categoryEn, item.locationEn].some(
+          (v) =>
+            String(v || "")
+              .toLowerCase()
+              .includes(search.toLowerCase()),
+        )),
+  );
+  const pages = Math.max(1, Math.ceil(filtered.length / 15)),
+    currentPage = Math.min(page, pages);
+  return (
+    <>
+      <div className="admin-toolbar">
+        <div>
+          <h2>{config.title}</h2>
+          <p className="admin-muted">
+            Save a draft, check its public presentation, then publish
+            explicitly.
+          </p>
+        </div>
+        <div className="admin-actions">
+          <button onClick={load} disabled={busy}>
+            Refresh / retry
+          </button>
+          <button
+            className="admin-primary"
+            onClick={() => {
+              setEditing(fresh());
+              setError("");
+            }}
+          >
+            Add{" "}
+            {type === "works"
+              ? "Work"
+              : type === "news"
+                ? "Article"
+                : "Gallery Item"}
+          </button>
+        </div>
+      </div>
+      <div className="admin-toolbar">
+        <label>
+          Search
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
+        </label>
+        <label>
+          Visibility
+          <select
+            value={visibility}
+            onChange={(e) => {
+              setVisibility(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="all">All visibility</option>
+            <option value="published">Published</option>
+            <option value="hidden">Hidden / draft</option>
+          </select>
+        </label>
+        <label>
+          Records
+          <select
+            value={records}
+            onChange={(e) => {
+              setRecords(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="real">Real content</option>
+            <option value="tests">Test/demo records</option>
+            <option value="all">All records</option>
+          </select>
+        </label>
+      </div>
+      <Notice error={error} message={message} />
+      {loading ? (
+        <p className="admin-empty">Loading content…</p>
+      ) : (
+        !error && (
+          <>
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    {[
+                      "Image",
+                      "Title",
+                      "Category / location",
+                      "Visibility",
+                      "Actions",
+                    ].map((h) => (
+                      <th key={h}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered
+                    .slice((currentPage - 1) * 15, currentPage * 15)
+                    .map((item) => (
+                      <tr key={item.id}>
+                        <td>
+                          {item[config.images.at(-1)] && (
+                            <img src={item[config.images.at(-1)]} alt="" />
+                          )}
+                        </td>
+                        <td>
+                          {item.titleEn}
+                          <small
+                            className="admin-muted"
+                            style={{ display: "block" }}
+                          >
+                            {item.titleMr}
+                          </small>
+                          {isTestContent(item) && (
+                            <span className="admin-test-label">
+                              Disposable test/demo
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          {item.categoryEn}
+                          <br />
+                          {item.locationEn || item.date}
+                        </td>
+                        <td>
+                          {item.published ? "Published" : "Hidden / draft"}
+                          {item.draft && (
+                            <small className="admin-test-label">
+                              Unpublished revisions
+                            </small>
+                          )}
+                        </td>
+                        <td>
+                          <div className="admin-actions">
+                            <button disabled={busy} onClick={() => open(item)}>
+                              Edit / Preview
+                            </button>
+                            {item.published ? (
+                              <>
+                                <a
+                                  className="admin-button"
+                                  href={live(item)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  View Live
+                                </a>
+                                <button
+                                  disabled={busy}
+                                  onClick={() => action(item, "hide")}
+                                >
+                                  Hide
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                disabled={busy}
+                                onClick={() => open(item)}
+                              >
+                                Review & Publish
+                              </button>
+                            )}
+                            <button
+                              disabled={busy}
+                              className="admin-danger"
+                              onClick={() => action(item, "delete")}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              {!filtered.length && (
+                <p className="admin-empty">
+                  No matching content. Labelled tests are separated from real
+                  content.
+                </p>
+              )}
+            </div>
+            <Pager
+              page={currentPage}
+              pages={pages}
+              total={filtered.length}
+              onChange={setPage}
+            />
+          </>
+        )
+      )}
+      {editing && (
+        <Modal
+          title={`${editing.id ? "Edit" : "Add"} ${type}`}
+          onClose={() => !busy && !reading && setEditing(null)}
+        >
+          <div className="admin-form-grid">
+            {config.fields.map(([key, label, kind]) => (
+              <label
+                key={key}
+                className={kind === "textarea" ? "admin-wide" : ""}
+              >
+                {label}
+                {kind === "textarea" ? (
+                  <textarea
+                    rows={key.startsWith("content") ? 7 : 3}
+                    value={
+                      Array.isArray(editing[key])
+                        ? editing[key].join("\n")
+                        : editing[key] || ""
+                    }
+                    onChange={(e) =>
+                      setEditing((old) => ({ ...old, [key]: e.target.value }))
+                    }
+                  />
+                ) : (
+                  <input
+                    type={kind || "text"}
+                    value={editing[key] || ""}
+                    onChange={(e) =>
+                      setEditing((old) => ({ ...old, [key]: e.target.value }))
+                    }
+                  />
+                )}
+              </label>
+            ))}
+            {type === "gallery" && (
+              <>
+                <label>
+                  Media type
+                  <select
+                    value={editing.type || "photo"}
+                    onChange={(e) =>
+                      setEditing((old) => ({ ...old, type: e.target.value }))
+                    }
+                  >
+                    <option value="photo">Photo</option>
+                    <option value="video">Instagram reel / video link</option>
+                  </select>
+                </label>
+                {editing.type === "video" && (
+                  <label>
+                    Video / reel URL
+                    <input
+                      type="url"
+                      value={editing.href || ""}
+                      onChange={(e) =>
+                        setEditing((old) => ({ ...old, href: e.target.value }))
+                      }
+                    />
+                  </label>
+                )}
+              </>
+            )}
+            {config.images.map((key) => (
+              <label key={key}>
+                {key === "beforeImage"
+                  ? "Before image"
+                  : key === "afterImage"
+                    ? "After image"
+                    : type === "gallery"
+                      ? "Photo / video thumbnail"
+                      : "Article image"}
+                {editing[key] && (
+                  <img
+                    className="admin-image-preview"
+                    src={editing[key]}
+                    alt={key}
+                  />
+                )}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={busy || reading > 0}
+                  onChange={image(key)}
+                />
+                <small>
+                  JPG, PNG, WEBP · up to 5 MB. Leave unchanged to retain the
+                  current image.
+                </small>
+              </label>
+            ))}
+            <div className="admin-wide">
+              <Notice error={error} />
+              <p className="admin-muted">
+                Saving a draft never publishes it. Revisions to a published item
+                stay private until Publish is selected.
+              </p>
+            </div>
+          </div>
+          <footer className="admin-editor-footer">
+            <button disabled={busy || reading > 0} onClick={() => save(false)}>
+              Save Draft
+            </button>
+            <button
+              disabled={busy || reading > 0}
+              onClick={() => setPreview(true)}
+            >
+              Preview
+            </button>
+            <button
+              className="admin-primary"
+              disabled={busy || reading > 0}
+              onClick={() => save(true)}
+            >
+              {busy ? "Saving…" : "Publish"}
+            </button>
+            {editing.published && (
+              <a
+                className="admin-button"
+                href={live(editing)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Live
+              </a>
+            )}
+          </footer>
+        </Modal>
+      )}
+      {preview && editing && (
+        <WebsitePreview
+          type={type}
+          values={editing}
+          onClose={() => setPreview(false)}
+        />
+      )}
+    </>
+  );
 }
-
-function Action({ icon, label, onClick, danger }) { return <button type="button" onClick={onClick} className={`inline-flex items-center justify-center gap-2 px-3 py-3 text-xs font-black transition hover:bg-slate-50 ${danger ? "text-red-600" : "text-slate-600"}`}>{icon}{label}</button>; }

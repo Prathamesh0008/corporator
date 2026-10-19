@@ -2,15 +2,21 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { getDatabase } from "../../../../lib/mongodb";
 import { rateLimit } from "../../../../lib/rateLimit";
+import { listQuery, realContentQuery } from "../../../../lib/adminQueries";
 
 const COMPLAINTS_COLLECTION = "complaints";
 const CONTACT_COLLECTION = "contact_messages";
-const ALLOWED_COMPLAINT_STATUSES = ["Under Review", "In Progress", "Resolved", "Rejected"];
+const ALLOWED_COMPLAINT_STATUSES = [
+  "Under Review",
+  "In Progress",
+  "Resolved",
+  "Rejected",
+];
 
 function unauthorizedResponse() {
   return NextResponse.json(
     { error: "Unauthorized. Invalid admin key." },
-    { status: 401 }
+    { status: 401 },
   );
 }
 
@@ -25,14 +31,17 @@ function validateAdminKey(request) {
   if (!configuredKey) {
     return NextResponse.json(
       { error: "ADMIN_DASHBOARD_KEY is not configured on server." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   const requestKey = request.headers.get("x-admin-key");
   const requestBuffer = Buffer.from(requestKey || "");
   const configuredBuffer = Buffer.from(configuredKey);
-  if (requestBuffer.length !== configuredBuffer.length || !timingSafeEqual(requestBuffer, configuredBuffer)) {
+  if (
+    requestBuffer.length !== configuredBuffer.length ||
+    !timingSafeEqual(requestBuffer, configuredBuffer)
+  ) {
     return unauthorizedResponse();
   }
 
@@ -45,6 +54,7 @@ function mapComplaint(doc) {
     complaintId: doc.complaintId || "",
     name: doc.name || "",
     phone: doc.phone || "",
+    address: doc.address || "",
     ward: doc.ward || "",
     complaintType: doc.complaintType || "",
     urgency: doc.urgency || "",
@@ -52,10 +62,17 @@ function mapComplaint(doc) {
     location: doc.location || "",
     description: doc.description || "",
     photoUrl: doc.photoUrl || "",
-    comments: Array.isArray(doc.comments) ? doc.comments.map((comment) => ({
-      text: String(comment?.text || ""),
-      createdAt: comment?.createdAt ? new Date(comment.createdAt).toISOString() : null,
-    })) : [],
+    notification: doc.notification ? {
+      status: ["sent", "failed", "not_configured", "unknown", "pending", "sending"].includes(doc.notification.status) ? doc.notification.status : "unknown",
+    } : null,
+    comments: Array.isArray(doc.comments)
+      ? doc.comments.map((comment) => ({
+          text: String(comment?.text || ""),
+          createdAt: comment?.createdAt
+            ? new Date(comment.createdAt).toISOString()
+            : null,
+        }))
+      : [],
     createdAt: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
     updatedAt: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
   };
@@ -74,16 +91,72 @@ function mapContact(doc) {
 
 export async function GET(request) {
   try {
-    if (rateLimit(request, "admin-get", 20, 10 * 60_000)) return NextResponse.json({ error: "Too many attempts." }, { status: 429 });
     const authError = validateAdminKey(request);
     if (authError) {
       return authError;
     }
+    if (rateLimit(request, "admin-get", 120, 10 * 60_000))
+      return NextResponse.json(
+        { error: "Too many attempts." },
+        { status: 429 },
+      );
 
     const { searchParams } = new URL(request.url);
     const limit = normalizeLimit(searchParams.get("limit"));
 
     const db = await getDatabase();
+
+    const view = searchParams.get("view");
+    if (view) {
+      if (!["complaints", "contacts"].includes(view))
+        return NextResponse.json({ error: "Invalid inbox." }, { status: 400 });
+      let filter;
+      try {
+        filter = listQuery(searchParams, view);
+      } catch (error) {
+        return NextResponse.json({ error: error.message }, { status: 400 });
+      }
+      const pageSize = Math.min(limit, 50);
+      const total = await db
+        .collection(
+          view === "contacts" ? CONTACT_COLLECTION : COMPLAINTS_COLLECTION,
+        )
+        .countDocuments(filter);
+      const pages = Math.max(1, Math.ceil(total / pageSize));
+      const page = Math.min(
+        pages,
+        Math.max(1, Number.parseInt(searchParams.get("page"), 10) || 1),
+      );
+      const rows = await db
+        .collection(
+          view === "contacts" ? CONTACT_COLLECTION : COMPLAINTS_COLLECTION,
+        )
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * pageSize)
+        .limit(pageSize)
+        .toArray();
+      const categories =
+        view === "complaints"
+          ? await db
+              .collection(COMPLAINTS_COLLECTION)
+              .distinct(
+                "complaintType",
+                searchParams.get("records") === "real" ||
+                  !searchParams.get("records")
+                  ? realContentQuery
+                  : {},
+              )
+          : [];
+      return NextResponse.json({
+        success: true,
+        items: rows.map(view === "contacts" ? mapContact : mapComplaint),
+        total,
+        page,
+        pages,
+        categories,
+      });
+    }
 
     const [complaintsRaw, contactsRaw] = await Promise.all([
       db
@@ -95,6 +168,7 @@ export async function GET(request) {
               complaintId: 1,
               name: 1,
               phone: 1,
+              address: 1,
               ward: 1,
               complaintType: 1,
               urgency: 1,
@@ -106,7 +180,7 @@ export async function GET(request) {
               createdAt: 1,
               updatedAt: 1,
             },
-          }
+          },
         )
         .sort({ createdAt: -1 })
         .limit(limit)
@@ -123,7 +197,7 @@ export async function GET(request) {
               message: 1,
               createdAt: 1,
             },
-          }
+          },
         )
         .sort({ createdAt: -1 })
         .limit(limit)
@@ -139,28 +213,36 @@ export async function GET(request) {
   } catch {
     return NextResponse.json(
       { error: "Failed to load admin submissions." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PATCH(request) {
   try {
-    if (rateLimit(request, "admin-patch", 30, 10 * 60_000)) return NextResponse.json({ error: "Too many attempts." }, { status: 429 });
+    if (rateLimit(request, "admin-patch", 30, 10 * 60_000))
+      return NextResponse.json(
+        { error: "Too many attempts." },
+        { status: 429 },
+      );
     const authError = validateAdminKey(request);
     if (authError) {
       return authError;
     }
 
     const body = await request.json();
-    const complaintId = String(body?.complaintId || "").trim().toUpperCase();
+    const complaintId = String(body?.complaintId || "")
+      .trim()
+      .toUpperCase();
     const status = String(body?.status || "").trim();
-    const comment = String(body?.comment || "").trim().slice(0, 1000);
+    const comment = String(body?.comment || "")
+      .trim()
+      .slice(0, 1000);
 
     if (!complaintId || (!status && !comment)) {
       return NextResponse.json(
         { error: "complaintId and a status or comment are required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -170,7 +252,7 @@ export async function PATCH(request) {
           error: "Invalid status.",
           allowedStatuses: ALLOWED_COMPLAINT_STATUSES,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -181,17 +263,15 @@ export async function PATCH(request) {
     if (status) update.$set.status = status;
     if (comment) update.$push = { comments: { text: comment, createdAt: now } };
 
-    const result = await db.collection(COMPLAINTS_COLLECTION).findOneAndUpdate(
-      { complaintId },
-      update,
-      { returnDocument: "after" }
-    );
+    const result = await db
+      .collection(COMPLAINTS_COLLECTION)
+      .findOneAndUpdate({ complaintId }, update, { returnDocument: "after" });
     const updatedComplaint = result?.value || result;
 
     if (!updatedComplaint?.complaintId) {
       return NextResponse.json(
         { error: "Complaint not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -203,7 +283,7 @@ export async function PATCH(request) {
   } catch {
     return NextResponse.json(
       { error: "Failed to update complaint status." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

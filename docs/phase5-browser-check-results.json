@@ -1,0 +1,96 @@
+{
+  "environment": "Real browser with all API calls intercepted by fixtures; no live writes/uploads/email",
+  "checks": [
+    "Login and actual-count UI with explicit excluded test notice",
+    "works unsaved private preview, bilingual, mobile width, actual layouts/images, return preserves form, zero writes",
+    "works draft, explicit publish, bilingual persistence, correct View Live, hide, confirmed delete",
+    "news unsaved private preview, bilingual, mobile width, actual layouts/images, return preserves form, zero writes",
+    "news draft, explicit publish, bilingual persistence, correct View Live, hide, confirmed delete",
+    "gallery unsaved private preview, bilingual, mobile width, actual layouts/images, return preserves form, zero writes",
+    "gallery draft, explicit publish, bilingual persistence, correct View Live, hide, confirmed delete",
+    "Site banner actual hero preview, inactive announcement limitation, private save and explicit publish",
+    "Complaint detail, privacy warning and status/comment update",
+    "Contact inbox and message detail",
+    "Admin responsive widths and collapsible mobile navigation",
+    "Preview server authorization failure blocks draft rendering; logout clears session"
+  ],
+  "fixtureMutations": [
+    {
+      "path": "/api/works",
+      "method": "POST",
+      "action": "save-draft",
+      "published": false
+    },
+    {
+      "path": "/api/works/1",
+      "method": "PATCH",
+      "action": "publish",
+      "published": true
+    },
+    {
+      "path": "/api/works/1",
+      "method": "PATCH",
+      "published": false
+    },
+    {
+      "path": "/api/works/1",
+      "method": "DELETE"
+    },
+    {
+      "path": "/api/news",
+      "method": "POST",
+      "action": "save-draft",
+      "published": false
+    },
+    {
+      "path": "/api/news/2",
+      "method": "PATCH",
+      "action": "publish",
+      "published": true
+    },
+    {
+      "path": "/api/news/2",
+      "method": "PATCH",
+      "published": false
+    },
+    {
+      "path": "/api/news/2",
+      "method": "DELETE"
+    },
+    {
+      "path": "/api/gallery",
+      "method": "POST",
+      "action": "save-draft",
+      "published": false
+    },
+    {
+      "path": "/api/gallery/3",
+      "method": "PATCH",
+      "action": "publish",
+      "published": true
+    },
+    {
+      "path": "/api/gallery/3",
+      "method": "PATCH",
+      "published": false
+    },
+    {
+      "path": "/api/gallery/3",
+      "method": "DELETE"
+    },
+    {
+      "path": "/api/site-content",
+      "method": "PATCH",
+      "action": "save-draft"
+    },
+    {
+      "path": "/api/site-content",
+      "method": "PATCH",
+      "action": "publish"
+    },
+    {
+      "path": "/api/admin/submissions",
+      "method": "PATCH"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "verifiedAt": "2026-10-19T09:51:17.196Z",
+  "counts": [
+    {
+      "collection": "works",
+      "total": 1,
+      "published": 0,
+      "hidden": 1,
+      "knownDemo": 0
+    },
+    {
+      "collection": "news",
+      "total": 0,
+      "published": 0,
+      "hidden": 0,
+      "knownDemo": 0
+    },
+    {
+      "collection": "gallery",
+      "total": 1,
+      "published": 0,
+      "hidden": 1,
+      "knownDemo": 0
+    },
+    {
+      "collection": "siteContent",
+      "total": 0,
+      "published": 0,
+      "hidden": 0,
+      "knownDemo": 0
+    },
+    {
+      "collection": "complaints",
+      "total": 1,
+      "published": 0,
+      "hidden": 0,
+      "knownDemo": 0
+    },
+    {
+      "collection": "contact_messages",
+      "total": 1,
+      "published": 0,
+      "hidden": 0,
+      "knownDemo": 0
+    }
+  ]
+}

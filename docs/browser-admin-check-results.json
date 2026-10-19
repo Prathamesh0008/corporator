@@ -1,0 +1,80 @@
+{
+  "environment": "Real browser UI with intercepted API fixtures; no live writes",
+  "changes": [
+    {
+      "kind": "works",
+      "method": "POST",
+      "image": true
+    },
+    {
+      "kind": "works",
+      "method": "PATCH",
+      "image": true
+    },
+    {
+      "kind": "works",
+      "method": "PATCH",
+      "image": false
+    },
+    {
+      "kind": "works",
+      "method": "PATCH",
+      "image": false
+    },
+    {
+      "kind": "works",
+      "method": "DELETE",
+      "image": false
+    },
+    {
+      "kind": "news",
+      "method": "POST",
+      "image": true
+    },
+    {
+      "kind": "news",
+      "method": "PATCH",
+      "image": true
+    },
+    {
+      "kind": "news",
+      "method": "PATCH",
+      "image": false
+    },
+    {
+      "kind": "news",
+      "method": "PATCH",
+      "image": false
+    },
+    {
+      "kind": "news",
+      "method": "DELETE",
+      "image": false
+    },
+    {
+      "kind": "gallery",
+      "method": "POST",
+      "image": true
+    },
+    {
+      "kind": "gallery",
+      "method": "PATCH",
+      "image": true
+    },
+    {
+      "kind": "gallery",
+      "method": "PATCH",
+      "image": false
+    },
+    {
+      "kind": "gallery",
+      "method": "PATCH",
+      "image": false
+    },
+    {
+      "kind": "gallery",
+      "method": "DELETE",
+      "image": false
+    }
+  ]
+}

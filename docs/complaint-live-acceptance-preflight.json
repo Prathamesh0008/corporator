@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-19T12:55:43.141Z",
+  "mongoReadOnlyPing": true,
+  "complaintCount": 3,
+  "matchingTestRecords": 0,
+  "complaintApiHttp": 400,
+  "complaintApiResponse": {
+    "error": "Enter a valid complaint number."
+  },
+  "unauthorizedInboxHttp": 401,
+  "authorizedInboxHttp": 200,
+  "authorizedInboxTotal": 3,
+  "uniqueComplaintIdIndex": true,
+  "resendApiKeyPresent": true,
+  "sender": "onboarding@resend.dev",
+  "recipient": "support@sachinlavatenagarsevak.com",
+  "providerRequestMade": false,
+  "submissionRequestsMade": 0,
+  "databaseWrites": 0
+}

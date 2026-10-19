@@ -1,0 +1,130 @@
+{
+  "executedAt": "2026-10-19T09:49:51.617Z",
+  "environment": "Local next start production build, real configured MongoDB and Cloudinary",
+  "checks": [
+    {
+      "name": "Real admin HTTP login",
+      "passed": true
+    },
+    {
+      "name": "Authorized admin listing and unauthorized content rejection",
+      "passed": true
+    },
+    {
+      "name": "Real complaint submission, ID generation, MongoDB persistence and Cloudinary photo",
+      "passed": true,
+      "complaintId": "CMP-275092"
+    },
+    {
+      "name": "Real admin updates, public comments, privacy and browser rendering for all four statuses",
+      "passed": true,
+      "statuses": [
+        {
+          "status": "Under Review",
+          "publicApi": true,
+          "browser": true,
+          "progressCount": 4,
+          "officeUpdates": true
+        },
+        {
+          "status": "In Progress",
+          "publicApi": true,
+          "browser": true,
+          "progressCount": 4,
+          "officeUpdates": true
+        },
+        {
+          "status": "Rejected",
+          "publicApi": true,
+          "browser": true,
+          "progressCount": 0,
+          "officeUpdates": true
+        },
+        {
+          "status": "Resolved",
+          "publicApi": true,
+          "browser": true,
+          "progressCount": 4,
+          "officeUpdates": true
+        }
+      ]
+    },
+    {
+      "name": "Invalid complaint ID rejected",
+      "passed": true
+    },
+    {
+      "name": "Real draft work/gallery creation with Cloudinary uploads",
+      "passed": true
+    },
+    {
+      "name": "Real works publish and public browser rendering",
+      "passed": true,
+      "id": "6ad5e7c8e13c78d3e2a18851"
+    },
+    {
+      "name": "Test works hidden after verification",
+      "passed": true,
+      "id": "6ad5e7c8e13c78d3e2a18851"
+    },
+    {
+      "name": "Real gallery publish and public browser rendering",
+      "passed": true,
+      "id": "6ad5e7c9e13c78d3e2a18852"
+    },
+    {
+      "name": "Test gallery hidden after verification",
+      "passed": true,
+      "id": "6ad5e7c9e13c78d3e2a18852"
+    },
+    {
+      "name": "Real browser admin login and logout",
+      "passed": true
+    }
+  ],
+  "created": {
+    "complaintId": "CMP-275092",
+    "workId": "6ad5e7c8e13c78d3e2a18851",
+    "galleryId": "6ad5e7c9e13c78d3e2a18852"
+  },
+  "contactEmail": "Skipped: notification template recipient not confirmed by owner",
+  "finalCounts": [
+    {
+      "collection": "works",
+      "total": 1,
+      "published": 0,
+      "hidden": 1
+    },
+    {
+      "collection": "news",
+      "total": 0,
+      "published": 0,
+      "hidden": 0
+    },
+    {
+      "collection": "gallery",
+      "total": 1,
+      "published": 0,
+      "hidden": 1
+    },
+    {
+      "collection": "siteContent",
+      "total": 0,
+      "published": 0,
+      "hidden": 0
+    },
+    {
+      "collection": "complaints",
+      "total": 1,
+      "published": 0,
+      "hidden": 0
+    },
+    {
+      "collection": "contact_messages",
+      "total": 0,
+      "published": 0,
+      "hidden": 0
+    }
+  ],
+  "completed": true
+}

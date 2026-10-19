@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-19T12:06:33.772Z",
+  "variablesPresent": {
+    "RESEND_API_KEY": true,
+    "RESEND_FROM_EMAIL": true,
+    "RESEND_TO_EMAIL": true
+  },
+  "syntaxValid": true,
+  "diagnostic": null,
+  "clientFilesContainingConfiguredResendKey": 0,
+  "liveProviderAuthentication": "Not attempted",
+  "domainVerification": "Not checked",
+  "realEmailsSent": 0,
+  "productionDatabaseWrites": 0
+}

@@ -1,0 +1,130 @@
+{
+  "environment": "Real browser, intercepted complaint API; no live writes",
+  "submissionWithPhoto": true,
+  "copyId": true,
+  "invalidTracking": true,
+  "statuses": [
+    {
+      "status": "Under Review",
+      "progressSteps": 4,
+      "officeUpdates": true
+    },
+    {
+      "status": "In Progress",
+      "progressSteps": 4,
+      "officeUpdates": true
+    },
+    {
+      "status": "Resolved",
+      "progressSteps": 4,
+      "officeUpdates": true
+    },
+    {
+      "status": "Rejected",
+      "progressSteps": 0,
+      "officeUpdates": true
+    }
+  ],
+  "responsive": [
+    {
+      "width": 375,
+      "path": "/complaints",
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "path": "/contact",
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "path": "/works",
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "path": "/",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "path": "/complaints",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "path": "/contact",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "path": "/works",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "path": "/",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/complaints",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/contact",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/works",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "path": "/complaints",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "path": "/contact",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "path": "/works",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "path": "/",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/complaints",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/contact",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/works",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/",
+      "overflow": false
+    }
+  ]
+}

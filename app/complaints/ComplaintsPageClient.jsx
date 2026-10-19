@@ -53,6 +53,8 @@ export default function ComplaintsPageClient() {
   const photoReader = useRef(null);
   const successHeading = useRef(null);
   const trackInput = useRef(null);
+  const submission = useRef(null);
+  const inFlight = useRef(false);
 
   useEffect(() => {
     if (complaintId) {
@@ -108,23 +110,29 @@ export default function ComplaintsPageClient() {
 
   const submit = async event => {
     event.preventDefault();
+    if (inFlight.current) return;
+    inFlight.current = true;
     setSubmitting(true);
     setError("");
     try {
+      const payload = JSON.stringify({ ...form, photoDataUrl });
+      if (submission.current?.payload !== payload) submission.current = { payload, key: crypto.randomUUID() };
       const response = await fetch("/api/complaints", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, photoDataUrl }),
+        headers: { "Content-Type": "application/json", "Idempotency-Key": submission.current.key },
+        body: payload,
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || (mr ? "तक्रार पाठवता आली नाही." : "Could not submit complaint."));
       setComplaintId(data.complaintId);
+      submission.current = null;
       setCopyState("");
       setForm(initialForm);
       clearPhoto();
     } catch (err) {
       setError(err.message);
     } finally {
+      inFlight.current = false;
       setSubmitting(false);
     }
   };

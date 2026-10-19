@@ -1,0 +1,88 @@
+{
+  "environment": "Local production build; authorized read-only real MongoDB requests; no writes, uploads or email",
+  "checkedAt": "2026-10-19T10:22:09.866Z",
+  "checks": [
+    {
+      "path": "/api/admin/overview",
+      "unauthorized": 401,
+      "authorized": 200,
+      "cache": "no-store, private",
+      "counts": {
+        "complaints": 0,
+        "Resolved": 0,
+        "Rejected": 0,
+        "publishedWorks": 0,
+        "hiddenWorks": 0,
+        "gallery": 0,
+        "news": 0,
+        "contacts": 0,
+        "Under Review": 0,
+        "In Progress": 0
+      },
+      "excluded": {
+        "complaints": 1,
+        "contact_messages": 1,
+        "works": 1,
+        "news": 0,
+        "gallery": 1
+      }
+    },
+    {
+      "path": "/api/admin/submissions?view=complaints",
+      "unauthorized": 401,
+      "authorized": 200,
+      "cache": "no-store, private",
+      "total": 0
+    },
+    {
+      "path": "/api/admin/submissions?view=contacts",
+      "unauthorized": 401,
+      "authorized": 200,
+      "cache": "no-store, private",
+      "total": 0
+    },
+    {
+      "path": "/api/works?admin=1",
+      "unauthorized": 401,
+      "authorized": 200,
+      "cache": "no-store, private"
+    },
+    {
+      "path": "/api/gallery?admin=1",
+      "unauthorized": 401,
+      "authorized": 200,
+      "cache": "no-store, private"
+    },
+    {
+      "path": "/api/news?admin=1",
+      "unauthorized": 401,
+      "authorized": 200,
+      "cache": "no-store, private"
+    },
+    {
+      "path": "/api/site-content?admin=1",
+      "unauthorized": 401,
+      "authorized": 200,
+      "cache": "no-store, private"
+    },
+    {
+      "path": "/api/admin/preview",
+      "authorized": false,
+      "status": 401,
+      "cache": "no-store, private",
+      "sideEffects": "none - authorization gate only"
+    },
+    {
+      "path": "/api/admin/preview",
+      "authorized": true,
+      "status": 200,
+      "cache": "no-store, private",
+      "sideEffects": "none - authorization gate only"
+    }
+  ],
+  "clientSecretScan": {
+    "leakedFiles": 0,
+    "scope": "Configured admin key, MongoDB URI and Cloudinary secret"
+  },
+  "finalBuildCheckedAt": "2026-10-19T10:29:18.901Z"
+}

@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:production": "node --experimental-vm-modules scripts/production-route-checks.cjs",
+    "backup:content": "node --env-file=.env scripts/backup-content.cjs",
+    "test:admin": "node --experimental-vm-modules scripts/admin-cms-checks.cjs",
+    "test:contact": "node --experimental-vm-modules scripts/contact-resend-checks.cjs",
+    "test:complaint": "node --experimental-vm-modules scripts/complaint-resend-checks.cjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -18,7 +23,8 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-icons": "^5.5.0",
-    "react-leaflet": "^5.0.0"
+    "react-leaflet": "^5.0.0",
+    "resend": "^6.34.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

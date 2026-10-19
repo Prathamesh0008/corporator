@@ -1,0 +1,46 @@
+{
+  "startedAt": "2026-10-19T12:56:45.165Z",
+  "requestCount": 1,
+  "beforeCount": 3,
+  "recordId": "ad723147cfe7fd6b080bd8db",
+  "retries": 0,
+  "httpStatus": 201,
+  "httpBody": {
+    "success": true,
+    "complaintId": "CMP-386431",
+    "status": "Under Review"
+  },
+  "afterCount": 4,
+  "countIncrease": 1,
+  "matchingNameCount": 1,
+  "recordExists": true,
+  "complaintId": "CMP-386431",
+  "notification": {
+    "provider": "resend",
+    "status": "sent",
+    "providerId": "01a1543c-5e3b-7919-a6e9-368751108ff6",
+    "attemptedAt": "2026-10-19T12:56:45.846Z"
+  },
+  "payloadMatches": true,
+  "photoAbsent": true,
+  "adminInboxHttp": 200,
+  "adminInboxMatches": 1,
+  "adminNotification": {
+    "status": "sent"
+  },
+  "trackingHttp": 200,
+  "trackingStatus": "Under Review",
+  "trackingFields": [
+    "complaintId",
+    "complaintType",
+    "location",
+    "status",
+    "comments",
+    "createdAt",
+    "updatedAt"
+  ],
+  "privateFieldsAbsent": true,
+  "autoReplyPathPresent": false,
+  "emailAttachmentsPathPresent": false,
+  "completedAt": "2026-10-19T12:56:46.033Z"
+}

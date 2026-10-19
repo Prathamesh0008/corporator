@@ -1,0 +1,15 @@
+{
+  "environment": "isolated in-memory adapters; no live services used",
+  "checks": [
+    "admin login rejects missing key and accepts configured key",
+    "works auth, create draft, list, replace image, publish, hide, validate and delete",
+    "news auth, create draft, list, replace image, publish, hide, validate and delete",
+    "gallery auth, create draft, list, replace image, publish, hide, validate and delete",
+    "known demo records remain admin-visible but not public; no records purged",
+    "complaint validation, ID collision retry, persistence, photo, admin list, all four updates/comments and public privacy",
+    "contact Resend persistence, notification safety and retry regressions delegated to isolated contact suite",
+    "site-content authorization, banner upload, partial update and public projection",
+    "unverified static entries isolated; age does not classify records as demo"
+  ],
+  "passed": 9
+}
