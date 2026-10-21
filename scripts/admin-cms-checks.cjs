@@ -165,6 +165,7 @@ async function load(file) {
       return synthetic(name, {
         v2: {
           config: () => {},
+          utils: require("cloudinary").v2.utils,
           uploader: {
             upload: async () => ({
               secure_url:
@@ -204,6 +205,16 @@ const pass = (text) => {
   console.log("PASS " + text);
 };
 (async () => {
+  const signing = await route("app/api/admin/uploads/route.js");
+  assert.equal((await signing.POST(request("/", "POST", { folder: "gallery" }, false))).status, 401);
+  assert.equal((await signing.POST(request("/", "POST", { folder: "other" }))).status, 400);
+  const signed = await (await signing.POST(request("/", "POST", { folder: "gallery" }))).json();
+  assert.equal(signed.params.allowed_formats, "jpg,jpeg,png,webp");
+  assert.equal(signed.params.overwrite, false);
+  assert.equal(signed.params.transformation, undefined);
+  assert.equal(signed.signature, require("cloudinary").v2.utils.api_sign_request(signed.params, "fixture"));
+  assert.equal(signed.uploadUrl, "https://api.cloudinary.com/v1_1/fixture/image/upload");
+  pass("direct uploads require admin authorization; signed format restrictions preserve original dimensions and prevent overwrites");
   const previewGate = await route("app/api/admin/preview/route.js");
   assert.equal(
     (await previewGate.POST(request("/", "POST", null, false))).status,
@@ -280,6 +291,17 @@ const pass = (text) => {
       key
     ][0];
     assert.equal(adminItem.draft.titleEn, "PRIVATE REVISION");
+    const storageUrl = `https://res.cloudinary.com/fixture/image/upload/f_auto,q_auto:best/v1/${kind}/new-photo.webp`;
+    const uploadCount = upload;
+    assert.equal((await edit.PATCH(request("/", "PATCH", {
+      [imageKey]: storageUrl, action: "save-draft",
+    }), params)).status, 200);
+    assert.equal(upload, uploadCount, "storage URLs must not be uploaded again");
+    adminItem.draft[imageKey] = storageUrl;
+    assert.equal(store.get(kind)[0].draft[imageKey], storageUrl);
+    assert.equal((await edit.PATCH(request("/", "PATCH", {
+      [imageKey]: "https://untrusted.invalid/photo.png", action: "save-draft",
+    }), params)).status, 400);
     assert.equal(adminItem.draft.titleMr, "\u0928\u0935\u0940\u0928");
     assert.notEqual(adminItem.draft[imageKey], publicItem[imageKey]);
     await edit.PATCH(
@@ -292,6 +314,7 @@ const pass = (text) => {
     );
     const live = (await (await api.GET(request("/"))).json())[key][0];
     assert.equal(live.titleEn, "PRIVATE REVISION");
+    assert.equal(live[imageKey], storageUrl, "publishing must promote the saved draft image");
     assert.equal(live.titleMr, "\u0928\u0935\u0940\u0928");
     await edit.PATCH(request("/", "PATCH", { published: false }), params);
     assert.equal((await (await api.GET(request("/"))).json())[key].length, 0);

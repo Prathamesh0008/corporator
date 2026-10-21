@@ -334,7 +334,7 @@ function passed(name) {
           context,
         )
       ).status,
-      400,
+      200,
     );
     if (kind !== "works")
       assert.equal(

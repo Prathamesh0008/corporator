@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- Private previews use validated local data URLs and retain original uploaded images without public optimization. */
 import { useEffect, useState } from "react";
 import { readAdminImage } from "../../lib/adminImageFile";
+import { adminResponse } from "../../lib/adminResponse";
 import { isTestContent } from "../../lib/adminQueries";
 import { useAdminAuth } from "./AdminShell";
 import { Modal, Notice, Pager } from "./AdminUI";
@@ -66,6 +67,8 @@ export default function ContentManager({ type }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [reading, setReading] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(null);
+  const [extraImages, setExtraImages] = useState([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [search, setSearch] = useState("");
@@ -80,8 +83,7 @@ export default function ContentManager({ type }) {
       const r = await fetch(endpoint + "?admin=1", {
         headers: { "x-admin-key": adminKey },
       });
-      const json = await r.json();
-      if (!r.ok) throw Error(json.error);
+      const json = await adminResponse(r);
       setItems(json[config.key] || []);
     } catch (err) {
       setError(err.message);
@@ -98,6 +100,7 @@ export default function ContentManager({ type }) {
     return () => clearTimeout(timer);
   }, [type, adminKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const open = (item) => {
+    setExtraImages([]);
     setEditing({
       ...item,
       ...item.draft,
@@ -109,18 +112,26 @@ export default function ContentManager({ type }) {
     setMessage("");
   };
   const image = (key) => async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const input = e.target;
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
     setReading((n) => n + 1);
     setError("");
+    if (type === "gallery") setExtraImages([]);
     try {
-      const src = await readAdminImage(file);
-      setEditing((old) => ({ ...old, [key]: src }));
+      for (const [index, file] of files.entries()) {
+        const src = await readAdminImage(file, { adminKey, folder: type,
+          onProgress: (percent) => setUploadProgress({ name: file.name, percent, index: index + 1, total: files.length }),
+        });
+        if (index === 0) setEditing((old) => ({ ...old, [key]: src }));
+        else setExtraImages((old) => [...old, src]);
+      }
     } catch (err) {
       setError(err.message);
-      e.target.value = "";
     } finally {
       setReading((n) => n - 1);
+      setUploadProgress(null);
+      input.value = "";
     }
   };
   const request = async (item, method, payload) => {
@@ -129,9 +140,7 @@ export default function ContentManager({ type }) {
       headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
       ...(payload ? { body: JSON.stringify(payload) } : {}),
     });
-    const json = await r.json();
-    if (!r.ok) throw Error(json.error || "Action failed.");
-    return json;
+    return adminResponse(r);
   };
   const save = async (publish) => {
     const required = !publish
@@ -159,6 +168,7 @@ export default function ContentManager({ type }) {
       );
     setBusy(true);
     setError("");
+    let saved = 0;
     try {
       const payload = {
         ...editing,
@@ -168,6 +178,18 @@ export default function ContentManager({ type }) {
       for (const key of ["highlightsEn", "highlightsMr"])
         if (Array.isArray(payload[key])) payload[key] = payload[key].join("\n");
       await request(editing, editing.id ? "PATCH" : "POST", payload);
+      saved++;
+      // Each gallery image is a separate existing-schema record with shared details.
+      const remaining = [...extraImages];
+      while (remaining.length) {
+        const next = { ...payload, id: undefined, image: remaining[0] };
+        setEditing(next);
+        setExtraImages(remaining.slice(1));
+        await request(next, "POST", next);
+        saved++;
+        remaining.shift();
+      }
+      setExtraImages([]);
       setEditing(null);
       setMessage(
         publish
@@ -176,7 +198,9 @@ export default function ContentManager({ type }) {
       );
       await load();
     } catch (err) {
-      setError(err.message);
+      setError(saved > 0 && extraImages.length > 0
+        ? `${saved} gallery image(s) saved. ${err.message} Retry to save the remaining images.`
+        : err.message);
     } finally {
       setBusy(false);
     }
@@ -241,13 +265,15 @@ export default function ContentManager({ type }) {
           </p>
         </div>
         <div className="admin-actions">
-          <button onClick={load} disabled={busy}>
+          <button onClick={load} disabled={busy || reading > 0}>
             Refresh / retry
           </button>
           <button
             className="admin-primary"
+            disabled={busy || reading > 0}
             onClick={() => {
               setEditing(fresh());
+              setExtraImages([]);
               setError("");
             }}
           >
@@ -499,16 +525,38 @@ export default function ContentManager({ type }) {
                 )}
                 <input
                   type="file"
+                  multiple={type === "gallery" && editing.type !== "video"}
                   accept="image/jpeg,image/png,image/webp"
                   disabled={busy || reading > 0}
                   onChange={image(key)}
                 />
                 <small>
-                  JPG, PNG, WEBP · up to 5 MB. Leave unchanged to retain the
+                  JPG, JPEG, PNG, WEBP · any dimensions. Leave unchanged to retain the
                   current image.
                 </small>
               </label>
             ))}
+            {uploadProgress && (
+              <div className="admin-wide" role="status" aria-live="polite">
+                Uploading {uploadProgress.name} ({uploadProgress.index}/{uploadProgress.total}): {uploadProgress.percent}%
+                <progress aria-label="Image upload progress" value={uploadProgress.percent} max="100" />
+              </div>
+            )}
+            {extraImages.length > 0 && (
+              <div className="admin-wide">
+                <p>{extraImages.length + 1} images ready. Each will be saved as a gallery item using these details. Select an image to preview it.</p>
+                <div className="admin-actions">
+                  {extraImages.map((src, index) => (
+                    <button key={src} disabled={busy || reading > 0} onClick={() => {
+                      setExtraImages((old) => old.map((value, i) => i === index ? editing.image : value));
+                      setEditing((old) => ({ ...old, image: src }));
+                    }} aria-label={`Preview queued image ${index + 2}`}>
+                      <img className="admin-image-preview" src={src} alt={`Queued image ${index + 2}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="admin-wide">
               <Notice error={error} />
               <p className="admin-muted">

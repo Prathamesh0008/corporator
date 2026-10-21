@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAdminAuth } from "./AdminShell";
 import { readAdminImage } from "../../lib/adminImageFile";
+import { adminResponse } from "../../lib/adminResponse";
 import { Notice } from "./AdminUI";
 import WebsitePreview from "./WebsitePreview";
 export default function SiteContentManager() {
@@ -12,6 +13,7 @@ export default function SiteContentManager() {
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [reading, setReading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [preview, setPreview] = useState(false);
@@ -22,8 +24,7 @@ export default function SiteContentManager() {
       const response = await fetch("/api/site-content?admin=1", {
         headers: { "x-admin-key": adminKey },
       });
-      const data = await response.json();
-      if (!response.ok) throw Error(data.error);
+      const data = await adminResponse(response);
       setForm({
         ...data.content,
         ...(data.draft && !data.draft.syncedToLive ? data.draft : {}),
@@ -42,17 +43,20 @@ export default function SiteContentManager() {
     return () => clearTimeout(timer);
   }, [adminKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const image = async (e) => {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
     if (!file) return;
     setReading(true);
+    setUploadProgress(0);
     setError("");
     try {
-      const bannerImage = await readAdminImage(file);
+      const bannerImage = await readAdminImage(file, { adminKey, folder: "site-content", onProgress: setUploadProgress });
       setForm((old) => ({ ...old, bannerImage }));
     } catch (err) {
       setError(err.message);
     } finally {
       setReading(false);
+      input.value = "";
     }
   };
   const save = async (publish) => {
@@ -71,8 +75,7 @@ export default function SiteContentManager() {
           action: publish ? "publish" : "save-draft",
         }),
       });
-      const data = await response.json();
-      if (!response.ok) throw Error(data.error);
+      const data = await adminResponse(response);
       setForm((old) => ({ ...old, ...data.content, bannerImage: "" }));
       if (publish) setPublished(true);
       setMessage(
@@ -97,7 +100,7 @@ export default function SiteContentManager() {
               publishing.
             </p>
           </div>
-          <button disabled={busy} onClick={load}>
+          <button disabled={busy || reading} onClick={load}>
             Reload / retry
           </button>
         </div>
@@ -117,8 +120,9 @@ export default function SiteContentManager() {
               onChange={image}
             />
             <small>
-              Leave empty to retain the current image. Maximum 5 MB.
+              JPG, JPEG, PNG, WEBP · any dimensions. Leave empty to retain the current image.
             </small>
+            {reading && <span role="status">Uploading: {uploadProgress}% <progress aria-label="Banner upload progress" value={uploadProgress} max="100" /></span>}
           </label>
           <div className="admin-wide">
             <h3>Announcement settings (currently inactive publicly)</h3>

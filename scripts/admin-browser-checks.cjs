@@ -8,6 +8,7 @@ const records = { works: [], news: [], gallery: [] },
   changes = [],
   checks = [];
 let id = 0,
+  mediaId = 0,
   site = {},
   siteDraft = null,
   denyAuth = false;
@@ -51,12 +52,20 @@ const pass = (name) => {
   const browser = await chromium.launch({ channel: "msedge", headless: true });
   try {
     const context = await browser.newContext();
+    await context.route("https://api.cloudinary.com/**", async (route) => {
+      const range = route.request().headers()["content-range"];
+      assert.ok(range, "direct uploads include byte ranges");
+      return route.fulfill({ json: { done: true, secure_url: `https://res.cloudinary.com/fixture/image/upload/v1/gallery/fixture-${++mediaId}.png` } });
+    });
+    await context.route("https://res.cloudinary.com/**", (route) => route.fulfill({ contentType: "image/png", body: png.buffer }));
     await context.route("**/api/**", async (route) => {
       const req = route.request(),
         url = new URL(req.url()),
         method = req.method();
       const body = method === "GET" ? null : req.postDataJSON();
       const reply = (json, status = 200) => route.fulfill({ status, json });
+      if (url.pathname === "/api/admin/uploads")
+        return reply({ params: { timestamp: 1 }, signature: "fixture", apiKey: "fixture", uploadUrl: "https://api.cloudinary.com/v1_1/fixture/image/upload" });
       if (["/api/admin/auth", "/api/admin/preview"].includes(url.pathname))
         return reply(
           denyAuth ? { error: "Unauthorized" } : { success: true },
@@ -221,7 +230,8 @@ const pass = (name) => {
       const inputs = editor.locator("input[type=file]");
       for (let n = 0; n < (await inputs.count()); n++) {
         await inputs.nth(n).setInputFiles(png);
-        await page.waitForTimeout(80);
+        await editor.getByRole("button", { name: "Preview", exact: true }).waitFor();
+        await editor.locator('input[type=file]:disabled').first().waitFor({ state: "hidden" });
       }
       const beforePreview = changes.length;
       await editor
@@ -257,9 +267,9 @@ const pass = (name) => {
       );
       await preview.getByLabel("Preview placement").selectOption("listing");
       await frame.getByText(mr, { exact: true }).first().waitFor();
-      assert.ok(await frame.locator('img[src^="data:image/"]').count());
+      assert.ok(await frame.locator('img[src^="https://res.cloudinary.com/"]').count());
       await frame
-        .locator('img[src^="data:image/"]')
+        .locator('img[src^="https://res.cloudinary.com/"]')
         .first()
         .evaluate(async (image) => {
           if (!image.complete)
@@ -268,6 +278,7 @@ const pass = (name) => {
               image.onerror = resolve;
             });
           if (!image.naturalWidth) throw Error("Preview image did not decode");
+          if (getComputedStyle(image).objectFit !== "contain") throw Error("Uploaded preview image must preserve its aspect ratio without cropping");
         });
       if (kind === "gallery") {
         await frame
@@ -349,10 +360,10 @@ const pass = (name) => {
       .getByLabel("Announcement English", { exact: true })
       .fill("Fixture announcement");
     await page.locator("input[type=file]").setInputFiles(png);
-    await page.waitForTimeout(100);
+    await page.locator('input[type=file]:disabled').waitFor({ state: "hidden" });
     const before = changes.length;
     await page.getByRole("button", { name: "Preview", exact: true }).click();
-    await page.frameLocator("iframe").locator(".civic-hero img").waitFor();
+    await page.frameLocator("iframe").locator('section[aria-labelledby="home-hero-title"] img').waitFor();
     assert.equal(changes.length, before);
     await page.getByRole("button", { name: "Return to editing" }).click();
     await page.getByRole("button", { name: "Save Draft", exact: true }).click();

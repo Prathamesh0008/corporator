@@ -10,6 +10,7 @@
     "test:production": "node --experimental-vm-modules scripts/production-route-checks.cjs",
     "backup:content": "node --env-file=.env scripts/backup-content.cjs",
     "test:admin": "node --experimental-vm-modules scripts/admin-cms-checks.cjs",
+    "test:images": "node --experimental-vm-modules scripts/image-upload-checks.cjs",
     "test:contact": "node --experimental-vm-modules scripts/contact-resend-checks.cjs",
     "test:complaint": "node --experimental-vm-modules scripts/complaint-resend-checks.cjs"
   },

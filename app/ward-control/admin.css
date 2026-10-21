@@ -336,7 +336,8 @@
 }
 .admin-image-preview {
   width: 100%;
-  height: 160px;
+  height: auto;
+  max-height: 320px;
   object-fit: contain;
   background: #f3f5f7;
   border: 1px solid var(--admin-border);

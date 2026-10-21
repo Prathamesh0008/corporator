@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* CMS uploads keep the entire photograph visible within responsive media frames. */
+img[src^="https://res.cloudinary.com/"] {
+  object-fit: contain !important;
+  transform: none !important;
+}
+
 :root {
   --bjp-saffron: #F58220;
   --bjp-green: #138808;

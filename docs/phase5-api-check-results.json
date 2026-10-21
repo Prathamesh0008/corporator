@@ -1,6 +1,7 @@
 {
   "environment": "Isolated real route modules, in-memory database, stubbed Cloudinary, no live writes or email tests",
   "checks": [
+    "direct uploads require admin authorization; signed format restrictions preserve original dimensions and prevent overwrites",
     "preview gate requires server authorization and returns no draft data",
     "works: authorization, incomplete drafts stay private, live revisions retained, image replacement, bilingual publish, hide, image preservation, delete",
     "news: authorization, incomplete drafts stay private, live revisions retained, image replacement, bilingual publish, hide, image preservation, delete",
