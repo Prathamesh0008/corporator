@@ -78,7 +78,7 @@ export default function ContactPageClient() {
             <address>
               <p>
                 {mr
-                  ? "वॉर्ड २४(ड), नेरूळ, नवी मुंबई"
+                  ? "वॉर्ड २४, नेरूळ, नवी मुंबई"
                   : "Ward 24(D), Nerul, Navi Mumbai"}
               </p>
               <p lang="en">

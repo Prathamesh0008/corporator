@@ -231,7 +231,7 @@ export default function GalleryPageClient({ previewItems }) {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[.18em] text-orange-600">
-                {mr ? "वॉर्ड २४(ड), नेरूळ" : "WARD 24(D), NERUL"}
+                {mr ? "वॉर्ड २४, नेरूळ" : "WARD 24(D), NERUL"}
               </p>
               <h1 className="mt-2 text-3xl font-black text-slate-950 sm:text-4xl">
                 {mr ? "फोटो आणि व्हिडिओ गॅलरी" : "Photo & Video Gallery"}

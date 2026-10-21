@@ -84,15 +84,15 @@ export default function HomePageClient() {
     <section className="home-party-identity" aria-labelledby="party-identity-title">
       <div className="editorial-container">
         <div className="party-identity-label"><Image src="/lotus.webp" alt="BJP Lotus" width={40} height={40} sizes="40px" /><h2 id="party-identity-title">{mr ? "भारतीय जनता पार्टी" : "Bharatiya Janata Party"}</h2></div>
-        <div className="party-identity-person"><p>{mr ? "सचिन देवप्पा लवटे" : "Sachin Devappa Lavate"}</p><p>{mr ? "नगरसेवक • वॉर्ड २४(ड), नेरूळ" : "Corporator • Ward 24(D), Nerul"}</p></div>
+        <div className="party-identity-person"><p>{mr ? "सचिन देवप्पा लवटे" : "Sachin Devappa Lavate"}</p><p>{mr ? "नगरसेवक • वॉर्ड २४, नेरूळ" : "Corporator • Ward 24(D), Nerul"}</p></div>
       </div>
     </section>
     <HomepageSections />
     <section className="civic-section"><div className="editorial-container ward-layout">
-      <div><p className="ward-number">24(D)</p><h2 className="civic-title">{mr ? "आपला वॉर्ड" : "Our ward"}</h2><p>{mr ? "नेरूळ • नवी मुंबई" : "Nerul • Navi Mumbai"}</p><p className="civic-muted">{mr ? "नकाशावरील सीमा संदर्भासाठी दाखवली आहे." : "The ward boundary is shown for reference."}</p><button ref={mapButton} onClick={() => setShowMap(true)} className="civic-button civic-button-secondary">{mr ? "मोठा नकाशा उघडा" : "Open large map"} →</button></div>
-      <div className="ward-map"><LeafletMap center={[19.0285, 73.012]} zoom={13} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div>
+      <div><p className="ward-number">२४</p><h2 className="civic-title">{mr ? "आपला वॉर्ड" : "Our ward"}</h2><p>{mr ? "नेरूळ • नवी मुंबई" : "Nerul • Navi Mumbai"}</p><p className="civic-muted">{mr ? "नकाशावरील सीमा संदर्भासाठी दाखवली आहे." : "The ward boundary is shown for reference."}</p><button ref={mapButton} onClick={() => setShowMap(true)} className="civic-button civic-button-secondary">{mr ? "मोठा नकाशा उघडा" : "Open large map"} →</button></div>
+      <div className="ward-map"><LeafletMap center={[19.0285, 73.012]} zoom={13} title={mr ? "वॉर्ड २४, नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div>
     </div></section>
     <section className="citizen-cta"><div className="editorial-container"><div><h2>{mr ? "आपल्या परिसरात काही समस्या आहे?" : "Is there a problem in your neighbourhood?"}</h2><p>{mr ? "रस्ता • पाणी • स्वच्छता • पथदिवे" : "Roads • Water • Sanitation • Street lights"}</p></div><Link href="/complaints#register" className="civic-button">{mr ? "समस्या नोंदवा" : "Report an issue"} →</Link></div></section>
-    {showMap && <div className="map-backdrop" onMouseDown={e => e.target === e.currentTarget && setShowMap(false)}><div id="ward-map-dialog" className="map-dialog" role="dialog" aria-modal="true" aria-labelledby="large-map-title"><header><h2 id="large-map-title">{mr ? "वॉर्ड २४(ड), नेरूळ नकाशा" : "Ward 24(D), Nerul map"}</h2><button ref={closeButton} onClick={() => setShowMap(false)} aria-label={mr ? "नकाशा बंद करा" : "Close map"}>×</button></header><div className="large-map"><LeafletMap center={[19.0285, 73.012]} zoom={14} title={mr ? "वॉर्ड २४(ड), नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div></div></div>}
+    {showMap && <div className="map-backdrop" onMouseDown={e => e.target === e.currentTarget && setShowMap(false)}><div id="ward-map-dialog" className="map-dialog" role="dialog" aria-modal="true" aria-labelledby="large-map-title"><header><h2 id="large-map-title">{mr ? "वॉर्ड २४, नेरूळ नकाशा" : "Ward 24(D), Nerul map"}</h2><button ref={closeButton} onClick={() => setShowMap(false)} aria-label={mr ? "नकाशा बंद करा" : "Close map"}>×</button></header><div className="large-map"><LeafletMap center={[19.0285, 73.012]} zoom={14} title={mr ? "वॉर्ड २४, नेरूळ" : "Ward 24(D), Nerul"} boundary={wardBoundary} /></div></div></div>}
   </div>;
 }

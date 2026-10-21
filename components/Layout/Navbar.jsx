@@ -50,7 +50,7 @@ export default function Navbar() {
       <Image src="/lotus.webp" alt="BJP Lotus" width={40} height={40} sizes="(max-width: 767px) 32px, 40px" className="civic-brand-lotus" />
       <span className="civic-brand-copy">
         <strong><span className="civic-brand-full-name">{mr ? "सचिन देवप्पा लवटे" : "Sachin Lavate"}</span><span className="civic-brand-short-name">{mr ? "सचिन लवटे" : "Sachin Lavate"}</span></strong>
-        <span className="civic-brand-subtitle"><span className="brand-affiliation-full">{mr ? "नगरसेवक • वॉर्ड २४(ड) • भारतीय जनता पार्टी" : "Corporator • Ward 24(D) • BJP"}</span><span className="brand-affiliation-short">{mr ? "वॉर्ड २४(ड) • भाजपा" : "Ward 24(D) • BJP"}</span></span>
+        <span className="civic-brand-subtitle"><span className="brand-affiliation-full">{mr ? "नगरसेवक • वॉर्ड २४ • भारतीय जनता पार्टी" : "Corporator • Ward 24(D) • BJP"}</span><span className="brand-affiliation-short">{mr ? "वॉर्ड२४ • भाजपा" : "Ward 24(D) • BJP"}</span></span>
       </span>
     </Link>
     <div className="desktop-navigation">{navigation}</div>

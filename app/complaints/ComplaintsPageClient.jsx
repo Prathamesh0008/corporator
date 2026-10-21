@@ -216,7 +216,7 @@ export default function ComplaintsPageClient() {
             <div className="complaint-form-surface">
               <header className="complaint-form-heading">
                 <h2>{mr ? "तक्रार नोंदणी" : "Complaint Form"}</h2>
-                <p>{mr ? "* असलेली माहिती आवश्यक आहे. वॉर्ड आपोआप २४(ड) राहील." : "Fields marked * are required. Ward 24(D) is assigned automatically."}</p>
+                <p>{mr ? "* असलेली माहिती आवश्यक आहे. वॉर्ड आपोआप२४ राहील." : "Fields marked * are required. Ward 24(D) is assigned automatically."}</p>
               </header>
               <form onSubmit={submit} aria-busy={submitting}>
                 <fieldset>

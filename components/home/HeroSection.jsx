@@ -17,10 +17,10 @@ export default function HeroSection({ image = "/photo.jpeg" }) {
       <Image className={styles.background} src={backgroundImage} alt="" fill priority unoptimized={backgroundImage.startsWith("http")} sizes="100vw" />
       <div className={`editorial-container ${styles.layout}`}>
         <div className={styles.copy}>
-          <p className={styles.context}>{mr ? "नगरसेवक · वॉर्ड २४(ड) · नेरूळ" : "Corporator · Ward 24(D) · Nerul"}</p>
+          <p className={styles.context}>{mr ? "नगरसेवक · वॉर्ड२४ · नेरूळ" : "Corporator · Ward 24(D) · Nerul"}</p>
           <h1 id="home-hero-title" className={styles.name}>{mr ? "सचिन देवप्पा लवटे" : "Sachin Devappa Lavate"}</h1>
           <p className={styles.promise}>{mr ? "जनतेशी नातं. विकासाशी बांधिलकी." : "Connected to people. Committed to development."}</p>
-          <p className={styles.party}><Image src="/lotus.webp" alt="BJP Lotus" width={38} height={38} sizes="38px" /><span>{mr ? "भारतीय जनता पार्टी • वॉर्ड २४(ड), नेरूळ" : "Bharatiya Janata Party • Ward 24(D), Nerul"}</span></p>
+          <p className={styles.party}><Image src="/lotus.webp" alt="BJP Lotus" width={38} height={38} sizes="38px" /><span>{mr ? "भारतीय जनता पार्टी • वॉर्ड २४, नेरूळ" : "Bharatiya Janata Party • Ward 24(D), Nerul"}</span></p>
           <div className={styles.actions}>
             <Link href="/complaints#register" className={`civic-button ${styles.primary}`}>{mr ? "समस्या नोंदवा" : "Report an issue"} <span aria-hidden="true">→</span></Link>
             <Link href="/complaints#track" className={`civic-text-action ${styles.secondary}`}>{mr ? "तक्रार तपासा" : "Track complaint"} <span aria-hidden="true">→</span></Link>

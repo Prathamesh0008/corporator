@@ -8,7 +8,7 @@ export const announcementContent: AnnouncementContent = {
     linkText: "View current projects",
   },
   mr: {
-    text: "वॉर्ड २४(ड) मधील सार्वजनिक कार्यालयीन अपडेट्स आता नियमितपणे येथे शेअर केल्या जातात.",
+    text: "वॉर्ड२४ मधील सार्वजनिक कार्यालयीन अपडेट्स आता नियमितपणे येथे शेअर केल्या जातात.",
     link: "/works",
     linkText: "सध्याच्या प्रकल्पांचे निरीक्षण करा",
   },
@@ -24,7 +24,7 @@ export const statsData: StatItem[] = [
 export const newsData: NewsItem[] = [
   {
     id: "road-updates",
-    slug: "road-updates-ward-24d",
+    slug: "road-updates-ward-24",
     titleEn: "Road repair and drainage work update",
     titleMr: "रस्ता दुरुस्ती आणि गटार कामाची अद्ययावत माहिती",
     categoryEn: "Infrastructure",
